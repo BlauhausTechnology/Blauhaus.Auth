@@ -2,7 +2,7 @@
 {
     public interface IAuthenticatedUserIdHandler
     {
-        void Handle(string authenticatedUserId);
-        void Clear();
+        void HandleUserId(string authenticatedUserId);
+        void ClearUserId();
     }
 }

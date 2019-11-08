@@ -2,11 +2,11 @@
 {
     public class DefaultUserIdHandler : IAuthenticatedUserIdHandler
     {
-        public void Handle(string authenticatedUserId)
+        public void HandleUserId(string authenticatedUserId)
         {
         }
 
-        public void Clear()
+        public void ClearUserId()
         {
         }
     }

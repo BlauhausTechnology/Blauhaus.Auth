@@ -2,7 +2,7 @@
 {
     public interface IAuthenticatedAccessTokenHandler
     {
-        void Handle(string authenticatedAccessToken);
-        void Clear();
+        void HandleAccessToken(string authenticatedAccessToken);
+        void ClearAccessToken();
     }
 }

@@ -2,11 +2,11 @@
 {
     public class DefaultAccessTokenHandler : IAuthenticatedAccessTokenHandler
     {
-        public void Handle(string authenticatedAccessToken)
+        public void HandleAccessToken(string authenticatedAccessToken)
         {
         }
 
-        public void Clear()
+        public void ClearAccessToken()
         {
         }
     }
