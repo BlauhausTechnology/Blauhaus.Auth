@@ -16,8 +16,8 @@ jobs:
         node ./scripts/getversion.js
      - name: Build NuGet Package
        run: |
-        dotnet build ./src/MineGame.sln --configuration Release_Blauhaus
-        dotnet pack ./src/Blauhaus/Blauhaus.Tests.Helpers/Blauhaus.Tests.Helpers.csproj -p:PackageVersion=${VERSION_NAME} --no-build --output ./ --configuration Release 
+        dotnet build ./src/Blauhaus.Auth.sln --configuration Release_Blauhaus
+        dotnet pack ./src/Blauhaus.Auth.Abstractions/Blauhaus.Auth.Abstractions.csproj -p:PackageVersion=${VERSION_NAME} --no-build --output ./ --configuration Release 
      - name: Deploy NuGet Package
        run:  |
-        dotnet nuget push /home/runner/work/MineGame/MineGame/Blauhaus.Tests.Helpers.${VERSION_NAME}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push /home/runner/work/Blauhaus.Auth/Blauhaus.Auth.Abstractions/Blauhaus.Auth.Abstractions.${VERSION_NAME}.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
