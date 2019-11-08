@@ -16,7 +16,7 @@ jobs:
         node ./scripts/getversion.js
      - name: Build NuGet Package
        run: |
-        dotnet build ./src/Blauhaus.Auth.sln --configuration Release_Blauhaus
+        dotnet build ./src/Blauhaus.Auth.sln --configuration Release
         dotnet pack ./src/Blauhaus.Auth.Abstractions/Blauhaus.Auth.Abstractions.csproj -p:PackageVersion=${VERSION_NAME} --no-build --output ./ --configuration Release 
      - name: Deploy NuGet Package
        run:  |
