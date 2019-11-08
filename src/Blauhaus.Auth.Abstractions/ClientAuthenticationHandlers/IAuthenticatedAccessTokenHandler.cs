@@ -3,5 +3,6 @@
     public interface IAuthenticatedAccessTokenHandler
     {
         void Handle(string authenticatedAccessToken);
+        void Clear();
     }
 }

@@ -3,5 +3,6 @@
     public interface IAuthenticatedUserIdHandler
     {
         void Handle(string authenticatedUserId);
+        void Clear();
     }
 }

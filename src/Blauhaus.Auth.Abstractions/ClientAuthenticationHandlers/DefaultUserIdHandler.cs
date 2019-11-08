@@ -4,7 +4,10 @@
     {
         public void Handle(string authenticatedUserId)
         {
-            
+        }
+
+        public void Clear()
+        {
         }
     }
 }

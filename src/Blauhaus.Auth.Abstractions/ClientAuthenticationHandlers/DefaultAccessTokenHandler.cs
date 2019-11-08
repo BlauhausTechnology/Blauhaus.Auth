@@ -4,7 +4,10 @@
     {
         public void Handle(string authenticatedAccessToken)
         {
-            
+        }
+
+        public void Clear()
+        {
         }
     }
 }
