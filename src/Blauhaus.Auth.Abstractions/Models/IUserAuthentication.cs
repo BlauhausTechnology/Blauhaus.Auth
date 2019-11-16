@@ -6,6 +6,7 @@ namespace Blauhaus.Auth.Abstractions.Models
     {
         bool IsAuthenticated { get; }
         UserAuthenticationState AuthenticationState { get; }
+        SuccessfulAuthenticationMode AuthenticationMode { get; }
         string AuthenticatedUserId { get; }
         string AuthenticatedAccessToken { get; }
         Dictionary<string, string> AuthenticationProperties { get; }
