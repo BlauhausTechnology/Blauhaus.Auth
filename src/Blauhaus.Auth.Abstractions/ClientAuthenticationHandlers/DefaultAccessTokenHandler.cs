@@ -1,4 +1,4 @@
-﻿namespace Blauhaus.Auth.Client.Service.Handlers
+﻿namespace Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers
 {
     public class DefaultAccessTokenHandler : IAuthenticatedAccessTokenHandler
     {
