@@ -6,6 +6,11 @@
         {
         }
 
+        public void HandleAccessToken(string scheme, string authenticatedAccessToken)
+        {
+            
+        }
+
         public void ClearAccessToken()
         {
         }
