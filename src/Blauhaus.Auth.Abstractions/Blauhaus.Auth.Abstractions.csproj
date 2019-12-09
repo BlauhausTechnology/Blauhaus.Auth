@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.2" />
+    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.3" />
   </ItemGroup>
 
 </Project>
