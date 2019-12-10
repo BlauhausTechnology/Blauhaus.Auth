@@ -14,7 +14,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
             //Assert
             MockMsalClientProxy.Mock.Verify(x => x.LogoutAsync());
-            MockAuthenticatedAccessToken.Mock.Verify(x => x.ClearAccessToken());
+            MockAuthenticatedAccessToken.Mock.Verify(x => x.Clear());
         }
 
         

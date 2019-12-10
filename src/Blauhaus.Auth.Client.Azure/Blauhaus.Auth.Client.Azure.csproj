@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.3" />
-    <PackageReference Include="Blauhaus.Auth.Abstractions" Version="0.2.0" />
+    <PackageReference Include="Blauhaus.Auth.Abstractions" Version="0.2.2" />
     <PackageReference Include="Blauhaus.Loggers.Console" Version="0.4.6" />
     <PackageReference Include="Blauhaus.Common.Time" Version="0.7.3" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.7.1" />
