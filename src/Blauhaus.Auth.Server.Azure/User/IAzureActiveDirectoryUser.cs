@@ -7,7 +7,7 @@ namespace Blauhaus.Auth.Server.Azure.User
         void Initialize(Dictionary<string, object> deserializedAzureObject);
         void PopulateCustomProperties(Dictionary<string, object> deserializedCustomProperties);
 
-        string UserObjectId { get; }
+        string AuthenticatedUserId { get; }
         string EmailAddress { get; }
     }
 }
