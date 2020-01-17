@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Blauhaus.Auth.Abstractions._Ioc
 {
-    public static class IocRegistration
+    public static class IocServiceExtensions
     {
         public static IIocService RegisterAccessToken(this IIocService iocService)
         {
@@ -18,16 +18,5 @@ namespace Blauhaus.Auth.Abstractions._Ioc
             return iocService;
         }
 
-        public static IServiceCollection RegisterAccessToken(this IServiceCollection services)
-        {
-            services.AddSingleton<IAuthenticatedAccessToken, AuthenticatedAccessToken>();
-            return services;
-        }
-        
-        public static IServiceCollection RegisterAccessToken<TAccessToken>(this IServiceCollection services) where TAccessToken : AuthenticatedAccessToken
-        {
-            services.AddSingleton<IAuthenticatedAccessToken, TAccessToken>();
-            return services;
-        }
     }
 }
