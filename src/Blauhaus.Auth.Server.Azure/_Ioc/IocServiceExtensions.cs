@@ -7,7 +7,7 @@ using Blauhaus.Ioc.Abstractions;
 
 namespace Blauhaus.Auth.Server.Azure._Ioc
 {
-    public static class IocRegistration
+    public static class IocServiceExtensions
     {
         public static IIocService RegisterAzureAuthenticationServer<TConfig, TUser>(this IIocService iocService) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 

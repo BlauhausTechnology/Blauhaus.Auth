@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
   </ItemGroup>
+
 
 </Project>
