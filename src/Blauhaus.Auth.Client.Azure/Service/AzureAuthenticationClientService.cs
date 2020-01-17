@@ -89,7 +89,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
         public async Task LogoutAsync()
         {
             await _msalClientProxy.LogoutAsync();
-            _accessToken.ClearAccessToken();
+            _accessToken.Clear();
         }
     }
 }

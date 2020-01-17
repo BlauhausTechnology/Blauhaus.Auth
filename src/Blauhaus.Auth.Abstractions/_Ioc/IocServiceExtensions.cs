@@ -1,9 +1,10 @@
 ﻿using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
 using Blauhaus.Ioc.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Blauhaus.Auth.Abstractions._Ioc
 {
-    public static class IocRegistration
+    public static class IocServiceExtensions
     {
         public static IIocService RegisterAccessToken(this IIocService iocService)
         {
@@ -16,5 +17,6 @@ namespace Blauhaus.Auth.Abstractions._Ioc
             iocService.RegisterImplementation<IAuthenticatedAccessToken, TAccessToken>(IocLifetime.Singleton);
             return iocService;
         }
+
     }
 }

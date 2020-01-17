@@ -4,19 +4,23 @@ namespace Blauhaus.Auth.Server.Azure.User
 {
     public abstract class BaseAzureActiveDirectoryUser : IAzureActiveDirectoryUser
     {
-        private Dictionary<string, object> _customProperties;
-
         public void Initialize(Dictionary<string, object> deserializedAzureObject)
         {
-            UserObjectId = (string) deserializedAzureObject["objectId"];
+            //todo get email address?
+            AuthenticatedUserId = (string) deserializedAzureObject["objectId"];
+            HandleDefaultProperties(deserializedAzureObject);
         }
 
         public void PopulateCustomProperties(Dictionary<string, object> deserializedCustomProperties)
         {
-            _customProperties = deserializedCustomProperties;
+            HandleCustomProperties(deserializedCustomProperties);
         }
 
-        public string UserObjectId { get; private set; }
-        public string EmailAddress { get; private set; }
+        protected virtual void HandleCustomProperties(Dictionary<string, object> deserializedCustomProperties){}
+        protected virtual void HandleDefaultProperties(Dictionary<string, object> deserializedCustomProperties){}
+
+
+        public string AuthenticatedUserId { get; private set; }
+        public string EmailAddress { get; protected set; }
     }
 }
