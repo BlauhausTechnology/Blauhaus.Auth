@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Blauhaus.Auth.Server.Azure.User
 {
@@ -6,8 +9,24 @@ namespace Blauhaus.Auth.Server.Azure.User
     {
         public void Initialize(Dictionary<string, object> deserializedAzureObject)
         {
-            //todo get email address?
             AuthenticatedUserId = (string) deserializedAzureObject["objectId"];
+
+            if (deserializedAzureObject.TryGetValue("signInNames", out var signInNames))
+            {
+
+                if (signInNames is JArray signInNameProperties)
+                {
+                    foreach (var signInNameProperty in signInNameProperties)
+                    {
+                        var key = (string)signInNameProperty.First.Value<JProperty>().Value;
+                        if (key == "emailAddress")
+                        {
+                            EmailAddress = signInNameProperty.Last.Value<JProperty>().Value.ToString();
+                        }
+                    }
+                }
+            }
+
             HandleDefaultProperties(deserializedAzureObject);
         }
 
@@ -21,6 +40,6 @@ namespace Blauhaus.Auth.Server.Azure.User
 
 
         public string AuthenticatedUserId { get; private set; }
-        public string EmailAddress { get; protected set; }
+        public string? EmailAddress { get; protected set; }
     }
 }

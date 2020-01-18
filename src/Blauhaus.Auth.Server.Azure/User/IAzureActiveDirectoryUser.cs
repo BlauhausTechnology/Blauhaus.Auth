@@ -8,6 +8,6 @@ namespace Blauhaus.Auth.Server.Azure.User
         void PopulateCustomProperties(Dictionary<string, object> deserializedCustomProperties);
 
         string AuthenticatedUserId { get; }
-        string EmailAddress { get; }
+        string? EmailAddress { get; }
     }
 }
