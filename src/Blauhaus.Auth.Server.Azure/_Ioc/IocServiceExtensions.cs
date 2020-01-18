@@ -11,27 +11,27 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
     {
         public static IIocService RegisterAzureAuthenticationServer<TConfig, TUser>(this IIocService iocService) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 
-            where TUser : class, IAzureActiveDirectoryUser
+            where TUser : BaseAzureActiveDirectoryUser
         {
-            iocService.RegisterImplementation<IAzureActiveDirectoryUser, TUser>(IocLifetime.Transient);
-            iocService.RegisterImplementation<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>(IocLifetime.Transient);
-            RegisterCommon<TConfig>(iocService);
+            RegisterCommon<TConfig, TUser>(iocService);
             return iocService;
         }
 
         public static IIocService RegisterAzureAuthenticationServer<TConfig>(this IIocService iocService) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 
         {
-            iocService.RegisterImplementation<IAzureActiveDirectoryUser, DefaultAzureActiveDirectoryUser>(IocLifetime.Transient);
-            iocService.RegisterImplementation<IAzureAuthenticationServerService<IAzureActiveDirectoryUser>, AzureAuthenticationServerService<IAzureActiveDirectoryUser>>(IocLifetime.Transient);
-            RegisterCommon<TConfig>(iocService);
+            RegisterCommon<TConfig, DefaultAzureActiveDirectoryUser>(iocService);
             return iocService;
         }
 
-        private static void RegisterCommon<TConfig>(IIocService iocService) 
+        private static void RegisterCommon<TConfig, TUser>(IIocService iocService) 
             where TConfig : class, IAzureActiveDirectoryServerConfig
+            where TUser : BaseAzureActiveDirectoryUser
         {
             iocService.RegisterHttpService();
+            iocService.RegisterImplementation<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>(IocLifetime.Transient);
+            iocService.RegisterImplementation<IAzureActiveDirectoryUser, TUser>(IocLifetime.Transient);
+            iocService.RegisterType<TUser>(IocLifetime.Transient);
             iocService.RegisterImplementation<IAzureActiveDirectoryServerConfig, TConfig>();
             iocService.RegisterImplementation<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>(IocLifetime.Transient);
 
