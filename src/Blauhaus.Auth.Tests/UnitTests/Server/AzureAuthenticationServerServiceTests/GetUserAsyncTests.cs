@@ -30,6 +30,19 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                                                                       "\"userType\": \"Member\",\r\n  " +
                                                                       "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n");
 
+        private readonly Dictionary<string, object> _serializedAzureUserWithNoEmail = 
+            JsonConvert.DeserializeObject<Dictionary<string, object>>("{\r\n  " +
+                                                                      "\"objectType\": \"User\",\r\n  " +
+                                                                      "\"objectId\": \"29d195eb-68d1-45a3-8183-5fd8b5a72c0c\",\r\n  " +
+                                                                      "\"createdDateTime\": \"2019-11-06T15:39:23Z\",\r\n  " +
+                                                                      "\"creationType\": \"LocalAccount\",\r\n  " +
+                                                                      "\"displayName\": \"Adrian Frielinghaus\",\r\n  " +
+                                                                      "\"givenName\": \"Adrian\",\r\n  " +
+                                                                      " \"surname\": \"Frielinghaus\",\r\n  " +
+                                                                      "\"userPrincipalName\": \"29d195eb-68d1-45a3-8183-5fd8b5a72c0c@minegameauth.onmicrosoft.com\",\r\n  " +
+                                                                      "\"userType\": \"Member\",\r\n  " +
+                                                                      "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n");
+
         private MockBuilder<IAzureActiveDirectoryUser> _mockUser;
 
         public override void Setup()
@@ -72,18 +85,32 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
-            _mockUser.With(x => x.EmailAddress, "bob@freever.com");
+            var user = new DefaultAzureActiveDirectoryUser();
+            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
             
             //Act
             var result = await Sut.GetUserAsync(_userObjectId.ToString());
 
             //Assert
-            _mockUser.Mock.Verify(x => x.Initialize(It.Is<Dictionary<string, object>>(y => 
-                y["objectId"].Equals("29d195eb-68d1-45a3-8183-5fd8b5a72c0c") && 
-                y["objectType"].Equals("User"))));
-            _mockUser.Mock.Verify(x => x.PopulateCustomProperties(It.Is<Dictionary<string, object>>(y => 
-                y["RoleLevel"].ToString()== 120.ToString())));
-            Assert.That(result.EmailAddress, Is.EqualTo("bob@freever.com"));
+            Assert.That(result.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
+            Assert.That(result.AuthenticatedUserId, Is.EqualTo("29d195eb-68d1-45a3-8183-5fd8b5a72c0c"));
+        }
+
+        [Test]
+        public async Task IF_Email_Address_is_not_valid_SHOULD_make_it_null()
+        {
+            //Arrange
+            MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_serializedAzureUserWithNoEmail);
+            var user = new DefaultAzureActiveDirectoryUser();
+            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
+            
+            //Act
+            var result = await Sut.GetUserAsync(_userObjectId.ToString());
+
+            //Assert
+            Assert.That(result.EmailAddress, Is.Null);
+
         }
 
     }
