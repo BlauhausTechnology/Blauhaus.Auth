@@ -70,7 +70,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.GraphVersion, "api-version=1.6");
 
             //Act
-            await Sut.GetUserAsync(_userObjectId.ToString());
+            await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.GetAsync<Dictionary<string, object>>(It.Is<IHttpRequestWrapper>(y =>
@@ -89,7 +89,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
             
             //Act
-            var result = await Sut.GetUserAsync(_userObjectId.ToString());
+            var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
 
             //Assert
             Assert.That(result.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
@@ -106,7 +106,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
             
             //Act
-            var result = await Sut.GetUserAsync(_userObjectId.ToString());
+            var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
 
             //Assert
             Assert.That(result.EmailAddress, Is.Null);
