@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
@@ -79,6 +80,13 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             return user;
 
+        }
+
+        public TUser ExtractUser(ClaimsPrincipal claimsPrincipal)
+        {
+            var user = _iocService.Resolve<TUser>();
+            user.Initialize(claimsPrincipal);
+            return user;
         }
 
 
