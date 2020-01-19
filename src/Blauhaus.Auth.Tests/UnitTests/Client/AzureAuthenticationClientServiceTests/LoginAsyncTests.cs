@@ -15,10 +15,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         {
             //Arrange
             MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(AuthenticatedUserResult);
+                .ReturnsAsync(MockAuthenticatedUserResult);
 
             //Act
-            IUserAuthentication result = await Sut.LoginAsync(CancelToken);
+            IUserAuthentication result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
@@ -36,7 +36,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 .ReturnsAsync(MsalClientResult.Cancelled);
 
             //Act
-            var result = await Sut.LoginAsync(CancelToken);
+            var result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
@@ -48,13 +48,13 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
         {
             //Arrange
-            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresLogin());
-            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), CancelToken))
-                .ReturnsAsync(AuthenticatedUserResult);
+            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
+                .ReturnsAsync(MockAuthenticatedUserResult);
 
             //Act
-            var result = await Sut.LoginAsync(CancelToken);
+            var result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
@@ -68,13 +68,13 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public async Task IF_authentication_requries_login_and_login_is_cancelled_SHOULD_return_cancellation()
         {
             //Arrange
-            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresLogin);
-            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                 .ReturnsAsync(MsalClientResult.Cancelled);
 
             //Act
-            var result = await Sut.LoginAsync(CancelToken);
+            var result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
@@ -86,15 +86,15 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public async Task IF_authentication_requries_password_reset_and_it_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
         {
             //Arrange
-            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresLogin);
-            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
-            MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), CancelToken))
-                .ReturnsAsync(AuthenticatedUserResult);
+            MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), MockCancelToken))
+                .ReturnsAsync(MockAuthenticatedUserResult);
 
             //Act
-            var result = await Sut.LoginAsync(CancelToken);
+            var result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
@@ -108,15 +108,15 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public async Task IF_authentication_requries_password_reset_and_it_is_cancelled_SHOULD_return_cancelled()
         {
             //Arrange
-            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresLogin);
-            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                 .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
-            MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), CancelToken))
+            MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), MockCancelToken))
                 .ReturnsAsync(MsalClientResult.Cancelled);
 
             //Act
-            var result = await Sut.LoginAsync(CancelToken);
+            var result = await Sut.LoginAsync(MockCancelToken);
 
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
