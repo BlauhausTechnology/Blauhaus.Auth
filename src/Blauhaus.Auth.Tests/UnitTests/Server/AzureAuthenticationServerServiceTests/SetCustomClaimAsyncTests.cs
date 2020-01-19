@@ -31,7 +31,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.GraphVersion, "api-version=1.6");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120");
+            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
@@ -46,7 +46,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120");
+            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
@@ -62,7 +62,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .ReturnsAsync("azureAccessToken");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120");
+            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
