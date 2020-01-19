@@ -40,20 +40,20 @@ namespace Blauhaus.Auth.Server.Azure.Service
             _endpointPostfix = $"?{config1.GraphVersion}";
         }
 
-        public async Task SetCustomClaimAsync(string userObjectId, string propertyName, string value)
+        public async Task SetCustomClaimAsync(string userObjectId, string propertyName, string value, CancellationToken token)
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
             var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
-            var json = JsonConvert.SerializeObject(new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value});
+            var json = new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value};
 
-            var request = new HttpRequestWrapper<string>(endpoint, json)
+            var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            await _httpClientService.PatchAsync<string, string>(request, CancellationToken.None);
+            await _httpClientService.PatchAsync<string>(request, token);
 
         }
 
-        public async Task<TUser> GetUserAsync(string userObjectId)
+        public async Task<TUser> GetUserAsync(string userObjectId, CancellationToken token)
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
             var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
@@ -61,7 +61,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper(endpoint)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, CancellationToken.None);
+            var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
 
             var user = _iocService.Resolve<TUser>();
             user.Initialize(azureUserValues);
