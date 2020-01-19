@@ -44,12 +44,12 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
             var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
-            var json = JsonConvert.SerializeObject(new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value});
+            var json = new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value};
 
-            var request = new HttpRequestWrapper<string>(endpoint, json)
+            var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            await _httpClientService.PatchAsync<string, string>(request, token);
+            await _httpClientService.PatchAsync<string>(request, token);
 
         }
 

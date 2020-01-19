@@ -6,6 +6,7 @@ using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.HttpClientService.Request;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests
@@ -34,7 +35,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
-            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
+            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
                 y.Endpoint == "https://graph.windows.net/minegameauth.onmicrosoft.com/users/29d195eb-68d1-45a3-8183-5fd8b5a72c0c?api-version=1.6"), CancellationToken.None));
         }
 
@@ -49,8 +50,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
-            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
-                y.Request == "{\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\":\"120\"}"
+            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
+                y.Request.ToString() == "{\r\n  \"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": \"120\"\r\n}"
             ), CancellationToken.None));
         }
 
@@ -65,7 +66,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
-            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string, string>(It.Is<IHttpRequestWrapper<string>>(y =>
+            MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
                 y.AuthorizationHeader.Key == "Bearer" &&
                 y.AuthorizationHeader.Value == "azureAccessToken"), CancellationToken.None));
         }
