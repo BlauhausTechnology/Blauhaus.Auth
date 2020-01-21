@@ -53,6 +53,25 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
         }
 
+        public async Task SetCustomClaimsAsync(string userObjectId, Dictionary<string, string> claims, CancellationToken token)
+        {
+            var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
+            var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
+
+            var json = new JObject();
+            foreach(var claim in claims)
+            {
+                json.Add($"{_customPropertyNamePrefix}{claim.Key}", claim.Value);
+            }
+            var request = new HttpRequestWrapper<JObject>(endpoint, json)
+                .WithAuthorizationHeader("Bearer", accessToken);
+
+
+            var s = request.Request.ToString();
+
+            await _httpClientService.PatchAsync<string>(request, token);
+        }
+
         public async Task<TUser> GetUserAsync(string userObjectId, CancellationToken token)
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
@@ -94,5 +113,6 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             return _endpointPrefix + resource + _endpointPostfix;
         }
+
     }
 }
