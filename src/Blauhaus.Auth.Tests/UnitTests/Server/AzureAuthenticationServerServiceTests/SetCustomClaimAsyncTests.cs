@@ -50,8 +50,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
+            var expectedJson = new JObject
+            {
+                ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120"
+            };
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
-                y.Request.ToString() == "{\r\n  \"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": \"120\"\r\n}"
+                y.Request.ToString() == expectedJson.ToString()
             ), CancellationToken.None));
         }
 
