@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
@@ -32,10 +33,24 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
         public async Task<IUserAuthentication> LoginAsync(CancellationToken cancellationToken)
         {
-            var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken);
+            MsalClientResult silentMsalResult;
 
-            if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
-                return completedSilentLoginAuthentication;
+            try
+            {
+                silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken);
+
+                if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
+                    return completedSilentLoginAuthentication;
+            }
+            catch (Exception e)
+            {
+                if (TryGetFailedAuthentication(e, AuthenticationMode.SilentLogin, out var failedUserAuthentication))
+                {
+                    return failedUserAuthentication;
+                }
+
+                throw;
+            }
 
             if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
             {
@@ -58,6 +73,21 @@ namespace Blauhaus.Auth.Client.Azure.Service
             }
 
             return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.None);
+        }
+
+        private bool TryGetFailedAuthentication(Exception exception, AuthenticationMode mode, out IUserAuthentication failedUserAuthentication)
+        {
+            var authenticationModeName = Enum.GetName(typeof(AuthenticationMode), mode);
+
+            if (exception is HttpRequestException ||
+                exception.Message != null && exception.Message.Contains("Unable to resolve host"))  //Android
+            {
+                 failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error", mode);
+                 return true;
+            }
+
+            failedUserAuthentication = null;
+            return false;
         }
         
         private bool TryGetCompletedUserAuthentication(MsalClientResult msalClientResult, AuthenticationMode mode, out IUserAuthentication userAuthentication)
