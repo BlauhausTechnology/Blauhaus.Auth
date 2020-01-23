@@ -49,12 +49,12 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             }
             catch (MsalException msalException)
             {
-                _logService.LogMessage(LogLevel.Trace, "Silent authentication cancelled");
+                _logService.LogMessage(LogLevel.Trace, "Silent authentication failed " + msalException.ErrorCode);
 
                 if (msalException.ErrorCode == "authentication_canceled")
                     return MsalClientResult.Cancelled();
                 
-                throw;
+                return MsalClientResult.Failed(msalException);
             }
         }
 
@@ -74,13 +74,16 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             }
             catch (MsalException msalException)
             {
+                
+                _logService.LogMessage(LogLevel.Trace, "User login failed " + msalException.ErrorCode);
+
                 if (msalException.Message != null && msalException.Message.Contains("AADB2C90118"))
                     return MsalClientResult.RequiresPasswordReset();
 
                 if (msalException.ErrorCode == "authentication_canceled")
                     return MsalClientResult.Cancelled(); 
                 
-                throw;
+                return MsalClientResult.Failed(msalException);
             }
 
         }
@@ -101,12 +104,15 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             }
             catch (MsalException msalException)
             {
-                _logService.LogMessage(LogLevel.Trace, "User reset password cancelled");
+                _logService.LogMessage(LogLevel.Trace, "User reset password failed");
 
                 if (msalException.ErrorCode == "authentication_canceled")
                     return MsalClientResult.Cancelled();
                 
-                throw;
+                if (msalException.Message != null && msalException.Message.Contains("AADB2C90091"))
+                    return MsalClientResult.Cancelled();
+                
+                return MsalClientResult.Failed(msalException);
             }
         }
 

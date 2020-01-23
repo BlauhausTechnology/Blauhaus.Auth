@@ -4,6 +4,6 @@
     {
         Authenticated,
         Cancelled,
-        Error,
+        Failed,
     }
 }
