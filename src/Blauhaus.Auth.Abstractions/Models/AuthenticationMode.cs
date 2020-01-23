@@ -1,10 +1,10 @@
 ﻿namespace Blauhaus.Auth.Abstractions.Models
 {
-    public enum SuccessfulAuthenticationMode
+    public enum AuthenticationMode
     {
         None,
-        Silent,
-        Login,
+        SilentLogin,
+        ManualLogin,
         ResetPassword
     }
 }

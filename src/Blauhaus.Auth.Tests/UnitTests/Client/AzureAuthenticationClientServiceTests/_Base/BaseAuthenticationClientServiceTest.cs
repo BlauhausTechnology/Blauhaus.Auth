@@ -19,7 +19,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
         protected MockBuilder<ILogService> MockLogService;
         protected MockBuilder<IIocService> MockIocService;
-        protected MockBuilder<ITimeService> MockTimeService;
         internal MockBuilder<IMsalClientProxy> MockMsalClientProxy;
         internal MockBuilder<IAuthenticatedAccessToken> MockAuthenticatedAccessToken;
         protected CancellationToken MockCancelToken;
@@ -33,7 +32,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         {
             Cleanup();
             MockLogService = new MockBuilder<ILogService>();
-            MockTimeService = new MockBuilder<ITimeService>();
             MockMsalClientProxy = new MockBuilder<IMsalClientProxy>();
             MockIocService = new MockBuilder<IIocService>();
             MockAuthenticatedAccessToken = new MockBuilder<IAuthenticatedAccessToken>();
@@ -52,7 +50,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             return new AzureAuthenticationClientService(
                 MockLogService.Object,
                 MockIocService.Object,
-                MockTimeService.Object,
                 MockAuthenticatedAccessToken.Object);
         }
     }

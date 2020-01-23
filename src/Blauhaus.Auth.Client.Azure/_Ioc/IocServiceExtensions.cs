@@ -10,7 +10,7 @@ using Blauhaus.Loggers.Console._Ioc;
 
 namespace Blauhaus.Auth.Client.Azure._Ioc
 {
-    public static class IocRegistration
+    public static class IocServiceExtensions
     {
         public static IIocService RegisterAzureAuthenticationClient<TConfig>(this IIocService iocService) 
             where TConfig : class, IAzureActiveDirectoryClientConfig

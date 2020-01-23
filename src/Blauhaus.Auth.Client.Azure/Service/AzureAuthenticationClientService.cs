@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
 using Blauhaus.Auth.Abstractions.Models;
@@ -14,7 +15,6 @@ namespace Blauhaus.Auth.Client.Azure.Service
     public class AzureAuthenticationClientService : IAuthenticationClientService
     {
         private readonly ILogService _logService;
-        private readonly ITimeService _timeService;
         private readonly IAuthenticatedAccessToken _accessToken;
         private readonly IMsalClientProxy _msalClientProxy;
 
@@ -23,56 +23,73 @@ namespace Blauhaus.Auth.Client.Azure.Service
         public AzureAuthenticationClientService(
             ILogService logService,
             IIocService iocService,
-            ITimeService timeService,
             IAuthenticatedAccessToken accessToken)
         {
             _logService = logService;
-            _timeService = timeService;
             _accessToken = accessToken;
             _msalClientProxy = iocService.Resolve<IMsalClientProxy>();
         }
 
         public async Task<IUserAuthentication> LoginAsync(CancellationToken cancellationToken)
         {
-            var start = _timeService.CurrentUtcTimestampMs;
-
             var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken);
 
-            if (silentMsalResult.IsAuthenticated)
-                return CreateAuthenticated(silentMsalResult, SuccessfulAuthenticationMode.Silent, start);
-
-            if (silentMsalResult.IsCancelled)
-                return UserAuthentication.CreateCancelled();
-
-            if (silentMsalResult.IsFailed)
-                return UserAuthentication.CreateFailed(silentMsalResult.MsalErrorCode);
+            if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
+                return completedSilentLoginAuthentication;
 
             if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
             {
                 var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, cancellationToken);
-                
-                if (loginMsalResult.IsAuthenticated)
-                    return CreateAuthenticated(loginMsalResult, SuccessfulAuthenticationMode.Login, start);
 
-                if (loginMsalResult.IsCancelled)
-                    return UserAuthentication.CreateCancelled();
+                if (TryGetCompletedUserAuthentication(loginMsalResult, AuthenticationMode.ManualLogin, out var completedManualLoginAuthentication))
+                {
+                    return completedManualLoginAuthentication;
+                }
 
                 if (loginMsalResult.AuthenticationState == MsalAuthenticationState.RequiresPasswordReset)
                 {
                     var resetPasswordMsalResult = await _msalClientProxy.ResetPasswordAsync(NativeParentView, cancellationToken);
                     
-                    if (resetPasswordMsalResult.IsCancelled)
-                        return UserAuthentication.CreateCancelled();
-
-                    if (resetPasswordMsalResult.IsAuthenticated)
-                        return CreateAuthenticated(resetPasswordMsalResult, SuccessfulAuthenticationMode.ResetPassword, start);
+                    if (TryGetCompletedUserAuthentication(resetPasswordMsalResult, AuthenticationMode.ResetPassword, out var completedResetPasswordAuthentication))
+                    {
+                        return completedResetPasswordAuthentication;
+                    }
                 }
             }
 
-            return UserAuthentication.CreateUnauthenticated(UserAuthenticationState.Failed);
+            return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.None);
+        }
+        
+        private bool TryGetCompletedUserAuthentication(MsalClientResult msalClientResult, AuthenticationMode mode, out IUserAuthentication userAuthentication)
+        {
+            var authenticationModeName = Enum.GetName(typeof(AuthenticationMode), mode);
+
+            if (msalClientResult.IsAuthenticated)
+            {
+                userAuthentication = CreateAuthenticated(msalClientResult, mode);
+                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} successful");
+                return true;
+            }
+
+            if (msalClientResult.IsCancelled)
+            {
+                userAuthentication = UserAuthentication.CreateCancelled(mode);
+                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} cancelled");
+                return true;
+            }
+
+            if (msalClientResult.IsFailed)
+            {
+                userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
+                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}");
+                return true;
+            }
+
+            userAuthentication = default;
+            return false;
         }
 
-        private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, SuccessfulAuthenticationMode mode, long startMs)
+        private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, AuthenticationMode mode)
         {
             
             var userAuthentication = UserAuthentication.CreateAuthenticated(
@@ -80,8 +97,6 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 msalClientResult.AuthenticationResult.AccessToken, mode);
 
             _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken);
-
-            _logService.LogMessage(LogLevel.Trace, $"Authentication successful. Mode: {mode.ToString()}");
 
             return userAuthentication;
 

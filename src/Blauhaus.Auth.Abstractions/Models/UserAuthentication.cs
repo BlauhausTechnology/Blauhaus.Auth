@@ -6,7 +6,7 @@ namespace Blauhaus.Auth.Abstractions.Models
     {
         private UserAuthentication(
             UserAuthenticationState authenticationState, 
-            SuccessfulAuthenticationMode mode, 
+            AuthenticationMode mode, 
             string authenticatedUserId, 
             string authToken,
             string errorMessage = "")
@@ -24,30 +24,26 @@ namespace Blauhaus.Auth.Abstractions.Models
                                        !string.IsNullOrEmpty(AuthenticatedAccessToken);
 
         public UserAuthenticationState AuthenticationState { get; }
-        public SuccessfulAuthenticationMode AuthenticationMode { get; }
+        public AuthenticationMode AuthenticationMode { get; }
         public string AuthenticatedUserId { get; }
         public string AuthenticatedAccessToken { get; }
         public string ErrorMessage { get; }
 
         public Dictionary<string, string> AuthenticationProperties { get; } = new Dictionary<string, string>();
 
-        public static IUserAuthentication CreateAuthenticated(string userId, string sessionToken, SuccessfulAuthenticationMode mode)
+        public static IUserAuthentication CreateAuthenticated(string userId, string sessionToken, AuthenticationMode mode)
         {
             return new UserAuthentication(UserAuthenticationState.Authenticated, mode, userId, sessionToken);
         }
         
-        public static IUserAuthentication CreateUnauthenticated(UserAuthenticationState unauthenticatedState)
+        public static IUserAuthentication CreateCancelled(AuthenticationMode mode)
         {
-            return new UserAuthentication(unauthenticatedState, SuccessfulAuthenticationMode.None, string.Empty, string.Empty);
+            return new UserAuthentication(UserAuthenticationState.Cancelled, mode, string.Empty, string.Empty);
         }
-        
-        public static IUserAuthentication CreateCancelled()
+
+        public static IUserAuthentication CreateFailed(string errorMessage, AuthenticationMode mode)
         {
-            return new UserAuthentication(UserAuthenticationState.Cancelled, SuccessfulAuthenticationMode.None, string.Empty, string.Empty);
-        }
-        public static IUserAuthentication CreateFailed(string errorMessage)
-        {
-            return new UserAuthentication(UserAuthenticationState.Failed, SuccessfulAuthenticationMode.None, string.Empty, string.Empty, errorMessage);
+            return new UserAuthentication(UserAuthenticationState.Failed, mode, string.Empty, string.Empty, errorMessage);
         }
     }
 }
