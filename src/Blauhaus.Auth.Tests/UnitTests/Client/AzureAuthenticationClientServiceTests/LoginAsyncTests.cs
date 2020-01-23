@@ -108,12 +108,18 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
         public class ManualLogin : LoginAsyncTests
         {
+            public override void Setup()
+            {
+                base.Setup();
+
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin());
+            }
+
             [Test]
             public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin());
                 MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MockAuthenticatedUserResult);
 
@@ -132,8 +138,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_is_cancelled_SHOULD_return_cancellation()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
                 MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MsalClientResult.Cancelled);
 
@@ -151,8 +155,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_fails_SHOULD_return_Failed()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
                 MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MsalClientResult.Failed(new MsalException("MSAL Error Code")));
 
@@ -171,8 +173,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_manual_login_throws_HttpRequestException_SHOULD_return_failed_state()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
                 MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new HttpRequestException("Network issue"));
 
@@ -191,8 +191,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_manual_login_throws_weird_android_network_error_SHOULD_return_failed_state()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
                 MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new Exception("Unable to resolve host \"minegameauth.b2clogin.com\": No address associated with hostname"));
 
@@ -210,14 +208,21 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
         public class ResetPassword : LoginAsyncTests
         {
+            
+            public override void Setup()
+            {
+                base.Setup();
+
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin());
+                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
+            }
+
             [Test]
             public async Task IF_authentication_requries_password_reset_and_it_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
-                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
                 MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MockAuthenticatedUserResult);
 
@@ -236,10 +241,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_password_reset_and_it_is_cancelled_SHOULD_return_cancelled()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
-                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
                 MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MsalClientResult.Cancelled);
 
@@ -257,10 +258,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_password_reset_and_it_fails_SHOULD_return_fail()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
-                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
                 MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), MockCancelToken))
                     .ReturnsAsync(MsalClientResult.Failed(new MsalException("MSAL Error Code")));
 
@@ -279,10 +276,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_reset_password_throws_HttpRequestException_SHOULD_return_failed_state()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
-                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
                 MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new HttpRequestException("Network issue"));
 
@@ -301,10 +294,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_reset_password_throws_weird_android_network_error_SHOULD_return_failed_state()
             {
                 //Arrange
-                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresLogin);
-                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
-                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
                 MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
                     .ThrowsAsync(new Exception("Unable to resolve host \"minegameauth.b2clogin.com\": No address associated with hostname"));
 

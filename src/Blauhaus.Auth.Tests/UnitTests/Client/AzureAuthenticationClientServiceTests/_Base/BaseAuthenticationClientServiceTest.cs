@@ -28,7 +28,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             .With_UniqueId("authenticatedUserId").Build());
 
         [SetUp]
-        public void Setup()
+        public virtual void Setup()
         {
             Cleanup();
             MockLogService = new MockBuilder<ILogService>();
