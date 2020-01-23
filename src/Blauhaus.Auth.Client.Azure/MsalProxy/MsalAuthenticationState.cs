@@ -5,6 +5,7 @@
         Authenticated,
         RequiresLogin,
         RequiresPasswordReset,
-        Cancelled
+        Cancelled,
+        Failed
     }
 }

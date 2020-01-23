@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base;
+using Microsoft.Identity.Client;
 using Moq;
 using NUnit.Framework;
 
@@ -42,6 +43,23 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
             Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+        }
+
+        [Test]
+        public async Task IF_silent_authentication_fails_SHOULD_return_failed_state()
+        {
+            //Arrange
+            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(MsalClientResult.Failed(new MsalException("MSAL Error Code")));
+
+            //Act
+            var result = await Sut.LoginAsync(MockCancelToken);
+
+            //Assert
+            Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
+            Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
+            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.ErrorMessage, Is.EqualTo("MSAL Error Code"));
         }
 
         [Test]

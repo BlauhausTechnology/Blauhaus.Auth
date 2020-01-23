@@ -44,6 +44,9 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (silentMsalResult.IsCancelled)
                 return UserAuthentication.CreateCancelled();
 
+            if (silentMsalResult.IsFailed)
+                return UserAuthentication.CreateFailed(silentMsalResult.MsalErrorCode);
+
             if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
             {
                 var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, cancellationToken);
@@ -66,21 +69,19 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 }
             }
 
-            return UserAuthentication.CreateUnauthenticated(UserAuthenticationState.Error);
+            return UserAuthentication.CreateUnauthenticated(UserAuthenticationState.Failed);
         }
 
         private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, SuccessfulAuthenticationMode mode, long startMs)
         {
             
-            var duration = _timeService.CurrentUtcTimestampMs - startMs;
-
             var userAuthentication = UserAuthentication.CreateAuthenticated(
                 msalClientResult.AuthenticationResult.UniqueId,
-                msalClientResult.AuthenticationResult.AccessToken, mode, duration);
+                msalClientResult.AuthenticationResult.AccessToken, mode);
 
             _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken);
 
-            _logService.LogMessage(LogLevel.Trace, $"Authentication successful. Mode: {mode.ToString()}  Duration(ms): {duration}");
+            _logService.LogMessage(LogLevel.Trace, $"Authentication successful. Mode: {mode.ToString()}");
 
             return userAuthentication;
 
