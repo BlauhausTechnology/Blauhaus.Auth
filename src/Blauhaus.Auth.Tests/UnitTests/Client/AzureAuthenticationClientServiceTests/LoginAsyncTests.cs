@@ -166,6 +166,46 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.ManualLogin} failed. Error code: MSAL Error Code"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
             }
+
+            [Test]
+            public async Task IF_manual_login_throws_HttpRequestException_SHOULD_return_failed_state()
+            {
+                //Arrange
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin);
+                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new HttpRequestException("Network issue"));
+
+                //Act
+                var result = await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
+                Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
+                Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error"));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
+            }
+
+            [Test]
+            public async Task IF_manual_login_throws_weird_android_network_error_SHOULD_return_failed_state()
+            {
+                //Arrange
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin);
+                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new Exception("Unable to resolve host \"minegameauth.b2clogin.com\": No address associated with hostname"));
+
+                //Act
+                var result = await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
+                Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
+                Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error"));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
+            }
         }
 
         public class ResetPassword : LoginAsyncTests
@@ -233,6 +273,50 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
                 Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.ResetPassword} failed. Error code: MSAL Error Code"));
+            }
+
+            [Test]
+            public async Task IF_reset_password_throws_HttpRequestException_SHOULD_return_failed_state()
+            {
+                //Arrange
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin);
+                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
+                MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new HttpRequestException("Network issue"));
+
+                //Act
+                var result = await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
+                Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
+                Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ResetPassword failed. Networking error"));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
+            }
+
+            [Test]
+            public async Task IF_reset_password_throws_weird_android_network_error_SHOULD_return_failed_state()
+            {
+                //Arrange
+                MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresLogin);
+                MockMsalClientProxy.Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), MockCancelToken))
+                    .ReturnsAsync(MsalClientResult.RequiresPasswordReset);
+                MockMsalClientProxy.Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new Exception("Unable to resolve host \"minegameauth.b2clogin.com\": No address associated with hostname"));
+
+                //Act
+                var result = await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
+                Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
+                Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ResetPassword failed. Networking error"));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
             }
         }
     }
