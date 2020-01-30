@@ -1,19 +1,10 @@
-﻿using System.Threading;
-using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
-using Blauhaus.Auth.Client.Azure.MsalProxy;
-using Blauhaus.Auth.Server.Azure.AdalProxy;
+﻿using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.Auth.Server.Azure.User;
-using Blauhaus.Auth.Tests.Builders;
 using Blauhaus.Common.TestHelpers;
-using Blauhaus.Common.Time.Service;
 using Blauhaus.HttpClientService.Abstractions;
-using Blauhaus.HttpClientService.Service;
 using Blauhaus.Ioc.Abstractions;
-using Blauhaus.Loggers.Common.Abstractions;
-using Microsoft.Identity.Client;
-using Moq;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base

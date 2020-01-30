@@ -6,7 +6,6 @@ using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.Common.TestHelpers;
 using Blauhaus.HttpClientService.Abstractions;
-using Blauhaus.HttpClientService.Request;
 using Moq;
 using Newtonsoft.Json;
 using NUnit.Framework;

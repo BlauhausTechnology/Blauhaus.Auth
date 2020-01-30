@@ -3,9 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.HttpClientService.Abstractions;
-using Blauhaus.HttpClientService.Request;
 using Moq;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 

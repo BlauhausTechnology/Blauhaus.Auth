@@ -7,10 +7,7 @@ using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.HttpClientService.Request;
-using Blauhaus.HttpClientService.Service;
 using Blauhaus.Ioc.Abstractions;
-using Blauhaus.Loggers.Common.Abstractions;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Blauhaus.Auth.Server.Azure.Service
@@ -25,6 +22,8 @@ namespace Blauhaus.Auth.Server.Azure.Service
         private readonly string _endpointPrefix;
         private readonly string _endpointPostfix;
         private readonly string _customPropertyNamePrefix;
+
+        //todo logging 
 
         public AzureAuthenticationServerService(
             IHttpClientService httpClientService,

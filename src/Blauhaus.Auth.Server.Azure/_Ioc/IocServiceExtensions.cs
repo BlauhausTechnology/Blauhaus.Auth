@@ -1,4 +1,5 @@
-﻿using Blauhaus.Auth.Server.Azure.AdalProxy;
+﻿using Blauhaus.Analytics.Console._Ioc;
+using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.Auth.Server.Azure.User;
@@ -28,13 +29,13 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
             where TConfig : class, IAzureActiveDirectoryServerConfig
             where TUser : BaseAzureActiveDirectoryUser
         {
-            iocService.RegisterHttpService();
+            iocService.RegisterConsoleLoggerClientService();
+            iocService.RegisterClientHttpService();
             iocService.RegisterImplementation<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>(IocLifetime.Transient);
             iocService.RegisterImplementation<IAzureActiveDirectoryUser, TUser>(IocLifetime.Transient);
             iocService.RegisterType<TUser>(IocLifetime.Transient);
             iocService.RegisterImplementation<IAzureActiveDirectoryServerConfig, TConfig>();
             iocService.RegisterImplementation<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>(IocLifetime.Transient);
-
         }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Blauhaus.Auth.Server.Azure.AdalProxy;
+﻿using System.Diagnostics;
+using Blauhaus.Analytics.Console._Ioc;
+using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.Auth.Server.Azure.User;
@@ -12,36 +14,26 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
     {
 
 
-        //Auth does not support IServiceCollection because it does not seem to allow IocService resolution to work...
+        //Auth may not be able to support IServiceCollection because it does not seem to allow services resolution to work...
 
+        public static IServiceCollection RegisterAzureAuthenticationServer<TConfig>(this IServiceCollection services, TraceListener consoleTraceListener) 
+            where TConfig : class, IAzureActiveDirectoryServerConfig 
+        {
+            RegisterCommon<TConfig, DefaultAzureActiveDirectoryUser>(services, consoleTraceListener);
+            return services;
+        }
 
-
-        //public static IServiceCollection RegisterAzureAuthenticationServer<TConfig, TUser>(this IServiceCollection services) 
-        //    where TConfig : class, IAzureActiveDirectoryServerConfig 
-        //    where TUser : class, IAzureActiveDirectoryUser
-        //{
-        //    services.AddTransient<IAzureActiveDirectoryUser, TUser>();
-        //    services.AddScoped<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>();
-        //    RegisterCommon<TConfig>(services);
-        //    return services;
-        //}
-
-        //public static IServiceCollection RegisterAzureAuthenticationServer<TConfig>(this IServiceCollection services) 
-        //    where TConfig : class, IAzureActiveDirectoryServerConfig 
-        //{
-        //    services.AddTransient<IAzureActiveDirectoryUser, DefaultAzureActiveDirectoryUser>();
-        //    services.AddScoped<IAzureAuthenticationServerService<IAzureActiveDirectoryUser>, AzureAuthenticationServerService<IAzureActiveDirectoryUser>>();
-        //    RegisterCommon<TConfig>(services);
-        //    return services;
-        //}
-
-        //private static void RegisterCommon<TConfig>(IServiceCollection iocService) 
-        //    where TConfig : class, IAzureActiveDirectoryServerConfig
-        //{
-        //    iocService.RegisterHttpService();
-        //    iocService.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
-        //    iocService.AddTransient<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
-
-        //}
+        private static void RegisterCommon<TConfig, TUser>(IServiceCollection services, TraceListener consoleTraceListener) 
+            where TConfig : class, IAzureActiveDirectoryServerConfig
+            where TUser : BaseAzureActiveDirectoryUser
+        {
+            services.RegisterConsoleLoggerServerService(consoleTraceListener);
+            services.RegisterServerHttpService(consoleTraceListener);
+            services.AddScoped<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>();
+            services.AddTransient<IAzureActiveDirectoryUser, TUser>();
+            services.AddTransient<TUser>();
+            services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
+            services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
+        }
     }
 }

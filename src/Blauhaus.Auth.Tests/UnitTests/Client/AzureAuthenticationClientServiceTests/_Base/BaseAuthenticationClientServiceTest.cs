@@ -1,14 +1,11 @@
 ﻿using System.Threading;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
-using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
 using Blauhaus.Auth.Tests.Builders;
 using Blauhaus.Common.TestHelpers;
-using Blauhaus.Common.Time.Service;
 using Blauhaus.Ioc.Abstractions;
-using Blauhaus.Loggers.Common.Abstractions;
-using Microsoft.Identity.Client;
 using Moq;
 using NUnit.Framework;
 
@@ -17,7 +14,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
     public class BaseAuthenticationClientServiceTest : BaseUnitTest<AzureAuthenticationClientService>
     {
 
-        protected MockBuilder<ILogService> MockLogService;
+        protected MockBuilder<IAnalyticsService> MockAnalyticsService;
         protected MockBuilder<IIocService> MockIocService;
         internal MockBuilder<IMsalClientProxy> MockMsalClientProxy;
         internal MockBuilder<IAuthenticatedAccessToken> MockAuthenticatedAccessToken;
@@ -31,7 +28,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public virtual void Setup()
         {
             Cleanup();
-            MockLogService = new MockBuilder<ILogService>();
+            MockAnalyticsService = new MockBuilder<IAnalyticsService>();
             MockMsalClientProxy = new MockBuilder<IMsalClientProxy>();
             MockIocService = new MockBuilder<IIocService>();
             MockAuthenticatedAccessToken = new MockBuilder<IAuthenticatedAccessToken>();
@@ -48,7 +45,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         protected override AzureAuthenticationClientService ConstructSut()
         {
             return new AzureAuthenticationClientService(
-                MockLogService.Object,
+                MockAnalyticsService.Object,
                 MockIocService.Object,
                 MockAuthenticatedAccessToken.Object);
         }
