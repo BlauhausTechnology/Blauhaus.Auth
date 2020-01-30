@@ -65,9 +65,6 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-
-            var s = request.Request.ToString();
-
             await _httpClientService.PatchAsync<string>(request, token);
         }
 
