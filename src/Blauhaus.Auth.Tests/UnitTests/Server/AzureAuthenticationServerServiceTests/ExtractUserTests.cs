@@ -14,7 +14,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         {
             //Arrange
             var mockUser = new MockBuilder<IAzureActiveDirectoryUser>();
-            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(mockUser.Object);
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+                .Returns(mockUser.Object);
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_NameIdentifier("MyNameIs").Build();
 

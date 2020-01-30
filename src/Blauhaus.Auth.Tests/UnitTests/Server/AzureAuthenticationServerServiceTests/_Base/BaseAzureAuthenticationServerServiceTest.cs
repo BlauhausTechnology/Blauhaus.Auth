@@ -1,4 +1,5 @@
-﻿using Blauhaus.Auth.Server.Azure.AdalProxy;
+﻿using System;
+using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.Auth.Server.Azure.User;
@@ -12,7 +13,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
     public class BaseAzureAuthenticationServerServiceTest : BaseUnitTest<AzureAuthenticationServerService<IAzureActiveDirectoryUser>>
     {
         
-        protected MockBuilder<IIocService> MockIocService;
+        protected MockBuilder<IServiceProvider> MockServiceProvider;
         internal MockBuilder<IAdalAuthenticationContextProxy> MockAdalAuthenticationContext;
         internal MockBuilder<IAzureActiveDirectoryServerConfig> MockAzureActiveDirectoryServerConfig;
         internal MockBuilder<IHttpClientService> MockHttpClientService;
@@ -23,11 +24,11 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         {
             Cleanup();
             MockAdalAuthenticationContext = new MockBuilder<IAdalAuthenticationContextProxy>();
-            MockIocService = new MockBuilder<IIocService>();
+            MockServiceProvider = new MockBuilder<IServiceProvider>();
             MockAzureActiveDirectoryServerConfig = new MockBuilder<IAzureActiveDirectoryServerConfig>();
             MockHttpClientService = new MockBuilder<IHttpClientService>();
 
-            MockIocService.Mock.Setup(x => x.Resolve<IAdalAuthenticationContextProxy>())
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAdalAuthenticationContextProxy)))
                 .Returns(MockAdalAuthenticationContext.Object);
         }
 
@@ -36,7 +37,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             return new AzureAuthenticationServerService<IAzureActiveDirectoryUser>(
                 MockHttpClientService.Object,
                 MockAzureActiveDirectoryServerConfig.Object,
-                MockIocService.Object);
+                MockServiceProvider.Object);
         }
     }
 }

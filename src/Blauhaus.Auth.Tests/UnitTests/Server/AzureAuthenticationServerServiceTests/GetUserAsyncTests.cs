@@ -53,7 +53,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
             _mockUser = new MockBuilder<IAzureActiveDirectoryUser>();
-            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>())
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
                 .Returns(_mockUser.Object);
         }
 
@@ -85,7 +85,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
             var user = new DefaultAzureActiveDirectoryUser();
-            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+                .Returns(user);
             
             //Act
             var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
@@ -102,7 +103,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUserWithNoEmail);
             var user = new DefaultAzureActiveDirectoryUser();
-            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(user);
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+                .Returns(user);
             
             //Act
             var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
