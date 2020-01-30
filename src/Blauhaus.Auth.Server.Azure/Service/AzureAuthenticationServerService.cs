@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
         where TUser : class, IAzureActiveDirectoryUser
     {
         private readonly IHttpClientService _httpClientService;
-        private readonly IIocService _iocService;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IAdalAuthenticationContextProxy _adalAuthenticationContext;
 
         private readonly string _endpointPrefix;
@@ -28,12 +29,12 @@ namespace Blauhaus.Auth.Server.Azure.Service
         public AzureAuthenticationServerService(
             IHttpClientService httpClientService,
             IAzureActiveDirectoryServerConfig config,
-            IIocService iocService)
+            IServiceProvider serviceProvider)
         {
             _httpClientService = httpClientService;
             var config1 = config;
-            _iocService = iocService;
-            _adalAuthenticationContext = iocService.Resolve<IAdalAuthenticationContextProxy>();
+            _serviceProvider = serviceProvider;
+            _adalAuthenticationContext = (IAdalAuthenticationContextProxy) serviceProvider.GetService(typeof(IAdalAuthenticationContextProxy));
             _customPropertyNamePrefix = $"extension_{config1.ExtensionsApplicationId}_";
             _endpointPrefix = $"{config1.GraphEndpoint}{config.TenantId}";
             _endpointPostfix = $"?{config1.GraphVersion}";
@@ -77,8 +78,8 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 .WithAuthorizationHeader("Bearer", accessToken);
 
             var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
-
-            var user = _iocService.Resolve<TUser>();
+            
+            var user = (TUser)_serviceProvider.GetService(typeof(TUser));
             user.Initialize(azureUserValues);
 
             var customProperties = new Dictionary<string, object>();
@@ -99,7 +100,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
         public TUser ExtractUser(ClaimsPrincipal claimsPrincipal)
         {
-            var user = _iocService.Resolve<TUser>();
+            var user = (TUser)_serviceProvider.GetService(typeof(TUser));
             user.Initialize(claimsPrincipal);
             return user;
         }
