@@ -2,27 +2,27 @@
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Ioc.Abstractions;
-using Blauhaus.Loggers.Common.Abstractions;
 
 namespace Blauhaus.Auth.Client.Azure.Service
 {
     public class AzureAuthenticationClientService : IAuthenticationClientService
     {
         private readonly IAuthenticatedAccessToken _accessToken;
-        private readonly ILogService _logService;
+        private readonly IAnalyticsService _analyticsService;
         private readonly IMsalClientProxy _msalClientProxy;
 
         public AzureAuthenticationClientService(
-            ILogService logService,
+            IAnalyticsService analyticsService,
             IIocService iocService,
             IAuthenticatedAccessToken accessToken)
         {
-            _logService = logService;
+            _analyticsService = analyticsService;
             _accessToken = accessToken;
             _msalClientProxy = iocService.Resolve<IMsalClientProxy>();
         }
@@ -64,6 +64,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                         }
                     }
                 }
+                _analyticsService.Trace( "No authentication methods were successful", LogSeverity.Warning);
                 return UserAuthentication.CreateFailed("No authentication methods were successful", currentAuthMode);
             }
             catch (Exception e)
@@ -72,7 +73,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 {
                     return failedUserAuthentication;
                 }
-
+                
+                _analyticsService.LogException(e);
                 throw;
             }
         }
@@ -91,6 +93,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 exception.Message != null && exception.Message.Contains("Unable to resolve host")) //Android
             {
                 failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error", mode);
+                _analyticsService.Trace( $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
+
                 return true;
             }
 
@@ -105,21 +109,21 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (msalClientResult.IsAuthenticated)
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
-                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} successful");
+                _analyticsService.Trace( $"{authenticationModeName} successful for {userAuthentication.AuthenticatedUserId}", LogSeverity.Information);
                 return true;
             }
 
             if (msalClientResult.IsCancelled)
             {
                 userAuthentication = UserAuthentication.CreateCancelled(mode);
-                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} cancelled");
+                _analyticsService.Trace( $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Information);
                 return true;
             }
 
             if (msalClientResult.IsFailed)
             {
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
-                _logService.LogMessage(LogLevel.Trace, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}");
+                _analyticsService.Trace( $"AuthenticationClientService: {authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Warning);
                 return true;
             }
 
