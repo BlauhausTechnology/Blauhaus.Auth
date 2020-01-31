@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Blauhaus.Auth.Abstractions.Builders;
+﻿using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.Common.TestHelpers;
-using Blauhaus.HttpClientService.Abstractions;
-using Blauhaus.HttpClientService.Request;
-using Moq;
-using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests
@@ -22,7 +14,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         {
             //Arrange
             var mockUser = new MockBuilder<IAzureActiveDirectoryUser>();
-            MockIocService.Mock.Setup(x => x.Resolve<IAzureActiveDirectoryUser>()).Returns(mockUser.Object);
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+                .Returns(mockUser.Object);
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_NameIdentifier("MyNameIs").Build();
 
