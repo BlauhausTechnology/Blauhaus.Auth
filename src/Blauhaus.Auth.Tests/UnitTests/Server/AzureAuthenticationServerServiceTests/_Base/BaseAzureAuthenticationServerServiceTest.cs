@@ -1,4 +1,5 @@
 ﻿using System;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
@@ -17,6 +18,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         internal MockBuilder<IAdalAuthenticationContextProxy> MockAdalAuthenticationContext;
         internal MockBuilder<IAzureActiveDirectoryServerConfig> MockAzureActiveDirectoryServerConfig;
         internal MockBuilder<IHttpClientService> MockHttpClientService;
+        internal MockBuilder<IAnalyticsService> MockAnalyticsService;
 
 
         [SetUp]
@@ -27,6 +29,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockServiceProvider = new MockBuilder<IServiceProvider>();
             MockAzureActiveDirectoryServerConfig = new MockBuilder<IAzureActiveDirectoryServerConfig>();
             MockHttpClientService = new MockBuilder<IHttpClientService>();
+            MockAnalyticsService = new MockBuilder<IAnalyticsService>();
 
             MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAdalAuthenticationContextProxy)))
                 .Returns(MockAdalAuthenticationContext.Object);
@@ -37,7 +40,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             return new AzureAuthenticationServerService<IAzureActiveDirectoryUser>(
                 MockHttpClientService.Object,
                 MockAzureActiveDirectoryServerConfig.Object,
-                MockServiceProvider.Object);
+                MockServiceProvider.Object,
+                MockAnalyticsService.Object);
         }
     }
 }

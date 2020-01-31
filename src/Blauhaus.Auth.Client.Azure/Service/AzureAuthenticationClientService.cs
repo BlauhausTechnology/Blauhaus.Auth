@@ -64,6 +64,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                         }
                     }
                 }
+                _analyticsService.Trace( "No authentication methods were successful", LogSeverity.Warning);
                 return UserAuthentication.CreateFailed("No authentication methods were successful", currentAuthMode);
             }
             catch (Exception e)
@@ -72,7 +73,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 {
                     return failedUserAuthentication;
                 }
-
+                
+                _analyticsService.LogException(e);
                 throw;
             }
         }
@@ -91,6 +93,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 exception.Message != null && exception.Message.Contains("Unable to resolve host")) //Android
             {
                 failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error", mode);
+                _analyticsService.Trace( $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
+
                 return true;
             }
 
@@ -105,21 +109,21 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (msalClientResult.IsAuthenticated)
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
-                _analyticsService.Trace( $"{authenticationModeName} successful", LogSeverity.Information);
+                _analyticsService.Trace( $"{authenticationModeName} successful for {userAuthentication.AuthenticatedUserId}", LogSeverity.Information);
                 return true;
             }
 
             if (msalClientResult.IsCancelled)
             {
                 userAuthentication = UserAuthentication.CreateCancelled(mode);
-                _analyticsService.Trace( $"{authenticationModeName} cancelled", LogSeverity.Information);
+                _analyticsService.Trace( $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Information);
                 return true;
             }
 
             if (msalClientResult.IsFailed)
             {
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
-                _analyticsService.Trace( $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}", LogSeverity.Warning);
+                _analyticsService.Trace( $"AuthenticationClientService: {authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Warning);
                 return true;
             }
 

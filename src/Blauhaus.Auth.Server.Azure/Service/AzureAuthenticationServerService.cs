@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.User;
@@ -18,22 +19,23 @@ namespace Blauhaus.Auth.Server.Azure.Service
     {
         private readonly IHttpClientService _httpClientService;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IAnalyticsService _analyticsService;
         private readonly IAdalAuthenticationContextProxy _adalAuthenticationContext;
 
         private readonly string _endpointPrefix;
         private readonly string _endpointPostfix;
         private readonly string _customPropertyNamePrefix;
 
-        //todo logging 
-
         public AzureAuthenticationServerService(
             IHttpClientService httpClientService,
             IAzureActiveDirectoryServerConfig config,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IAnalyticsService analyticsService)
         {
             _httpClientService = httpClientService;
             var config1 = config;
             _serviceProvider = serviceProvider;
+            _analyticsService = analyticsService;
             _adalAuthenticationContext = (IAdalAuthenticationContextProxy) serviceProvider.GetService(typeof(IAdalAuthenticationContextProxy));
             _customPropertyNamePrefix = $"extension_{config1.ExtensionsApplicationId}_";
             _endpointPrefix = $"{config1.GraphEndpoint}{config.TenantId}";
@@ -48,9 +50,15 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
-
-            await _httpClientService.PatchAsync<string>(request, token);
-
+            
+            using (var _ = _analyticsService.ContinueOperation("Update user claim on Azure AD"))
+            {
+                await _httpClientService.PatchAsync<string>(request, token);
+                _analyticsService.Trace("Custom claim set", LogSeverity.Information, new Dictionary<string, object>
+                {
+                    {"Claims", json }
+                });
+            }
         }
 
         public async Task SetCustomClaimsAsync(string userObjectId, Dictionary<string, string> claims, CancellationToken token)
@@ -66,7 +74,14 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            await _httpClientService.PatchAsync<string>(request, token);
+            using (var _ = _analyticsService.ContinueOperation("Update user claims on Azure AD"))
+            {
+                await _httpClientService.PatchAsync<string>(request, token);
+                _analyticsService.Trace("Custom claim set", LogSeverity.Information, new Dictionary<string, object>
+                {
+                    {"Claims", json }
+                });
+            }
         }
 
         public async Task<TUser> GetUserAsync(string userObjectId, CancellationToken token)
@@ -77,24 +92,32 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper(endpoint)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
-            
-            var user = (TUser)_serviceProvider.GetService(typeof(TUser));
-            user.Initialize(azureUserValues);
-
-            var customProperties = new Dictionary<string, object>();
-            foreach (var rawAzureProperty in azureUserValues)
+            using (var _ = _analyticsService.ContinueOperation("Get user profile from Azure AD"))
             {
-                if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
+                var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
+            
+                var user = (TUser)_serviceProvider.GetService(typeof(TUser));
+                user.Initialize(azureUserValues);
+
+                var customProperties = new Dictionary<string, object>();
+                foreach (var rawAzureProperty in azureUserValues)
                 {
-                    var originalPropertyName = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
-                    customProperties[originalPropertyName] = rawAzureProperty.Value;
+                    if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
+                    {
+                        var originalPropertyName = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
+                        customProperties[originalPropertyName] = rawAzureProperty.Value;
+                    }
                 }
+
+                user.PopulateCustomProperties(customProperties);
+
+                _analyticsService.Trace("User profile retrieved", LogSeverity.Verbose, new Dictionary<string, object>
+                {
+                    {"AzureADUser", user }
+                });
+
+                return user;
             }
-
-            user.PopulateCustomProperties(customProperties);
-
-            return user;
 
         }
 
@@ -102,6 +125,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             var user = (TUser)_serviceProvider.GetService(typeof(TUser));
             user.Initialize(claimsPrincipal);
+            _analyticsService.Trace("User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, new Dictionary<string, object> {{"AzureADUser", user}});
             return user;
         }
 

@@ -36,20 +36,14 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithB2CAuthority(_azureAuthConfig.AuthoritySignin)
                     .ExecuteAsync(cancellationToken);
 
-                _analyticsService.Trace("AuthenticationClientService: Silent authentication succeeded for AuthenticatedUserId" + authResult.Account.HomeAccountId, LogSeverity.Information);
-
                 return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalUiRequiredException)
             {
-                _analyticsService.Trace("AuthenticationClientService: Silent authentication failed as login is required", LogSeverity.Information);
-
                 return MsalClientResult.RequiresLogin();
             }
             catch (MsalException msalException)
             {
-                _analyticsService.Trace( "Silent authentication failed. Error: " + msalException.ErrorCode, LogSeverity.Information);
-                
                 if (msalException.ErrorCode == "authentication_canceled")
                     return MsalClientResult.Cancelled();
                 
@@ -67,15 +61,11 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithParentActivityOrWindow(clientParentView)
                     .ExecuteAsync(cancellationToken);
                     
-                _analyticsService.Trace("AuthenticationClientService: Login succeeded for AuthenticatedUserId " + authResult.Account.HomeAccountId, LogSeverity.Information);
-
                 return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalException msalException)
             {
                 
-                _analyticsService.Trace("AuthenticationClientService: User login failed. Error: " + msalException.ErrorCode, LogSeverity.Warning);
-
                 if (msalException.Message != null && msalException.Message.Contains("AADB2C90118"))
                     return MsalClientResult.RequiresPasswordReset();
 
@@ -98,14 +88,10 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
                     .ExecuteAsync(cancellationToken);
                         
-                _analyticsService.Trace("AuthenticationClientService: User reset password succeeded for AuthenticatedUserId " + authResult.Account.HomeAccountId, LogSeverity.Information);
-
                 return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalException msalException)
             {
-                _analyticsService.Trace("AuthenticationClientService: User reset password failed. Error: " + msalException.ErrorCode, LogSeverity.Warning);
-
                 if (msalException.ErrorCode == "authentication_canceled")
                     return MsalClientResult.Cancelled();
                 

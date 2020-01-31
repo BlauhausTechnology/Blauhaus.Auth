@@ -13,9 +13,6 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
     public static class ServiceCollectionExtensions
     {
 
-
-        //Auth may not be able to support IServiceCollection because it does not seem to allow services resolution to work...
-
         public static IServiceCollection RegisterAzureAuthenticationServer<TConfig, TUser>(this IServiceCollection services, TraceListener consoleTraceListener) 
             where TConfig : class, IAzureActiveDirectoryServerConfig where TUser : BaseAzureActiveDirectoryUser
         {
