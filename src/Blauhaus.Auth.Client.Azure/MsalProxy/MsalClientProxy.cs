@@ -25,7 +25,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                 .Build();
         }
 
-        public async Task<MsalClientResult> AuthenticateSilentlyAsync(CancellationToken cancellationToken)
+        public async Task<MsalClientResult> AuthenticateSilentlyAsync(CancellationToken cancellationToken, bool forceTokenRefresh = false)
         {
             try
             {
@@ -33,6 +33,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 
                 var authResult = await _authenticationClient
                     .AcquireTokenSilent(_azureAuthConfig.Scopes, accounts.FirstOrDefault())
+                    .WithForceRefresh(forceTokenRefresh)
                     .WithB2CAuthority(_azureAuthConfig.AuthoritySignin)
                     .ExecuteAsync(cancellationToken);
 

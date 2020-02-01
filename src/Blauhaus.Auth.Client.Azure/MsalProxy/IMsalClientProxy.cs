@@ -8,7 +8,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 {
     internal interface IMsalClientProxy
     {
-        Task<MsalClientResult> AuthenticateSilentlyAsync(CancellationToken cancellationToken);
+        Task<MsalClientResult> AuthenticateSilentlyAsync(CancellationToken cancellationToken, bool forceTokenRefresh = false);
         Task<MsalClientResult> LoginAsync(object clientParentView, CancellationToken cancellationToken);
         Task<MsalClientResult> ResetPasswordAsync(object clientParentView, CancellationToken cancellationToken);
         Task LogoutAsync();
