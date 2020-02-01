@@ -5,6 +5,7 @@
         None,
         SilentLogin,
         ManualLogin,
-        ResetPassword
+        ResetPassword,
+        RefreshToken
     }
 }

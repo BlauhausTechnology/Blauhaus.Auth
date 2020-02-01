@@ -7,6 +7,7 @@ namespace Blauhaus.Auth.Abstractions.Services
     public interface IAuthenticationClientService
     {
         Task<IUserAuthentication> LoginAsync(CancellationToken cancellationToken);
+        Task<IUserAuthentication> RefreshAccessTokenAsync(CancellationToken cancellationToken);
         Task LogoutAsync();
         
     }
