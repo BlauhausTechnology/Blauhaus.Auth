@@ -10,13 +10,11 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
     internal class MsalClientProxy : IMsalClientProxy
     {
         private readonly IAzureActiveDirectoryClientConfig _azureAuthConfig;
-        private readonly IAnalyticsService _analyticsService;
         private readonly IPublicClientApplication _authenticationClient;
 
-        public MsalClientProxy(IAzureActiveDirectoryClientConfig azureAuthConfig, IAnalyticsService analyticsService)
+        public MsalClientProxy(IAzureActiveDirectoryClientConfig azureAuthConfig)
         {
             _azureAuthConfig = azureAuthConfig;
-            _analyticsService = analyticsService;
 
             _authenticationClient = PublicClientApplicationBuilder
                 .Create(_azureAuthConfig.ApplicationId)

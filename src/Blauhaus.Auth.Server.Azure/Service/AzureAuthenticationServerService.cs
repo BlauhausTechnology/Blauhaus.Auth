@@ -125,7 +125,9 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             var user = (TUser)_serviceProvider.GetService(typeof(TUser));
             user.Initialize(claimsPrincipal);
+            
             _analyticsService.Trace("User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, new Dictionary<string, object> {{"AzureADUser", user}});
+            
             return user;
         }
 
