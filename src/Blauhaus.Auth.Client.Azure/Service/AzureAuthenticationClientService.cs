@@ -79,6 +79,39 @@ namespace Blauhaus.Auth.Client.Azure.Service
             }
         }
 
+        public async Task<IUserAuthentication> RefreshAccessTokenAsync(CancellationToken cancellationToken)
+        {
+
+            try
+            {
+                var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken, true);
+
+                if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.RefreshToken, out var completedRefreshTokenAuthentication))
+                {
+                    return completedRefreshTokenAuthentication;
+                }
+
+                if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
+                {
+                    _analyticsService.Trace($"{AuthenticationMode.RefreshToken} failed. Login required", LogSeverity.Warning);
+                    return UserAuthentication.CreateFailed("MSAL RefreshToken failed. Login required", AuthenticationMode.RefreshToken);
+                }
+
+                _analyticsService.Trace("No authentication methods were successful to refresh token", LogSeverity.Warning);
+                return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.RefreshToken);
+            }
+            catch (Exception e)
+            {
+                if (TryGetFailedAuthentication(e, AuthenticationMode.RefreshToken, out var failedUserAuthentication))
+                {
+                    return failedUserAuthentication;
+                }
+
+                _analyticsService.LogException(e);
+                throw;
+            }
+        }
+
         public async Task LogoutAsync()
         {
             await _msalClientProxy.LogoutAsync();
@@ -141,5 +174,6 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
             return userAuthentication;
         }
+
     }
 }
