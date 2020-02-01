@@ -16,7 +16,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
         protected MockBuilder<IAnalyticsService> MockAnalyticsService;
         protected MockBuilder<IIocService> MockIocService;
-        internal MockBuilder<IMsalClientProxy> MockMsalClientProxy;
+        internal MsalClientProxyMockBuilder MockMsalClientProxy;
         internal MockBuilder<IAuthenticatedAccessToken> MockAuthenticatedAccessToken;
         protected CancellationToken MockCancelToken;
 
@@ -29,14 +29,13 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         {
             Cleanup();
             MockAnalyticsService = new MockBuilder<IAnalyticsService>();
-            MockMsalClientProxy = new MockBuilder<IMsalClientProxy>();
-            MockIocService = new MockBuilder<IIocService>();
+            MockMsalClientProxy = new MsalClientProxyMockBuilder();
             MockAuthenticatedAccessToken = new MockBuilder<IAuthenticatedAccessToken>();
+            MockIocService = new MockBuilder<IIocService>();
 
             MockCancelToken = new CancellationTokenSource().Token;
             
-            MockMsalClientProxy.Mock.Setup(x => x.AuthenticateSilentlyAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(MockAuthenticatedUserResult);
+            MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MockAuthenticatedUserResult);
 
             MockIocService.Mock.Setup(x => x.Resolve<IMsalClientProxy>())
                 .Returns(MockMsalClientProxy.Object);
