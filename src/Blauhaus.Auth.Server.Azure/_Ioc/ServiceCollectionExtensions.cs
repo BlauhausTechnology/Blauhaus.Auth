@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using Blauhaus.Analytics.Console._Ioc;
+using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;

@@ -29,7 +29,6 @@ namespace Blauhaus.Auth.Abstractions.Models
         public string AuthenticatedAccessToken { get; }
         public string ErrorMessage { get; }
 
-        public Dictionary<string, string> AuthenticationProperties { get; } = new Dictionary<string, string>();
 
         public static IUserAuthentication CreateAuthenticated(string userId, string sessionToken, AuthenticationMode mode)
         {

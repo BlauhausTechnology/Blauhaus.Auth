@@ -2,9 +2,8 @@
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Blauhaus.Auth.Server.Azure.User;
 
-namespace Blauhaus.Auth.Server.Azure.Service
+namespace Blauhaus.Auth.Abstractions.Services
 {
     public interface IAzureAuthenticationServerService<TUser> where TUser : class, IAzureActiveDirectoryUser
     {
