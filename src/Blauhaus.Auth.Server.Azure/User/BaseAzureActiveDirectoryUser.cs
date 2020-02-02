@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security.Claims;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Claims;
+using Blauhaus.Auth.Abstractions.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using Blauhaus.Analytics.Abstractions.Service;
-using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
+using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
 using Blauhaus.Auth.Tests.Builders;
