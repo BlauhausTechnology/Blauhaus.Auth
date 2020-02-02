@@ -11,7 +11,7 @@ using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests
 {
-    public class SetCustomClaimAsyncTests : BaseAzureAuthenticationServerServiceTest
+    public class SetCustomClaimsAsyncTests : BaseAzureAuthenticationServerServiceTest
     {
         private Guid _userObjectId;
 
@@ -32,7 +32,11 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.GraphVersion, "api-version=1.6");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
+            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            {
+                {"RoleLevel", "120" },
+                {"LuckyNumber", "12" }
+            }, CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
@@ -47,12 +51,17 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
+            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            {
+                {"RoleLevel", "120" },
+                {"LuckyNumber", "12" }
+            }, CancellationToken.None);
 
             //Assert
             var expectedJson = new JObject
             {
-                ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120"
+                ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120",
+                ["extension_b2ea915621b940d8ae234cbb3a776931_LuckyNumber"] = "12",
             };
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
                 y.Request.ToString() == expectedJson.ToString()
@@ -67,7 +76,11 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .ReturnsAsync("azureAccessToken");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
+            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            {
+                {"RoleLevel", "120" },
+                {"LuckyNumber", "12" }
+            }, CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.PatchAsync<string>(It.Is<IHttpRequestWrapper<JObject>>(y =>
@@ -79,18 +92,30 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         public async Task SHOULD_trace_success()
         {
             //Arrange
+            MockAzureActiveDirectoryServerConfig
+                .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
             MockAdalAuthenticationContext.Mock.Setup(x => x.AcquireAccessTokenAsync())
                 .ReturnsAsync("azureAccessToken");
 
             //Act
-            await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
+            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            {
+                {"RoleLevel", "120" },
+                {"LuckyNumber", "12" }
+            }, CancellationToken.None);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation("Update user claim on Azure AD", It.IsAny<Dictionary<string, object>>()));
-            MockAnalyticsService.Mock.Verify(x => x.Trace("Custom claim set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
-                (string) y["RoleLevel"] ==  "120" &&
-                (string) y["AuthenticatedUserId"] ==  _userObjectId.ToString() &&
-                y["Json"].ToString() == "{\r\n  \"extension__RoleLevel\": \"120\"\r\n}")));
+            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation("Update user claims on Azure AD", It.IsAny<Dictionary<string, object>>()));
+            var expectedJson = new JObject
+            {
+                ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120",
+                ["extension_b2ea915621b940d8ae234cbb3a776931_LuckyNumber"] = "12",
+            };
+            MockAnalyticsService.Mock.Verify(x => x.Trace("Custom claims set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
+                (string)y["RoleLevel"] == "120" &&
+                (string)y["LuckyNumber"] == "12" &&
+                (string)y["AuthenticatedUserId"] == _userObjectId.ToString() &&
+                y["Json"].ToString() == expectedJson.ToString())));
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.Common.TestHelpers;
@@ -96,6 +97,28 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             Assert.That(result.AuthenticatedUserId, Is.EqualTo("29d195eb-68d1-45a3-8183-5fd8b5a72c0c"));
         }
 
+        
+        [Test]
+        public async Task SHOULD_log_operation_and_trace()
+        {
+            //Arrange
+            MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(_serializedAzureUser);
+            var user = new DefaultAzureActiveDirectoryUser();
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+                .Returns(user);
+            
+            //Act
+            await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
+
+            //Assert
+            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation("Get user profile from Azure AD", It.Is<Dictionary<string, object>>(y => 
+                (string) y["AuthenticatedUserId"] == _userObjectId.ToString())));
+            MockAnalyticsService.Mock.Verify(x => x.Trace("User profile retrieved from Azure AD", 
+                LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => y["AzureADUser"] == user)));
+        }
+
+
         [Test]
         public async Task IF_Email_Address_is_not_valid_SHOULD_make_it_null()
         {
@@ -111,7 +134,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.That(result.EmailAddress, Is.Null);
-
         }
 
     }
