@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Builders;
+using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.Common.TestHelpers;

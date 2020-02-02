@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Blauhaus.Auth.Server.Azure.User
+namespace Blauhaus.Auth.Abstractions.Services
 {
     public interface IAzureActiveDirectoryUser
     {

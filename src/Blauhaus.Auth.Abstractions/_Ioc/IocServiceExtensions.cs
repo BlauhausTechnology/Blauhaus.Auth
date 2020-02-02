@@ -1,4 +1,4 @@
-﻿using Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers;
+﻿using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Ioc.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 

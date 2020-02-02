@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using static System.String;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers
+namespace Blauhaus.Auth.Abstractions.AccessToken
 {
     public class AuthenticatedAccessToken : IAuthenticatedAccessToken
     {
@@ -19,14 +19,14 @@ namespace Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers
             _additionalHeaders[key] = value;
         }
 
-        public string Scheme { get; protected set; } = Empty;
-        public string Token { get; protected set; } = Empty;
+        public string Scheme { get; protected set; } = String.Empty;
+        public string Token { get; protected set; } = String.Empty;
         public IReadOnlyDictionary<string, string> AdditionalHeaders => _additionalHeaders;
 
         public void Clear()
         {
-            Scheme = Empty;
-            Token = Empty;
+            Scheme = String.Empty;
+            Token = String.Empty;
             _additionalHeaders.Clear();
         }
     }

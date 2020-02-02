@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Blauhaus.Auth.Abstractions.ClientAuthenticationHandlers
+namespace Blauhaus.Auth.Abstractions.AccessToken
 {
     public interface IAuthenticatedAccessToken
     {
