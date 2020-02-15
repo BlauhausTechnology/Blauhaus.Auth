@@ -8,14 +8,11 @@ namespace Blauhaus.Auth.Abstractions._Ioc
     {
         public static IServiceCollection RegisterAccessToken(this IServiceCollection services)
         {
-            services.AddSingleton<IAuthenticatedAccessToken, AuthenticatedAccessToken>();
+            //for some reason services.AddSingleton<IAuthenticatedAccessToken, AuthenticatedAccessToken>(); does not result in a singleton in some cases
+            //so this approach is safer
+            services.AddSingleton<IAuthenticatedAccessToken>(new AuthenticatedAccessToken());
             return services;
         }
         
-        public static IServiceCollection RegisterAccessToken<TAccessToken>(this IServiceCollection services) where TAccessToken : AuthenticatedAccessToken
-        {
-            services.AddSingleton<IAuthenticatedAccessToken, TAccessToken>();
-            return services;
-        }
     }
 }

@@ -12,11 +12,6 @@ namespace Blauhaus.Auth.Abstractions._Ioc
             return iocService;
         }
         
-        public static IIocService RegisterAccessToken<TAccessToken>(this IIocService iocService) where TAccessToken : AuthenticatedAccessToken
-        {
-            iocService.RegisterImplementation<IAuthenticatedAccessToken, TAccessToken>(IocLifetime.Singleton);
-            return iocService;
-        }
 
     }
 }
