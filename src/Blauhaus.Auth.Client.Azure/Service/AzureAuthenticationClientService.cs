@@ -65,7 +65,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                         }
                     }
                 }
-                _analyticsService.Trace( "No authentication methods were successful", LogSeverity.Warning);
+                _analyticsService.Trace(this,  "No authentication methods were successful", LogSeverity.Warning);
                 return UserAuthentication.CreateFailed("No authentication methods were successful", currentAuthMode);
             }
             catch (Exception e)
@@ -75,7 +75,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     return failedUserAuthentication;
                 }
                 
-                _analyticsService.LogException(e);
+                _analyticsService.LogException(this, e);
                 throw;
             }
         }
@@ -94,11 +94,11 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
-                    _analyticsService.Trace($"{AuthenticationMode.RefreshToken} failed. Login required", LogSeverity.Warning);
+                    _analyticsService.Trace(this, $"{AuthenticationMode.RefreshToken} failed. Login required", LogSeverity.Warning);
                     return UserAuthentication.CreateFailed("MSAL RefreshToken failed. Login required", AuthenticationMode.RefreshToken);
                 }
 
-                _analyticsService.Trace("No authentication methods were successful to refresh token", LogSeverity.Warning);
+                _analyticsService.Trace(this, "No authentication methods were successful to refresh token", LogSeverity.Warning);
                 return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.RefreshToken);
             }
             catch (Exception e)
@@ -108,7 +108,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     return failedUserAuthentication;
                 }
 
-                _analyticsService.LogException(e);
+                _analyticsService.LogException(this, e);
                 throw;
             }
         }
@@ -129,8 +129,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 
                 failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error", mode);
 
-                _analyticsService.Trace( $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
-                _analyticsService.LogException(exception);
+                _analyticsService.Trace(this, $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
+                _analyticsService.LogException(this, exception);
 
                 return true;
             }
@@ -147,7 +147,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
                 
-                _analyticsService.Trace( $"{authenticationModeName} successful for {userAuthentication.AuthenticatedUserId}", 
+                _analyticsService.Trace(this, $"{authenticationModeName} successful for {userAuthentication.AuthenticatedUserId}", 
                     LogSeverity.Information, userAuthentication.AuthenticatedUserId.ToPropertyDictionary("AuthenticatedUserId"));
                 
                 return true;
@@ -156,14 +156,14 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (msalClientResult.IsCancelled)
             {
                 userAuthentication = UserAuthentication.CreateCancelled(mode);
-                _analyticsService.Trace($"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Information);
+                _analyticsService.Trace(this, $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Information);
                 return true;
             }
 
             if (msalClientResult.IsFailed)
             {
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
-                _analyticsService.Trace( $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", 
+                _analyticsService.Trace(this, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", 
                     LogSeverity.Warning, msalClientResult.ToPropertyDictionary("MSAL result"));
                 return true;
             }

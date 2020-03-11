@@ -46,8 +46,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             Sut.ExtractUser(claimsPrincipal);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.Trace("User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => 
-                y["AzureADUser"] == mockUser.Object)));
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => 
+                y["AzureADUser"] == mockUser.Object), It.IsAny<string>()));
         }
 
 

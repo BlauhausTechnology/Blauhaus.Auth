@@ -50,12 +50,12 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
             var json = new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value};
 
-            using (var _ = _analyticsService.ContinueOperation("Update user claim on Azure AD"))
+            using (var _ = _analyticsService.ContinueOperation(this, "Update user claim on Azure AD"))
             {
                 await _httpClientService.PatchAsync<string>(new HttpRequestWrapper<JObject>(endpoint, json)
                     .WithAuthorizationHeader("Bearer", accessToken), token);
                 
-                _analyticsService.Trace("Custom claim set", LogSeverity.Information, json.ToPropertyDictionary("Json")
+                _analyticsService.Trace(this, "Custom claim set", LogSeverity.Information, json.ToPropertyDictionary("Json")
                     .WithProperty(propertyName, value)
                     .WithProperty("AuthenticatedUserId", userObjectId));
             }
@@ -74,10 +74,10 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation("Update user claims on Azure AD"))
+            using (var _ = _analyticsService.ContinueOperation(this, "Update user claims on Azure AD"))
             {
                 await _httpClientService.PatchAsync<string>(request, token);
-                _analyticsService.Trace("Custom claims set", LogSeverity.Information, json.ToPropertyDictionary("Json")
+                _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToPropertyDictionary("Json")
                     .WithProperty("AuthenticatedUserId", userObjectId)
                     .WithProperties(claims));
             }
@@ -91,7 +91,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper(endpoint)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation("Get user profile from Azure AD", 
+            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", 
                 userObjectId.ToPropertyDictionary("AuthenticatedUserId")))
             {
                 var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
@@ -111,7 +111,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
                 user.PopulateCustomProperties(customProperties);
 
-                _analyticsService.Trace("User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
+                _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
 
                 return user;
             }
@@ -123,7 +123,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var user = (TUser)_serviceProvider.GetService(typeof(TUser));
             user.Initialize(claimsPrincipal);
             
-            _analyticsService.Trace("User profile extracted from ClaimsPrincipal", 
+            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal", 
                 LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
             
             return user;

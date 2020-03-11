@@ -105,17 +105,17 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             }, CancellationToken.None);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation("Update user claims on Azure AD", It.IsAny<Dictionary<string, object>>()));
+            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation(Sut, "Update user claims on Azure AD", It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
             var expectedJson = new JObject
             {
                 ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120",
                 ["extension_b2ea915621b940d8ae234cbb3a776931_LuckyNumber"] = "12",
             };
-            MockAnalyticsService.Mock.Verify(x => x.Trace("Custom claims set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Custom claims set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
                 (string)y["RoleLevel"] == "120" &&
                 (string)y["LuckyNumber"] == "12" &&
                 (string)y["AuthenticatedUserId"] == _userObjectId.ToString() &&
-                y["Json"].ToString() == expectedJson.ToString())));
+                y["Json"].ToString() == expectedJson.ToString()), It.IsAny<string>()));
         }
     }
 }
