@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="0.1.6" />
-    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.3" />
-    <PackageReference Include="Blauhaus.Common.Time" Version="0.8.4" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.8.1" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="0.5.0" />
+    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.4" />
+    <PackageReference Include="Blauhaus.Common.Time" Version="0.9.4" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.9.0" />
   </ItemGroup>
 
   <ItemGroup>

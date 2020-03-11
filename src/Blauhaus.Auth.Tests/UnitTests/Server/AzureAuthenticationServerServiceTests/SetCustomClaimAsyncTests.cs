@@ -86,11 +86,11 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.SetCustomClaimAsync(_userObjectId.ToString(), "RoleLevel", "120", CancellationToken.None);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation("Update user claim on Azure AD", It.IsAny<Dictionary<string, object>>()));
-            MockAnalyticsService.Mock.Verify(x => x.Trace("Custom claim set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
+            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation(Sut, "Update user claim on Azure AD", It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Custom claim set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
                 (string) y["RoleLevel"] ==  "120" &&
                 (string) y["AuthenticatedUserId"] ==  _userObjectId.ToString() &&
-                y["Json"].ToString() == "{\r\n  \"extension__RoleLevel\": \"120\"\r\n}")));
+                y["Json"].ToString() == "{\r\n  \"extension__RoleLevel\": \"120\"\r\n}"), It.IsAny<string>()));
         }
     }
 }

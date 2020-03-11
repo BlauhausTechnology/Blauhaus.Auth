@@ -17,6 +17,7 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
         public static IServiceCollection RegisterAzureAuthenticationServer<TConfig, TUser>(this IServiceCollection services, TraceListener consoleTraceListener) 
             where TConfig : class, IAzureActiveDirectoryServerConfig where TUser : BaseAzureActiveDirectoryUser
         {
+            services.RegisterConsoleLoggerClientService();
             RegisterCommon<TConfig, TUser>(services, consoleTraceListener);
             return services;
         }
@@ -24,6 +25,7 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
         public static IServiceCollection RegisterAzureAuthenticationServer<TConfig>(this IServiceCollection services, TraceListener consoleTraceListener) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 
         {
+            services.RegisterConsoleLoggerService(consoleTraceListener);
             RegisterCommon<TConfig, DefaultAzureActiveDirectoryUser>(services, consoleTraceListener);
             return services;
         }
@@ -32,7 +34,6 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
             where TConfig : class, IAzureActiveDirectoryServerConfig
             where TUser : BaseAzureActiveDirectoryUser
         {
-            services.RegisterConsoleLoggerServerService(consoleTraceListener);
             services.RegisterServerHttpService(consoleTraceListener);
             services.AddScoped<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>();
             services.AddTransient<IAzureActiveDirectoryUser, TUser>();
