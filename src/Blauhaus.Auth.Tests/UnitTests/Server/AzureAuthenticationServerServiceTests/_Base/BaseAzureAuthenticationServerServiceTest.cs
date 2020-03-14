@@ -4,7 +4,6 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
-using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Common.TestHelpers;
 using Blauhaus.Common.TestHelpers.Http.MockBuilders;
 using Blauhaus.HttpClientService.Abstractions;

@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Server.Azure.User;
+using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
 using Blauhaus.Common.TestHelpers;
 using Blauhaus.HttpClientService.Abstractions;

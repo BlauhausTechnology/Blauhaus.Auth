@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
@@ -7,6 +10,7 @@ using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Auth.Abstractions.Extensions;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Abstractions.Services;
+using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Ioc.Abstractions;
 
@@ -147,8 +151,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
                 
-                _analyticsService.Trace(this, $"{authenticationModeName} successful for {userAuthentication.AuthenticatedUserId}", 
-                    LogSeverity.Information, userAuthentication.AuthenticatedUserId.ToPropertyDictionary("AuthenticatedUserId"));
+                _analyticsService.Trace(this, $"{authenticationModeName} successful", 
+                    LogSeverity.Information, userAuthentication.User.UserId.ToPropertyDictionary("UserId"));
                 
                 return true;
             }
@@ -174,9 +178,30 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
         private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, AuthenticationMode mode)
         {
-            var userAuthentication = UserAuthentication.CreateAuthenticated(
-                msalClientResult.AuthenticationResult.UniqueId,
-                msalClientResult.AuthenticationResult.AccessToken, mode);
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var token = tokenHandler.ReadJwtToken(msalClientResult.AuthenticationResult.AccessToken);
+            var userId = Guid.Parse(msalClientResult.AuthenticationResult.UniqueId);
+            string? emailAddress = null;
+
+            var claims = new List<Claim>();
+            foreach (var claim in token.Claims)
+            {
+                if (claim.Type.StartsWith("extension_"))
+                {
+                    claims.Add(new Claim(claim.Type.Substring(10), claim.Value));
+                }
+                else if (claim.Type == "emails")
+                {
+                    emailAddress = claim.Value;
+                }
+            }
+
+            var user = new AuthenticatedUser(userId, emailAddress, claims);
+            var accessToken = msalClientResult.AuthenticationResult.AccessToken;
+            var idToken = msalClientResult.AuthenticationResult.IdToken;
+
+            var userAuthentication = UserAuthentication.CreateAuthenticated(user, accessToken, idToken, mode);
 
             _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken);
 

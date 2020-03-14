@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,11 +42,14 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
-            Assert.That(result.AuthenticatedAccessToken, Is.EqualTo("authenticatedAccesstoken"));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo("authenticatedUserId"));
-            MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", "authenticatedAccesstoken"));
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "RefreshToken successful for authenticatedUserId", LogSeverity.Information, 
-                It.Is<Dictionary<string, object>>(y => (string) y["AuthenticatedUserId"] == "authenticatedUserId"), It.IsAny<string>()));
+            Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
+            Assert.That(result.User.UserId, Is.EqualTo(UserId));
+            var userType = result.User.Claims.FirstOrDefault(x => x.Type == "UserType");
+            Assert.That(userType, Is.Not.Null);
+            Assert.That(userType.Value, Is.EqualTo("Admin"));
+            MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "RefreshToken successful", LogSeverity.Information, 
+                It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
         }
 
         [Test]
@@ -60,7 +64,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.User, Is.Null);
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "RefreshToken cancelled. MSAL state: Cancelled",
                 LogSeverity.Information, It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
@@ -79,7 +83,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.User, Is.Null);
             Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.RefreshToken} failed. Error code: MSAL Error Code"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "RefreshToken FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning, 
@@ -99,7 +103,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.User, Is.Null);
             Assert.That(result.ErrorMessage, Is.EqualTo("MSAL RefreshToken failed. Networking error"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.Mock.Verify(x => x.LogException(Sut, exception, It.IsAny<Dictionary<string, object>>(), It.IsAny<Dictionary<string, double>>(), It.IsAny<string>()));
@@ -118,7 +122,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.User, Is.Null);
             Assert.That(result.ErrorMessage, Is.EqualTo("MSAL RefreshToken failed. Networking error"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.Mock.Verify(x => x.LogException(Sut, exception, It.IsAny<Dictionary<string, object>>(), It.IsAny<Dictionary<string, double>>(), It.IsAny<string>()));
@@ -141,7 +145,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             Assert.That(result.ErrorMessage, Is.EqualTo("MSAL RefreshToken failed. Login required"));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo(""));
+            Assert.That(result.User, Is.Null);
         }
 
 

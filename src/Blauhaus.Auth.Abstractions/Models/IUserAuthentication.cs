@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Blauhaus.Auth.Abstractions.User;
 
 namespace Blauhaus.Auth.Abstractions.Models
 {
@@ -8,7 +9,8 @@ namespace Blauhaus.Auth.Abstractions.Models
         UserAuthenticationState AuthenticationState { get; }
         AuthenticationMode AuthenticationMode { get; }
         string AuthenticatedAccessToken { get; }
+        string AuthenticatedIdToken { get; }
         string ErrorMessage { get; }
-        string AuthenticatedUserId { get; } //todo change to IAuthenticatedUser and extract properties from access token
+        IAuthenticatedUser User { get; } 
     }
 }
