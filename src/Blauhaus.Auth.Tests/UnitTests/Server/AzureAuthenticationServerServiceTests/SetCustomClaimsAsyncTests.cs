@@ -32,7 +32,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.GraphVersion, "api-version=1.6");
 
             //Act
-            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            await Sut.SetCustomClaimsAsync(_userObjectId, new Dictionary<string, string>
             {
                 {"RoleLevel", "120" },
                 {"LuckyNumber", "12" }
@@ -51,7 +51,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
 
             //Act
-            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            await Sut.SetCustomClaimsAsync(_userObjectId, new Dictionary<string, string>
             {
                 {"RoleLevel", "120" },
                 {"LuckyNumber", "12" }
@@ -76,7 +76,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .ReturnsAsync("azureAccessToken");
 
             //Act
-            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            await Sut.SetCustomClaimsAsync(_userObjectId, new Dictionary<string, string>
             {
                 {"RoleLevel", "120" },
                 {"LuckyNumber", "12" }
@@ -98,7 +98,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .ReturnsAsync("azureAccessToken");
 
             //Act
-            await Sut.SetCustomClaimsAsync(_userObjectId.ToString(), new Dictionary<string, string>
+            await Sut.SetCustomClaimsAsync(_userObjectId, new Dictionary<string, string>
             {
                 {"RoleLevel", "120" },
                 {"LuckyNumber", "12" }
@@ -114,7 +114,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Custom claims set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
                 (string)y["RoleLevel"] == "120" &&
                 (string)y["LuckyNumber"] == "12" &&
-                (string)y["AuthenticatedUserId"] == _userObjectId.ToString() &&
+                (Guid)y["UserId"] == _userObjectId &&
                 y["Json"].ToString() == expectedJson.ToString()), It.IsAny<string>()));
         }
     }

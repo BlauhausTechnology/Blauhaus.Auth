@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
+using Blauhaus.Auth.Abstractions.Claims;
 using Blauhaus.Auth.Abstractions.Extensions;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
@@ -16,11 +18,9 @@ using Newtonsoft.Json.Linq;
 
 namespace Blauhaus.Auth.Server.Azure.Service
 {
-    public class AzureAuthenticationServerService<TUser> : IAzureAuthenticationServerService<TUser> 
-        where TUser : class, IAzureActiveDirectoryUser
+    public class AzureAuthenticationServerService : IAzureAuthenticationServerService 
     {
         private readonly IHttpClientService _httpClientService;
-        private readonly IServiceProvider _serviceProvider;
         private readonly IAnalyticsService _analyticsService;
         private readonly IAdalAuthenticationContextProxy _adalAuthenticationContext;
 
@@ -31,40 +31,21 @@ namespace Blauhaus.Auth.Server.Azure.Service
         public AzureAuthenticationServerService(
             IHttpClientService httpClientService,
             IAzureActiveDirectoryServerConfig config,
-            IServiceProvider serviceProvider,
+            IAdalAuthenticationContextProxy adalAuthenticationContext,
             IAnalyticsService analyticsService)
         {
             _httpClientService = httpClientService;
-            var config1 = config;
-            _serviceProvider = serviceProvider;
             _analyticsService = analyticsService;
-            _adalAuthenticationContext = (IAdalAuthenticationContextProxy) serviceProvider.GetService(typeof(IAdalAuthenticationContextProxy));
-            _customPropertyNamePrefix = $"extension_{config1.ExtensionsApplicationId}_";
-            _endpointPrefix = $"{config1.GraphEndpoint}{config.TenantId}";
-            _endpointPostfix = $"?{config1.GraphVersion}";
+            _adalAuthenticationContext = adalAuthenticationContext;
+            _customPropertyNamePrefix = $"extension_{config.ExtensionsApplicationId}_";
+            _endpointPrefix = $"{config.GraphEndpoint}{config.TenantId}";
+            _endpointPostfix = $"?{config.GraphVersion}";
         }
 
-        public async Task SetCustomClaimAsync(string userObjectId, string propertyName, string value, CancellationToken token)
+        public async Task SetCustomClaimsAsync(Guid userId, Dictionary<string, string> claims, CancellationToken token)
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
-            var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
-            var json = new JObject { [$"{_customPropertyNamePrefix}{propertyName}"] = value};
-
-            using (var _ = _analyticsService.ContinueOperation(this, "Update user claim on Azure AD"))
-            {
-                await _httpClientService.PatchAsync<string>(new HttpRequestWrapper<JObject>(endpoint, json)
-                    .WithAuthorizationHeader("Bearer", accessToken), token);
-                
-                _analyticsService.Trace(this, "Custom claim set", LogSeverity.Information, json.ToPropertyDictionary("Json")
-                    .WithProperty(propertyName, value)
-                    .WithProperty("AuthenticatedUserId", userObjectId));
-            }
-        }
-
-        public async Task SetCustomClaimsAsync(string userObjectId, Dictionary<string, string> claims, CancellationToken token)
-        {
-            var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
-            var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
+            var endpoint = GetGraphEndpointForResource($"/users/{userId.ToString()}");
 
             var json = new JObject();
             foreach(var claim in claims)
@@ -78,39 +59,53 @@ namespace Blauhaus.Auth.Server.Azure.Service
             {
                 await _httpClientService.PatchAsync<string>(request, token);
                 _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToPropertyDictionary("Json")
-                    .WithProperty("AuthenticatedUserId", userObjectId)
+                    .WithProperty("UserId", userId)
                     .WithProperties(claims));
             }
         }
 
-        public async Task<TUser> GetUserAsync(string userObjectId, CancellationToken token)
+        public async Task<IAuthenticatedUser> GetUserFromAzureAsync(Guid userId, CancellationToken token)
         {
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
-            var endpoint = GetGraphEndpointForResource($"/users/{userObjectId}");
+            var endpoint = GetGraphEndpointForResource($"/users/{userId.ToString()}");
 
             var request = new HttpRequestWrapper(endpoint)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", 
-                userObjectId.ToPropertyDictionary("AuthenticatedUserId")))
+            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", userId.ToPropertyDictionary("UserId")))
             {
                 var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
             
-                var user = (TUser)_serviceProvider.GetService(typeof(TUser));
-                user.Initialize(azureUserValues);
+                string? emailAddress = null;
 
-                var customProperties = new Dictionary<string, object>();
+                if (azureUserValues.TryGetValue("signInNames", out var signInNames))
+                {
+
+                    if (signInNames is JArray signInNameProperties)
+                    {
+                        foreach (var signInNameProperty in signInNameProperties)
+                        {
+                            var key = (string)signInNameProperty.First.Value<JProperty>().Value;
+                            if (key == "emailAddress")
+                            {
+                                emailAddress = signInNameProperty.Last.Value<JProperty>().Value.ToString();
+                            }
+                        }
+                    }
+                }
+
+                var claims = new List<Claim>();
                 foreach (var rawAzureProperty in azureUserValues)
                 {
                     if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
                     {
-                        var originalPropertyName = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
-                        customProperties[originalPropertyName] = rawAzureProperty.Value;
+                        var claimType = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
+                        claims.Add(new Claim(claimType, rawAzureProperty.Value.ToString()));
                     }
                 }
 
-                user.PopulateCustomProperties(customProperties);
-
+                var user = new AuthenticatedUser(userId, emailAddress, claims);
+                
                 _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
 
                 return user;
@@ -118,17 +113,42 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
         }
 
-        public TUser ExtractUser(ClaimsPrincipal claimsPrincipal)
+        public IAuthenticatedUser ExtractUserFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
         {
-            var user = (TUser)_serviceProvider.GetService(typeof(TUser));
-            user.Initialize(claimsPrincipal);
+            string? emailAddress = null;
+            Guid userId;
+            var claims = claimsPrincipal.Claims;
             
+            if (!claimsPrincipal.Identity.IsAuthenticated)
+            {
+                throw new UnauthorizedAccessException("User is not authenticated");
+            }
+
+            var objectIdentifier = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypesExtended.ObjectIdentifierClaimType);
+            if (objectIdentifier == null || string.IsNullOrEmpty(objectIdentifier.Value))
+            {
+                throw new UnauthorizedAccessException("Invalid identity");
+            }
+
+            userId = Guid.Parse(objectIdentifier.Value);
+            if (userId == Guid.Empty)
+            {
+                throw new UnauthorizedAccessException("Invalid identity");
+            }
+
+            var emails = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == "emails");
+            if (emails != null && !string.IsNullOrEmpty(emails.Value))
+            {
+                emailAddress = emails.Value;
+            }
+
+            var user = new AuthenticatedUser(userId, emailAddress, claims);
+
             _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal", 
                 LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
             
             return user;
         }
-
 
         private string GetGraphEndpointForResource(string resource)
         {

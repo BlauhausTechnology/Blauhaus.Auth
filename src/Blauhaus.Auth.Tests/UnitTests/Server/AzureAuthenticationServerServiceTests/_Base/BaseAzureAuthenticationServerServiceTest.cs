@@ -6,13 +6,14 @@ using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.Auth.Server.Azure.User;
 using Blauhaus.Common.TestHelpers;
+using Blauhaus.Common.TestHelpers.Http.MockBuilders;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.Ioc.Abstractions;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base
 {
-    public class BaseAzureAuthenticationServerServiceTest : BaseUnitTest<AzureAuthenticationServerService<IAzureActiveDirectoryUser>>
+    public class BaseAzureAuthenticationServerServiceTest : BaseUnitTest<AzureAuthenticationServerService>
     {
         
         protected MockBuilder<IServiceProvider> MockServiceProvider;
@@ -20,7 +21,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         internal MockBuilder<IAzureActiveDirectoryServerConfig> MockAzureActiveDirectoryServerConfig;
         internal MockBuilder<IHttpClientService> MockHttpClientService;
         internal MockBuilder<IAnalyticsService> MockAnalyticsService;
-
 
         [SetUp]
         public virtual void Setup()
@@ -36,12 +36,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .Returns(MockAdalAuthenticationContext.Object);
         }
 
-        protected override AzureAuthenticationServerService<IAzureActiveDirectoryUser> ConstructSut()
+        protected override AzureAuthenticationServerService ConstructSut()
         {
-            return new AzureAuthenticationServerService<IAzureActiveDirectoryUser>(
+            return new AzureAuthenticationServerService(
                 MockHttpClientService.Object,
                 MockAzureActiveDirectoryServerConfig.Object,
-                MockServiceProvider.Object,
+                MockAdalAuthenticationContext.Object,
                 MockAnalyticsService.Object);
         }
     }

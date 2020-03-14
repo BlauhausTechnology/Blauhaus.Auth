@@ -14,32 +14,17 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
     public static class ServiceCollectionExtensions
     {
 
-        public static IServiceCollection RegisterAzureAuthenticationServer<TConfig, TUser>(this IServiceCollection services, TraceListener consoleTraceListener) 
-            where TConfig : class, IAzureActiveDirectoryServerConfig where TUser : BaseAzureActiveDirectoryUser
-        {
-            services.RegisterConsoleLoggerClientService();
-            RegisterCommon<TConfig, TUser>(services, consoleTraceListener);
-            return services;
-        }
-
         public static IServiceCollection RegisterAzureAuthenticationServer<TConfig>(this IServiceCollection services, TraceListener consoleTraceListener) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 
         {
             services.RegisterConsoleLoggerService(consoleTraceListener);
-            RegisterCommon<TConfig, DefaultAzureActiveDirectoryUser>(services, consoleTraceListener);
+            services.RegisterServerHttpService(consoleTraceListener);
+            services.AddScoped<IAzureAuthenticationServerService, AzureAuthenticationServerService>();
+            services.AddTransient<IAuthenticatedUser, AuthenticatedUser>();
+            services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
+            services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
             return services;
         }
 
-        private static void RegisterCommon<TConfig, TUser>(IServiceCollection services, TraceListener consoleTraceListener) 
-            where TConfig : class, IAzureActiveDirectoryServerConfig
-            where TUser : BaseAzureActiveDirectoryUser
-        {
-            services.RegisterServerHttpService(consoleTraceListener);
-            services.AddScoped<IAzureAuthenticationServerService<TUser>, AzureAuthenticationServerService<TUser>>();
-            services.AddTransient<IAzureActiveDirectoryUser, TUser>();
-            services.AddTransient<TUser>();
-            services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
-            services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
-        }
     }
 }

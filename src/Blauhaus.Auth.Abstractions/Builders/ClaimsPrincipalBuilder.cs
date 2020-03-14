@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using Blauhaus.Auth.Abstractions.Claims;
 
@@ -37,9 +38,9 @@ namespace Blauhaus.Auth.Abstractions.Builders
             _claims.Add(new Claim(ClaimTypes.NameIdentifier, nameIdentifier));
             return this;
         }
-        public ClaimsPrincipalBuilder With_ObjectId(string objectIdentifier)
+        public ClaimsPrincipalBuilder With_UserObjectId(Guid userObjectId)
         {
-            _claims.Add(new Claim(ClaimTypesExtended.ObjectIdentifierClaimType, objectIdentifier));
+            _claims.Add(new Claim(ClaimTypesExtended.ObjectIdentifierClaimType, userObjectId.ToString()));
             return this;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
@@ -14,9 +15,10 @@ using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests
 {
-    public class GetUserAsyncTests : BaseAzureAuthenticationServerServiceTest
+    public class GetUserFromAzureAsyncTests : BaseAzureAuthenticationServerServiceTest
     {
         private Guid _userObjectId;
+
         private readonly Dictionary<string, object> _serializedAzureUser = 
             JsonConvert.DeserializeObject<Dictionary<string, object>>("{\r\n  " +
                                                                       "\"objectType\": \"User\",\r\n  " +
@@ -44,7 +46,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                                                                       "\"userType\": \"Member\",\r\n  " +
                                                                       "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n");
 
-        private MockBuilder<IAzureActiveDirectoryUser> _mockUser;
+        private MockBuilder<IAuthenticatedUser> _mockUser;
 
         public override void Setup()
         {
@@ -54,8 +56,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
-            _mockUser = new MockBuilder<IAzureActiveDirectoryUser>();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+            _mockUser = new MockBuilder<IAuthenticatedUser>();
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
                 .Returns(_mockUser.Object);
         }
 
@@ -71,7 +73,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.GraphVersion, "api-version=1.6");
 
             //Act
-            await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
+            await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
 
             //Assert
             MockHttpClientService.Mock.Verify(x => x.GetAsync<Dictionary<string, object>>(It.Is<IHttpRequestWrapper>(y =>
@@ -81,21 +83,24 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         }
 
         [Test]
-        public async Task SHOULD_initialize_and_return_user()
+        public async Task SHOULD_initialize_and_return_user_with_claims()
         {
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
-            var user = new DefaultAzureActiveDirectoryUser();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+            var user = new AuthenticatedUser();
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
                 .Returns(user);
             
             //Act
-            var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
+            var result = await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
 
             //Assert
             Assert.That(result.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
-            Assert.That(result.AuthenticatedUserId, Is.EqualTo("29d195eb-68d1-45a3-8183-5fd8b5a72c0c"));
+            Assert.That(result.UserId, Is.EqualTo(Guid.Parse("29d195eb-68d1-45a3-8183-5fd8b5a72c0c")));
+            var roleLevel = result.Claims.FirstOrDefault(x => x.Type == "RoleLevel");
+            Assert.That(roleLevel, Is.Not.Null);
+            Assert.That(roleLevel.Value, Is.EqualTo("120"));
         }
 
         
@@ -105,18 +110,15 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
-            var user = new DefaultAzureActiveDirectoryUser();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
-                .Returns(user);
             
             //Act
-            await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
+            await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
 
             //Assert
             MockAnalyticsService.Mock.Verify(x => x.ContinueOperation(Sut, "Get user profile from Azure AD", It.Is<Dictionary<string, object>>(y => 
-                (string) y["AuthenticatedUserId"] == _userObjectId.ToString()), It.IsAny<string>()));
+                (Guid) y["UserId"] == _userObjectId), It.IsAny<string>()));
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile retrieved from Azure AD", 
-                LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => y["AzureADUser"] == user), It.IsAny<string>()));
+                LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => ((IAuthenticatedUser)y["AzureADUser"]).UserId == _userObjectId), It.IsAny<string>()));
         }
 
 
@@ -126,12 +128,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUserWithNoEmail);
-            var user = new DefaultAzureActiveDirectoryUser();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAzureActiveDirectoryUser)))
+            var user = new AuthenticatedUser();
+            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
                 .Returns(user);
             
             //Act
-            var result = await Sut.GetUserAsync(_userObjectId.ToString(), CancellationToken.None);
+            var result = await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
 
             //Assert
             Assert.That(result.EmailAddress, Is.Null);

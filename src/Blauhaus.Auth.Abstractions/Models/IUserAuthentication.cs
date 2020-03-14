@@ -9,6 +9,6 @@ namespace Blauhaus.Auth.Abstractions.Models
         AuthenticationMode AuthenticationMode { get; }
         string AuthenticatedAccessToken { get; }
         string ErrorMessage { get; }
-        string AuthenticatedUserId { get; } //todo change to TUser where TUser : class, IAzureActiveDirectoryUser
+        string AuthenticatedUserId { get; } //todo change to IAuthenticatedUser and extract properties from access token
     }
 }
