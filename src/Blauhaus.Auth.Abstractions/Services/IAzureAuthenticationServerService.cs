@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Blauhaus.Auth.Abstractions.Services
 {
-    public interface IAzureAuthenticationServerService<TUser> where TUser : class, IAzureActiveDirectoryUser
+    public interface IAzureAuthenticationServerService<TUser> where TUser : class, IAzureActiveDirectoryUser //todo remove TUser rather expose claims
     {
         Task SetCustomClaimAsync(string userObjectId, string propertyName, string value, CancellationToken token);
         Task SetCustomClaimsAsync(string userObjectId, Dictionary<string, string> claims, CancellationToken token);

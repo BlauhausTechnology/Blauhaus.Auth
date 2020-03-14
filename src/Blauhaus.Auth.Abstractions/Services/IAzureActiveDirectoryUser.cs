@@ -9,7 +9,9 @@ namespace Blauhaus.Auth.Abstractions.Services
         void PopulateCustomProperties(Dictionary<string, object> deserializedCustomProperties);
         void Initialize(ClaimsPrincipal claimsPrincipal);
 
-        string AuthenticatedUserId { get; }
+        string AuthenticatedUserId { get; }     //todo make Guid
         string? EmailAddress { get; }
+
+        //todo add Claims 
     }
 }
