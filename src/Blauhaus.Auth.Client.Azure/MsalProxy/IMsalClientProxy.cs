@@ -2,11 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-[assembly: InternalsVisibleTo("Blauhaus.Auth.Tests")]
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")] 
 namespace Blauhaus.Auth.Client.Azure.MsalProxy
 {
-    internal interface IMsalClientProxy
+    public interface IMsalClientProxy
     {
         Task<MsalClientResult> AuthenticateSilentlyAsync(CancellationToken cancellationToken, bool forceTokenRefresh = false);
         Task<MsalClientResult> LoginAsync(object clientParentView, CancellationToken cancellationToken);

@@ -45,7 +45,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         {
             return new AzureAuthenticationClientService(
                 MockAnalyticsService.Object,
-                MockIocService.Object,
+                MockMsalClientProxy.Object,
                 MockAuthenticatedAccessToken.Object);
         }
     }

@@ -20,12 +20,12 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
         public AzureAuthenticationClientService(
             IAnalyticsService analyticsService,
-            IIocService iocService,
+            IMsalClientProxy msalClientProxy,
             IAuthenticatedAccessToken accessToken)
         {
             _analyticsService = analyticsService;
             _accessToken = accessToken;
-            _msalClientProxy = iocService.Resolve<IMsalClientProxy>();
+            _msalClientProxy = msalClientProxy;
         }
 
         public static object NativeParentView { get; set; }
