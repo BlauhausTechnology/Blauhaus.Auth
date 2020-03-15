@@ -10,6 +10,10 @@ namespace Blauhaus.Auth.Abstractions.User
         string? EmailAddress { get; }
         IReadOnlyList<UserClaim> Claims { get; }
 
+        bool HasClaim(string name);
+        bool HasClaimValue(string name, string value);
+        bool TryGetClaimValue(string name, out string value);
+
 
     }
 }
