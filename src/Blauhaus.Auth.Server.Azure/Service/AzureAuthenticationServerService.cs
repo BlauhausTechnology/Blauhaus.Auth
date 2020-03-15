@@ -135,9 +135,9 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 {
                     emailAddress = string.IsNullOrWhiteSpace(claim.Value) ? null : claim.Value;
                 }
-                else if (claim.Type.StartsWith("extended_"))
+                else if (claim.Type.StartsWith("extension_"))
                 {
-                    var claimName = claim.Type.Replace("extended_", "");
+                    var claimName = claim.Type.Replace("extension_", "");
                     userClaims.Add(new UserClaim(claimName, claim.Value));
                 }
             }

@@ -109,7 +109,21 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Assert
             Assert.That(result.EmailAddress, Is.Null);
         }
+        
+        [Test]
+        public void IF_ClaimsPrincipal_has_azure_claims_SHOULD_extract_them()
+        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_UserObjectId(_userId)
+                .With_Claim("extension_HappyId", "12345").Build();
 
+            //Act
+            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+
+            //Assert
+            Assert.That(result.HasClaimValue("HappyId", "12345"), Is.True);
+        }
 
         [Test]
         public void SHOULD_trace()
