@@ -11,7 +11,7 @@ namespace Blauhaus.Auth.Abstractions.User
         {
         }
 
-        public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<Claim> claims)
+        public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<UserClaim> claims)
         {
             UserId = userId;
             EmailAddress = emailAddress;
@@ -21,6 +21,6 @@ namespace Blauhaus.Auth.Abstractions.User
 
         public Guid UserId { get; }
         public string? EmailAddress { get; }
-        public IReadOnlyList<Claim> Claims { get; }
+        public IReadOnlyList<UserClaim> Claims { get; }
     }
 }

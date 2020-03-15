@@ -8,7 +8,7 @@ namespace Blauhaus.Auth.Abstractions.User
     {
         Guid UserId { get; }   
         string? EmailAddress { get; }
-        IReadOnlyList<Claim> Claims { get; }
+        IReadOnlyList<UserClaim> Claims { get; }
 
 
     }

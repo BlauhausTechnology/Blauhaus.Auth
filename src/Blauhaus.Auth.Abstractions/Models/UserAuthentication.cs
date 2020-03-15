@@ -9,8 +9,8 @@ namespace Blauhaus.Auth.Abstractions.Models
             UserAuthenticationState authenticationState, 
             AuthenticationMode mode, 
             IAuthenticatedUser? user, 
-            string authToken,
-            string idToken,
+            string? authToken,
+            string? idToken,
             string errorMessage = "")
         {
             AuthenticatedAccessToken = authToken;
@@ -28,10 +28,10 @@ namespace Blauhaus.Auth.Abstractions.Models
 
         public UserAuthenticationState AuthenticationState { get; }
         public AuthenticationMode AuthenticationMode { get; }
-        public string AuthenticatedAccessToken { get; }
-        public string AuthenticatedIdToken { get; }
-        public string ErrorMessage { get; }
-        public IAuthenticatedUser User { get; }
+        public string? AuthenticatedAccessToken { get; }
+        public string? AuthenticatedIdToken { get; }
+        public string? ErrorMessage { get; }
+        public IAuthenticatedUser? User { get; }
 
 
         public static IUserAuthentication CreateAuthenticated(IAuthenticatedUser user, string accessToken, string idToken, AuthenticationMode mode)

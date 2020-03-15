@@ -58,9 +58,9 @@ namespace Blauhaus.Auth.Server.Azure.Service
             using (var _ = _analyticsService.ContinueOperation(this, "Update user claims on Azure AD"))
             {
                 await _httpClientService.PatchAsync<string>(request, token);
-                _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToPropertyDictionary("Json")
-                    .WithProperty("UserId", userId)
-                    .WithProperties(claims));
+                _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToObjectDictionary("Json")
+                    .WithValue("UserId", userId)
+                    .WithValues(claims));
             }
         }
 
@@ -72,7 +72,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper(endpoint)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", userId.ToPropertyDictionary("UserId")))
+            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", userId.ToObjectDictionary("UserId")))
             {
                 var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
             
@@ -94,19 +94,19 @@ namespace Blauhaus.Auth.Server.Azure.Service
                     }
                 }
 
-                var claims = new List<Claim>();
+                var claims = new List<UserClaim>();
                 foreach (var rawAzureProperty in azureUserValues)
                 {
                     if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
                     {
                         var claimType = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
-                        claims.Add(new Claim(claimType, rawAzureProperty.Value.ToString()));
+                        claims.Add(new UserClaim(claimType, rawAzureProperty.Value.ToString()));
                     }
                 }
 
                 var user = new AuthenticatedUser(userId, emailAddress, claims);
                 
-                _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
+                _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToObjectDictionary("AzureADUser"));
 
                 return user;
             }
@@ -116,36 +116,41 @@ namespace Blauhaus.Auth.Server.Azure.Service
         public IAuthenticatedUser ExtractUserFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
         {
             string? emailAddress = null;
-            Guid userId;
-            var claims = claimsPrincipal.Claims;
-            
+            var userId = Guid.Empty;
+            var userClaims = new List<UserClaim>();
+
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
+                _analyticsService.Trace(this, "User is not authenticated", LogSeverity.Error);
                 throw new UnauthorizedAccessException("User is not authenticated");
             }
 
-            var objectIdentifier = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypesExtended.ObjectIdentifierClaimType);
-            if (objectIdentifier == null || string.IsNullOrEmpty(objectIdentifier.Value))
+            foreach (var claim in claimsPrincipal.Claims)
             {
-                throw new UnauthorizedAccessException("Invalid identity");
+                if (claim.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")
+                {
+                    Guid.TryParse(claim.Value, out userId);
+                }
+                else if (claim.Type == "emails")
+                {
+                    emailAddress = string.IsNullOrWhiteSpace(claim.Value) ? null : claim.Value;
+                }
+                else if (claim.Type.StartsWith("extended_"))
+                {
+                    var claimName = claim.Type.Replace("extended_", "");
+                    userClaims.Add(new UserClaim(claimName, claim.Value));
+                }
             }
 
-            userId = Guid.Parse(objectIdentifier.Value);
             if (userId == Guid.Empty)
             {
-                throw new UnauthorizedAccessException("Invalid identity");
+                _analyticsService.Trace(this, "Invalid Identity", LogSeverity.Error);
+                throw new UnauthorizedAccessException("Invalid Identity");
             }
 
-            var emails = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == "emails");
-            if (emails != null && !string.IsNullOrEmpty(emails.Value))
-            {
-                emailAddress = emails.Value;
-            }
+            var user = new AuthenticatedUser(userId, emailAddress, userClaims);
 
-            var user = new AuthenticatedUser(userId, emailAddress, claims);
-
-            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal", 
-                LogSeverity.Verbose, user.ToPropertyDictionary("AzureADUser"));
+            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, user.ToObjectDictionary("AuthenticatedUser"));
             
             return user;
         }

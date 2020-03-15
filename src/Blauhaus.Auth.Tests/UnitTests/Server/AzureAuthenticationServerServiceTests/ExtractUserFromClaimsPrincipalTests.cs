@@ -16,7 +16,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         private readonly Guid _userId = Guid.NewGuid();
         
         [Test]
-        public void SHOULD_extract_AuthenticatedUserId_from_ObjectIdentifier()
+        public void SHOULD_extract_UserId_from_ObjectIdentifier()
         {
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
@@ -30,13 +30,15 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         }
         
         [Test]
-        public void IF_ClaimsPrincipal_does_not_have_ObjectIdentifier_SHOULD_throw_exception()
+        public void IF_ClaimsPrincipal_does_not_have_ObjectIdentifier_SHOULD_throw_exception_and_log()
         {
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder().Build();
 
             //Assert
-            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid identity");
+            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
+            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
+
         }
         
         [Test]
@@ -47,11 +49,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_UserObjectId(Guid.Empty).Build();
 
             //Assert
-            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid identity");
+            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
+            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
         }
 
         [Test]
-        public void IF_ClaimsPrincipal_is_not_authenticated_SHOULD_throw_exception()
+        public void IF_ClaimsPrincipal_is_not_authenticated_SHOULD_throw_exception_and_log()
         {
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
@@ -60,6 +63,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "User is not authenticated");
+            MockAnalyticsService.VerifyTrace("User is not authenticated", LogSeverity.Error);
         }
         
         [Test]
@@ -113,16 +117,19 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(_userId)
+                .With_Claim("emails", "bob@freever.com")
                 .With_NameIdentifier("MyNameIs").Build();
 
             //Act
             Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => 
-                ((IAuthenticatedUser)y["AzureADUser"]).UserId == _userId), It.IsAny<string>()));
-        }
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y =>
+                ((IAuthenticatedUser) y["AuthenticatedUser"]).UserId == _userId), It.IsAny<string>()));
+            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y =>
+                ((IAuthenticatedUser) y["AuthenticatedUser"]).EmailAddress == "bob@freever.com"), It.IsAny<string>()));
 
+        }
 
     }
 }

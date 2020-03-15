@@ -152,7 +152,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
                 
                 _analyticsService.Trace(this, $"{authenticationModeName} successful", 
-                    LogSeverity.Information, userAuthentication.User.UserId.ToPropertyDictionary("UserId"));
+                    LogSeverity.Information, userAuthentication.User.UserId.ToObjectDictionary("UserId"));
                 
                 return true;
             }
@@ -168,7 +168,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             {
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
                 _analyticsService.Trace(this, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", 
-                    LogSeverity.Warning, msalClientResult.ToPropertyDictionary("MSAL result"));
+                    LogSeverity.Warning, msalClientResult.ToObjectDictionary("MSAL result"));
                 return true;
             }
 
@@ -184,12 +184,12 @@ namespace Blauhaus.Auth.Client.Azure.Service
             var userId = Guid.Parse(msalClientResult.AuthenticationResult.UniqueId);
             string? emailAddress = null;
 
-            var claims = new List<Claim>();
+            var claims = new List<UserClaim>();
             foreach (var claim in token.Claims)
             {
                 if (claim.Type.StartsWith("extension_"))
                 {
-                    claims.Add(new Claim(claim.Type.Substring(10), claim.Value));
+                    claims.Add(new UserClaim(claim.Type.Substring(10), claim.Value));
                 }
                 else if (claim.Type == "emails")
                 {
