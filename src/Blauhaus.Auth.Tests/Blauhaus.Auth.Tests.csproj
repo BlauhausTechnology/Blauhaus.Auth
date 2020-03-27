@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.TestHelpers" Version="0.5.4" />
+    <PackageReference Include="Blauhaus.Analytics.TestHelpers" Version="0.5.8" />
     <PackageReference Include="Blauhaus.Common.TestHelpers" Version="0.9.7" />
     <PackageReference Include="Blauhaus.Common.TestHelpers.Http" Version="0.9.7" />
     <PackageReference Include="Blauhaus.Common.Time" Version="0.9.7" />
