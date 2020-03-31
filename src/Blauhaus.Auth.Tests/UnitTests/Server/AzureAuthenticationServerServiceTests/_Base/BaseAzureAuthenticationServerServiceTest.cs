@@ -5,10 +5,10 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
-using Blauhaus.Common.TestHelpers;
-using Blauhaus.Common.TestHelpers.Http.MockBuilders;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.Ioc.Abstractions;
+using Blauhaus.TestHelpers;
+using Blauhaus.TestHelpers.MockBuilders;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base
