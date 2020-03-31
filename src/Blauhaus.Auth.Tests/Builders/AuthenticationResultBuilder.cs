@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Blauhaus.Common.TestHelpers;
+using Blauhaus.TestHelpers.MockBuilders;
 using Microsoft.Identity.Client;
 
 namespace Blauhaus.Auth.Tests.Builders
