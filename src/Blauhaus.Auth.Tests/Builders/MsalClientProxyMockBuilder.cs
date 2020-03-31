@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
-using Blauhaus.Common.TestHelpers;
+using Blauhaus.TestHelpers.MockBuilders;
 using Moq;
 
 namespace Blauhaus.Auth.Tests.Builders
