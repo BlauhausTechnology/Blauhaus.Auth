@@ -8,6 +8,7 @@ using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.Ioc.Abstractions;
 using Blauhaus.TestHelpers;
+using Blauhaus.TestHelpers.BaseTests;
 using Blauhaus.TestHelpers.MockBuilders;
 using NUnit.Framework;
 
