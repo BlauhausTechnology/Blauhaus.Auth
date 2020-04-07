@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="0.6.0" />
-    <PackageReference Include="Blauhaus.HttpClientService" Version="0.9.10" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="0.6.7" />
+    <PackageReference Include="Blauhaus.HttpClientService" Version="1.0.1" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="0.6.4" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.7" />
   </ItemGroup>
