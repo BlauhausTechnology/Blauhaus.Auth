@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.TestHelpers;
+using Blauhaus.TestHelpers.BaseTests;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Abstractions.AuthenticatedUserTests._Base
 {
