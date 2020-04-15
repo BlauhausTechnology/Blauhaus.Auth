@@ -35,6 +35,6 @@
         public string ResetPasswordPolicyName{ get; }
         public string AuthoritySignin { get; }
         public string AuthorityPasswordReset { get; }
-        public MsalLogLevel TraceLogLevel { get; }
+        public MsalLogLevel TraceLogLevel { get; protected set; }
     }
 }
