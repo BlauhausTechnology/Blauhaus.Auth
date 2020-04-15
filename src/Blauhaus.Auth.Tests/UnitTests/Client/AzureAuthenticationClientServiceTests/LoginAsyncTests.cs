@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Models;
+using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base;
 using Microsoft.Identity.Client;
@@ -15,7 +16,9 @@ using NUnit.Framework;
 namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests
 {
     public class LoginAsyncTests : BaseAuthenticationClientServiceTest
-    {public class SilentLogin : LoginAsyncTests
+    {
+
+        public class SilentLogin : LoginAsyncTests
         {
             [Test]
             public async Task IF_silent_authentication_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
@@ -41,10 +44,36 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             }
 
             [Test]
+            public async Task SHOULD_log_info_matching_trace_level()
+            {
+                //Arrange
+                MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MockAuthenticatedUserResult);
+
+                //Act
+                var result = await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
+                Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
+                Assert.That(result.User.UserId, Is.EqualTo(UserId));
+                Assert.That(result.User.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
+                var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
+                Assert.That(userType, Is.Not.Null);
+                Assert.That(userType.Value, Is.EqualTo("Admin"));
+                MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
+                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
+                    It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
+                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
+                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
+            }
+
+
+            [Test]
             public async Task IF_silent_authentication_is_cancelled_SHOULD_return_cancelled()
             {
                 //Arrange
-                MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled());
+                MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled(MockLogs));
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -62,7 +91,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_silent_authentication_fails_SHOULD_return_failed_state()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
                 MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(fail);
 
                 //Act
@@ -126,7 +155,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 base.Setup();
 
                 MockMsalClientProxy
-                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin(UiRequiredExceptionClassification.ConsentRequired));
+                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult
+                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired, MockLogs));
             }
 
             [Test]
@@ -139,7 +169,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 await Sut.LoginAsync(MockCancelToken);
 
                 //Assert
-                MockAnalyticsService.VerifyTrace("Manual Login Required because ConsentRequired", LogSeverity.Information);
+                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Manual Login Required because ConsentRequired", LogSeverity.Information, 
+                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
             }
 
             [Test]
@@ -165,7 +196,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_is_cancelled_SHOULD_return_cancellation()
             {
                 //Arrange
-                MockMsalClientProxy.Where_LoginAsync_returns(MsalClientResult.Cancelled());
+                MockMsalClientProxy.Where_LoginAsync_returns(MsalClientResult.Cancelled(MockLogs));
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -182,7 +213,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_fails_SHOULD_return_Failed()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
                 MockMsalClientProxy.Where_LoginAsync_returns(fail);
 
                 //Act
@@ -245,8 +276,9 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 base.Setup();
 
                 MockMsalClientProxy
-                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin(UiRequiredExceptionClassification.ConsentRequired))
-                    .Where_LoginAsync_returns(MsalClientResult.RequiresPasswordReset());
+                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult
+                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired, MockLogs))
+                    .Where_LoginAsync_returns(MsalClientResult.RequiresPasswordReset(MockLogs));
             }
 
             [Test]
@@ -266,13 +298,15 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
                 MockAnalyticsService.VerifyTrace("ResetPassword successful", LogSeverity.Information);
                 MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
+                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, It.IsAny<string>(), LogSeverity.Information, 
+                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
             }
 
             [Test]
             public async Task IF_authentication_requries_password_reset_and_it_is_cancelled_SHOULD_return_cancelled()
             {
                 //Arrange
-                MockMsalClientProxy.Where_ResetPasswordAsync_returns(MsalClientResult.Cancelled());
+                MockMsalClientProxy.Where_ResetPasswordAsync_returns(MsalClientResult.Cancelled(MockLogs));
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -289,7 +323,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_password_reset_and_it_fails_SHOULD_return_fail()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
                 MockMsalClientProxy.Where_ResetPasswordAsync_returns(fail);
 
                 //Act
