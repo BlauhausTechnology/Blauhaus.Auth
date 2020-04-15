@@ -24,9 +24,9 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             return new MsalClientResult(MsalAuthenticationState.Authenticated, authenticationResult);
         }        
         
-        public static MsalClientResult RequiresLogin()
+        public static MsalClientResult RequiresLogin(UiRequiredExceptionClassification errorCode)
         {
-            return new MsalClientResult(MsalAuthenticationState.RequiresLogin, null);
+            return new MsalClientResult(MsalAuthenticationState.RequiresLogin, null, errorCode.ToString());
         }
 
         public static MsalClientResult RequiresPasswordReset()

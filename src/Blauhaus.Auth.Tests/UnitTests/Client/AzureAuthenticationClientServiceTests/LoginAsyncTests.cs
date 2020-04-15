@@ -126,7 +126,20 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 base.Setup();
 
                 MockMsalClientProxy
-                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin());
+                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin(UiRequiredExceptionClassification.ConsentRequired));
+            }
+
+            [Test]
+            public async Task IF_authentication_requries_login_SHOULD_log_reason()
+            {
+                //Arrange
+                MockMsalClientProxy.Where_LoginAsync_returns(MockAuthenticatedUserResult);
+
+                //Act
+                await Sut.LoginAsync(MockCancelToken);
+
+                //Assert
+                MockAnalyticsService.VerifyTrace("Manual Login Required because ConsentRequired", LogSeverity.Information);
             }
 
             [Test]
@@ -145,7 +158,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User.UserId, Is.EqualTo(UserId));
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
                 MockAnalyticsService.VerifyTrace("ManualLogin successful", LogSeverity.Information);
-                MockAnalyticsService.VerifyTraceProperty(y => (Guid)y["UserId"]== UserId);
+                MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
             }
 
             [Test]
@@ -182,7 +195,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.ManualLogin} failed. Error code: MSAL Error Code"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
                 MockAnalyticsService.VerifyTrace("ManualLogin FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning);
-                MockAnalyticsService.VerifyTraceProperty(y => (MsalClientResult)y["MSAL result"] == fail);
+                MockAnalyticsService.VerifyTraceProperty("MSAL result", fail);
             }
 
             [Test]
@@ -232,7 +245,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 base.Setup();
 
                 MockMsalClientProxy
-                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin())
+                    .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin(UiRequiredExceptionClassification.ConsentRequired))
                     .Where_LoginAsync_returns(MsalClientResult.RequiresPasswordReset());
             }
 
@@ -252,7 +265,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User.UserId, Is.EqualTo(UserId));
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
                 MockAnalyticsService.VerifyTrace("ResetPassword successful", LogSeverity.Information);
-                MockAnalyticsService.VerifyTraceProperty(y => (Guid) y["UserId"] == UserId);
+                MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
             }
 
             [Test]
