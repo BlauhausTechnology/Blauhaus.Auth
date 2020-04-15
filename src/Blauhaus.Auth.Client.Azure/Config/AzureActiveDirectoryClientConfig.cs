@@ -22,7 +22,7 @@
             AuthBaseUrl = $"https://{TenantName}.b2clogin.com/tfp/{TenantId}/";
             AuthoritySignin = $"{AuthBaseUrl}{SigninPolicyName}";
             AuthorityPasswordReset = $"{AuthBaseUrl}{ResetPasswordPolicyName}";
-            
+            TraceLogLevel = MsalLogLevel.Warning;
         }
 
         public string AuthBaseUrl { get; }
@@ -35,7 +35,6 @@
         public string ResetPasswordPolicyName{ get; }
         public string AuthoritySignin { get; }
         public string AuthorityPasswordReset { get; }
-
-        
+        public MsalLogLevel TraceLogLevel { get; protected set; }
     }
 }

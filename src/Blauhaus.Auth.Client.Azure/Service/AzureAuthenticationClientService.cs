@@ -11,6 +11,7 @@ using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
+using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Ioc.Abstractions;
 
@@ -19,16 +20,19 @@ namespace Blauhaus.Auth.Client.Azure.Service
     public class AzureAuthenticationClientService : IAuthenticationClientService
     {
         private readonly IAuthenticatedAccessToken _accessToken;
+        private readonly IAzureActiveDirectoryClientConfig _config;
         private readonly IAnalyticsService _analyticsService;
         private readonly IMsalClientProxy _msalClientProxy;
 
         public AzureAuthenticationClientService(
             IAnalyticsService analyticsService,
             IMsalClientProxy msalClientProxy,
-            IAuthenticatedAccessToken accessToken)
+            IAuthenticatedAccessToken accessToken,
+            IAzureActiveDirectoryClientConfig config)
         {
             _analyticsService = analyticsService;
             _accessToken = accessToken;
+            _config = config;
             _msalClientProxy = msalClientProxy;
         }
 
@@ -42,6 +46,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             try
             {
                 var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken);
+                var msalLogs = GetLogs(silentMsalResult);
 
                 if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
                 {
@@ -50,7 +55,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
-                    _analyticsService.TraceInformation(this, $"Manual Login Required because {silentMsalResult.MsalErrorCode}");
+                    _analyticsService.TraceInformation(this, $"Manual Login Required because {silentMsalResult.MsalErrorCode}", msalLogs);
 
                     currentAuthMode = AuthenticationMode.ManualLogin;
                     var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, cancellationToken);
@@ -71,7 +76,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                         }
                     }
                 }
-                _analyticsService.Trace(this,  "No authentication methods were successful", LogSeverity.Warning);
+                _analyticsService.Trace(this,  "No authentication methods were successful", LogSeverity.Warning, msalLogs);
                 return UserAuthentication.CreateFailed("No authentication methods were successful", currentAuthMode);
             }
             catch (Exception e)
@@ -149,12 +154,15 @@ namespace Blauhaus.Auth.Client.Azure.Service
         {
             var authenticationModeName = Enum.GetName(typeof(AuthenticationMode), mode);
 
+            var msalLogs = GetLogs(msalClientResult);
+
             if (msalClientResult.IsAuthenticated)
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
                 
-                _analyticsService.Trace(this, $"{authenticationModeName} successful", 
-                    LogSeverity.Information, userAuthentication.User.UserId.ToObjectDictionary("UserId"));
+                msalLogs["UserId"] = userAuthentication.User.UserId;
+
+                _analyticsService.Trace(this, $"{authenticationModeName} successful", LogSeverity.Information, msalLogs);
                 
                 return true;
             }
@@ -162,20 +170,35 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (msalClientResult.IsCancelled)
             {
                 userAuthentication = UserAuthentication.CreateCancelled(mode);
-                _analyticsService.Trace(this, $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", LogSeverity.Information);
+                _analyticsService.TraceInformation(this, $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", msalLogs);
                 return true;
             }
 
             if (msalClientResult.IsFailed)
             {
+                msalLogs["MSAL result"] = msalClientResult;
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
-                _analyticsService.Trace(this, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", 
-                    LogSeverity.Warning, msalClientResult.ToObjectDictionary("MSAL result"));
+                _analyticsService.TraceWarning(this, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", msalLogs);
+                
                 return true;
             }
 
             userAuthentication = default;
             return false;
+        }
+
+        private Dictionary<string, object> GetLogs(MsalClientResult msalClientResult)
+        {
+            var logs = new List<string>();
+            foreach (var authenticationLog in msalClientResult.AuthenticationLogs)
+            {
+                if (authenticationLog.Key <= _config.TraceLogLevel)
+                {
+                    logs.Add(authenticationLog.Key + " : " + authenticationLog.Value);
+                }
+            }
+
+            return new Dictionary<string, object>{{"MsalLogs", logs}};
         }
 
         private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, AuthenticationMode mode)
