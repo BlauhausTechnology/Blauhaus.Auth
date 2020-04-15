@@ -50,6 +50,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
+                    _analyticsService.TraceInformation(this, $"Manual Login Required because {silentMsalResult.MsalErrorCode}");
+
                     currentAuthMode = AuthenticationMode.ManualLogin;
                     var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, cancellationToken);
 

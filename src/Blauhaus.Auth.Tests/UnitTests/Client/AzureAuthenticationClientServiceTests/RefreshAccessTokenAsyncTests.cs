@@ -135,7 +135,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         {
             //Arrange
             MockMsalClientProxy
-                .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin());
+                .Where_AuthenticateSilentlyAsync_returns(MsalClientResult.RequiresLogin(UiRequiredExceptionClassification.ConsentRequired));
 
             //Act
             var result = await Sut.RefreshAccessTokenAsync(MockCancelToken);

@@ -37,9 +37,9 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 
                 return MsalClientResult.Authenticated(authResult);
             }
-            catch (MsalUiRequiredException)
+            catch (MsalUiRequiredException e)
             {
-                return MsalClientResult.RequiresLogin();
+                return MsalClientResult.RequiresLogin(e.Classification);
             }
             catch (MsalException msalException)
             {
