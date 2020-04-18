@@ -5,6 +5,7 @@ namespace Blauhaus.Auth.Abstractions.CommandHandler
 {
     public interface IAuthenticatedUserCommandHandler<TPayload, TCommand> 
         : IAuthenticatedCommandHandler<TPayload, TCommand, IAuthenticatedUser>
+        where TCommand : notnull
     {
         
     }
