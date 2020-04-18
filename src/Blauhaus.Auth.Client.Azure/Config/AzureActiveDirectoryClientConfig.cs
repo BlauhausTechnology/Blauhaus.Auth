@@ -9,10 +9,12 @@
             string iosKeychainSecurityGroups,
             string[] scopes,
             string signinPolicyName,
-            string resetPasswordPolicyName)
+            string resetPasswordPolicyName,
+            string editProfilePolicyName)
         {
             SigninPolicyName = signinPolicyName;
             ResetPasswordPolicyName = resetPasswordPolicyName;
+            AuthorityEditProfile = editProfilePolicyName;
             TenantName = tenantName;
             ApplicationId = applicationId;
             TenantId = tenantId;
@@ -33,8 +35,11 @@
         public string[] Scopes { get; }
         public string SigninPolicyName { get; }
         public string ResetPasswordPolicyName{ get; }
+
         public string AuthoritySignin { get; }
         public string AuthorityPasswordReset { get; }
+        public string AuthorityEditProfile { get; }
+
         public MsalLogLevel TraceLogLevel { get; protected set; }
     }
 }

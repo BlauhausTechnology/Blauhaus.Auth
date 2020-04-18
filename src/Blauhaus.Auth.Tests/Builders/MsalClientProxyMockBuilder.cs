@@ -12,6 +12,20 @@ namespace Blauhaus.Auth.Tests.Builders
         {
         }
 
+        public MsalClientProxyMockBuilder Where_EditProfileAsync_returns(MsalClientResult result)
+        {
+            Mock.Setup(x => x.EditProfileAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(result);
+            return this;
+        }
+
+        public MsalClientProxyMockBuilder Where_EditProfileAsync_throws(Exception e)
+        {
+            Mock.Setup(x => x.EditProfileAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(e);
+            return this;
+        }
+
         public MsalClientProxyMockBuilder Where_AuthenticateSilentlyAsync_returns(MsalClientResult result)
         {
             Mock.Setup(x => x.AuthenticateSilentlyAsync(It.IsAny<CancellationToken>(), It.IsAny<bool>()))

@@ -13,6 +13,7 @@
 
         string AuthoritySignin { get; }
         string AuthorityPasswordReset { get; }
+        string AuthorityEditProfile { get; }
 
         MsalLogLevel TraceLogLevel { get; }
     }

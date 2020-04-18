@@ -124,6 +124,40 @@ namespace Blauhaus.Auth.Client.Azure.Service
             }
         }
 
+        public async Task<IUserAuthentication> EditProfileAsync(CancellationToken cancellationToken)
+        {
+            
+            try
+            {
+                var editProfileResult = await _msalClientProxy.EditProfileAsync(NativeParentView, cancellationToken);
+                var msalLogs = GetLogs(editProfileResult);
+
+                if (TryGetCompletedUserAuthentication(editProfileResult, AuthenticationMode.EditProfile, out var completed))
+                {
+                    return completed;
+                }
+
+                if (editProfileResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
+                {
+                    _analyticsService.Trace(this, $"{AuthenticationMode.EditProfile} failed. Login required", LogSeverity.Warning, msalLogs);
+                    return UserAuthentication.CreateFailed($"MSAL {AuthenticationMode.EditProfile} failed. Login required", AuthenticationMode.EditProfile);
+                }
+
+                _analyticsService.Trace(this, "No authentication methods were successful to refresh token", LogSeverity.Warning, msalLogs);
+                return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.RefreshToken);
+            }
+            catch (Exception e)
+            {
+                if (TryGetFailedAuthentication(e, AuthenticationMode.EditProfile, out var failedUserAuthentication))
+                {
+                    return failedUserAuthentication;
+                }
+
+                _analyticsService.LogException(this, e);
+                throw;
+            }
+        }
+
         public async Task LogoutAsync()
         {
             await _msalClientProxy.LogoutAsync();
