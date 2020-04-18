@@ -6,6 +6,7 @@
         SilentLogin,
         ManualLogin,
         ResetPassword,
-        RefreshToken
+        RefreshToken,
+        EditProfile
     }
 }

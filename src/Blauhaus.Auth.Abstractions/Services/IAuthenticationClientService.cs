@@ -8,6 +8,7 @@ namespace Blauhaus.Auth.Abstractions.Services
     {
         Task<IUserAuthentication> LoginAsync(CancellationToken cancellationToken);
         Task<IUserAuthentication> RefreshAccessTokenAsync(CancellationToken cancellationToken);
+        Task<IUserAuthentication> EditProfileAsync(CancellationToken cancellationToken);
         Task LogoutAsync();
         
     }

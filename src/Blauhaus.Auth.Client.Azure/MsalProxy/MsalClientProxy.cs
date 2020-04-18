@@ -97,8 +97,42 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithParentActivityOrWindow(clientParentView)
                     .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
                     .ExecuteAsync(cancellationToken);
+
+                var editProfileResult =  await _authenticationClient
+                    .AcquireTokenInteractive(_azureAuthConfig.Scopes)
+                    .WithPrompt(Prompt.NoPrompt)
+                    .WithParentActivityOrWindow(clientParentView)
+                    .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
+                    .ExecuteAsync(cancellationToken);
                         
                 return MsalClientResult.Authenticated(authResult, _msalLogs);
+            }
+            catch (MsalException msalException)
+            {
+                if (msalException.ErrorCode == "authentication_canceled")
+                    return MsalClientResult.Cancelled(_msalLogs);
+                
+                if (msalException.Message != null && msalException.Message.Contains("AADB2C90091"))
+                    return MsalClientResult.Cancelled(_msalLogs);
+                
+                return MsalClientResult.Failed(msalException, _msalLogs);
+            }
+        }
+
+        public async Task<MsalClientResult> EditProfileAsync(object clientParentView, CancellationToken cancellationToken)
+        {
+            try
+            {
+                _msalLogs.Clear();
+
+                var editProfileResult =  await _authenticationClient
+                    .AcquireTokenInteractive(_azureAuthConfig.Scopes)
+                    .WithPrompt(Prompt.NoPrompt)
+                    .WithParentActivityOrWindow(clientParentView)
+                    .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
+                    .ExecuteAsync(cancellationToken);
+                        
+                return MsalClientResult.Authenticated(editProfileResult, _msalLogs);
             }
             catch (MsalException msalException)
             {
