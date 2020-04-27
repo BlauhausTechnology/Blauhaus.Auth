@@ -115,8 +115,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation(Sut, "Get user profile from Azure AD", It.Is<Dictionary<string, object>>(y => 
-                (Guid) y["UserId"] == _userObjectId), It.IsAny<string>()));
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile retrieved from Azure AD", 
                 LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => ((IAuthenticatedUser)y["AzureADUser"]).UserId == _userObjectId), It.IsAny<string>()));
         }

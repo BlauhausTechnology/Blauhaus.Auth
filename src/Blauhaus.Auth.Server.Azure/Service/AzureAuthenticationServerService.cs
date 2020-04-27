@@ -55,13 +55,10 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var request = new HttpRequestWrapper<JObject>(endpoint, json)
                 .WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation(this, "Update user claims on Azure AD"))
-            {
-                await _httpClientService.PatchAsync<string>(request, token);
-                _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToObjectDictionary("Json")
-                    .WithValue("UserId", userId)
-                    .WithValues(claims));
-            }
+            await _httpClientService.PatchAsync<string>(request, token);
+            _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToObjectDictionary("Json")
+                .WithValue("UserId", userId)
+                .WithValues(claims));
         }
 
         public async Task<IAuthenticatedUser> GetUserFromAzureAsync(Guid userId, CancellationToken token)
@@ -69,47 +66,43 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var accessToken = await _adalAuthenticationContext.AcquireAccessTokenAsync();
             var endpoint = GetGraphEndpointForResource($"/users/{userId.ToString()}");
 
-            var request = new HttpRequestWrapper(endpoint)
-                .WithAuthorizationHeader("Bearer", accessToken);
+            var request = new HttpRequestWrapper(endpoint).WithAuthorizationHeader("Bearer", accessToken);
 
-            using (var _ = _analyticsService.ContinueOperation(this, "Get user profile from Azure AD", userId.ToObjectDictionary("UserId")))
+            var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
+        
+            string? emailAddress = null;
+
+            if (azureUserValues.TryGetValue("signInNames", out var signInNames))
             {
-                var azureUserValues = await _httpClientService.GetAsync<Dictionary<string, object>>(request, token);
-            
-                string? emailAddress = null;
 
-                if (azureUserValues.TryGetValue("signInNames", out var signInNames))
+                if (signInNames is JArray signInNameProperties)
                 {
-
-                    if (signInNames is JArray signInNameProperties)
+                    foreach (var signInNameProperty in signInNameProperties)
                     {
-                        foreach (var signInNameProperty in signInNameProperties)
+                        var key = (string)signInNameProperty.First.Value<JProperty>().Value;
+                        if (key == "emailAddress")
                         {
-                            var key = (string)signInNameProperty.First.Value<JProperty>().Value;
-                            if (key == "emailAddress")
-                            {
-                                emailAddress = signInNameProperty.Last.Value<JProperty>().Value.ToString();
-                            }
+                            emailAddress = signInNameProperty.Last.Value<JProperty>().Value.ToString();
                         }
                     }
                 }
-
-                var claims = new List<UserClaim>();
-                foreach (var rawAzureProperty in azureUserValues)
-                {
-                    if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
-                    {
-                        var claimType = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
-                        claims.Add(new UserClaim(claimType, rawAzureProperty.Value.ToString()));
-                    }
-                }
-
-                var user = new AuthenticatedUser(userId, emailAddress, claims);
-                
-                _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToObjectDictionary("AzureADUser"));
-
-                return user;
             }
+
+            var claims = new List<UserClaim>();
+            foreach (var rawAzureProperty in azureUserValues)
+            {
+                if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
+                {
+                    var claimType = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
+                    claims.Add(new UserClaim(claimType, rawAzureProperty.Value.ToString()));
+                }
+            }
+
+            var user = new AuthenticatedUser(userId, emailAddress, claims);
+            
+            _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToObjectDictionary("AzureADUser"));
+
+            return user;
 
         }
 
