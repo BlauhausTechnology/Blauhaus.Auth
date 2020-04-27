@@ -177,6 +177,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
             {
                 //Arrange
+                MockConfig.With(x => x.UseEmbeddedWebView, true);
                 MockMsalClientProxy.Where_LoginAsync_returns(MockAuthenticatedUserResult);
 
                 //Act
@@ -190,6 +191,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
                 MockAnalyticsService.VerifyTrace("ManualLogin successful", LogSeverity.Information);
                 MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
+                MockMsalClientProxy.Mock.Verify(x => x.LoginAsync(It.IsAny<object>(), true, It.IsAny<CancellationToken>()));
             }
 
             [Test]
@@ -286,6 +288,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             {
                 //Arrange
                 MockMsalClientProxy.Where_ResetPasswordAsync_returns(MockAuthenticatedUserResult);
+                MockConfig.With(x => x.UseEmbeddedWebView, true);
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -300,6 +303,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
                 MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, It.IsAny<string>(), LogSeverity.Information, 
                     It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
+                MockMsalClientProxy.Mock.Verify(x => x.LoginAsync(It.IsAny<object>(), true, It.IsAny<CancellationToken>()));
             }
 
             [Test]

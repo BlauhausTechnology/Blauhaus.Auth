@@ -56,8 +56,8 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                 return MsalClientResult.Failed(msalException, _msalLogs);
             }
         }
-
-        public async Task<MsalClientResult> LoginAsync(object clientParentView, CancellationToken cancellationToken)
+        
+        public async Task<MsalClientResult> LoginAsync(object clientParentView, bool useEmbeddedWwebView, CancellationToken cancellationToken)
         {
             try
             {
@@ -65,6 +65,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 
                 var authResult = await _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
+                    .WithUseEmbeddedWebView(useEmbeddedWwebView)
                     .WithPrompt(Prompt.SelectAccount)
                     .WithParentActivityOrWindow(clientParentView)
                     .ExecuteAsync(cancellationToken);
@@ -85,7 +86,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 
         }
 
-        public async Task<MsalClientResult> ResetPasswordAsync(object clientParentView, CancellationToken cancellationToken)
+        public async Task<MsalClientResult> ResetPasswordAsync(object clientParentView, bool useEmbeddedWwebView, CancellationToken cancellationToken)
         {
             try
             {
@@ -94,17 +95,11 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                 var authResult =  await _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
                     .WithPrompt(Prompt.SelectAccount)
+                    .WithUseEmbeddedWebView(useEmbeddedWwebView)
                     .WithParentActivityOrWindow(clientParentView)
                     .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
                     .ExecuteAsync(cancellationToken);
 
-                var editProfileResult =  await _authenticationClient
-                    .AcquireTokenInteractive(_azureAuthConfig.Scopes)
-                    .WithPrompt(Prompt.NoPrompt)
-                    .WithParentActivityOrWindow(clientParentView)
-                    .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
-                    .ExecuteAsync(cancellationToken);
-                        
                 return MsalClientResult.Authenticated(authResult, _msalLogs);
             }
             catch (MsalException msalException)
