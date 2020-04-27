@@ -58,7 +58,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     _analyticsService.TraceInformation(this, $"Manual Login Required because {silentMsalResult.MsalErrorCode}", msalLogs);
 
                     currentAuthMode = AuthenticationMode.ManualLogin;
-                    var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, cancellationToken);
+                    var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, _config.UseEmbeddedWebView, cancellationToken);
 
                     if (TryGetCompletedUserAuthentication(loginMsalResult, AuthenticationMode.ManualLogin, out var completedManualLoginAuthentication))
                     {
@@ -68,7 +68,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     if (loginMsalResult.AuthenticationState == MsalAuthenticationState.RequiresPasswordReset)
                     {
                         currentAuthMode = AuthenticationMode.ResetPassword;
-                        var resetPasswordMsalResult = await _msalClientProxy.ResetPasswordAsync(NativeParentView, cancellationToken);
+                        var resetPasswordMsalResult = await _msalClientProxy.ResetPasswordAsync(NativeParentView, _config.UseEmbeddedWebView, cancellationToken);
 
                         if (TryGetCompletedUserAuthentication(resetPasswordMsalResult, AuthenticationMode.ResetPassword, out var completedResetPasswordAuthentication))
                         {

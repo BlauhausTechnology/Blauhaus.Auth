@@ -16,5 +16,6 @@
         string AuthorityEditProfile { get; }
 
         MsalLogLevel TraceLogLevel { get; }
+        bool UseEmbeddedWebView { get; }
     }
 }
