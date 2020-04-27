@@ -42,14 +42,14 @@ namespace Blauhaus.Auth.Tests.Builders
 
         public MsalClientProxyMockBuilder Where_LoginAsync_returns(MsalClientResult result)
         {
-            Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(result);
             return this;
         }
 
         public MsalClientProxyMockBuilder Where_LoginAsync_throws(Exception exception)
         {
-            Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            Mock.Setup(x => x.LoginAsync(It.IsAny<object>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(exception);
             return this;
         }
@@ -57,14 +57,14 @@ namespace Blauhaus.Auth.Tests.Builders
 
         public MsalClientProxyMockBuilder Where_ResetPasswordAsync_returns(MsalClientResult result)
         {
-            Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(result);
             return this;
         }
 
         public MsalClientProxyMockBuilder Where_ResetPasswordAsync_throws(Exception exception)
         {
-            Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            Mock.Setup(x => x.ResetPasswordAsync(It.IsAny<object>(), It.IsAny<bool>(),  It.IsAny<CancellationToken>()))
                 .ThrowsAsync(exception);
             return this;
         }
