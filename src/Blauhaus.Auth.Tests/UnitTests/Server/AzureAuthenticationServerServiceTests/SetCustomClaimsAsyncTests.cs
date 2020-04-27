@@ -105,7 +105,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             }, CancellationToken.None);
 
             //Assert
-            MockAnalyticsService.Mock.Verify(x => x.ContinueOperation(Sut, "Update user claims on Azure AD", It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
             var expectedJson = new JObject
             {
                 ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120",
