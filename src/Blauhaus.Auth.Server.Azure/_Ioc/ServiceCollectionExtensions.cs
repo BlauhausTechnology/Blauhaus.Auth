@@ -5,7 +5,6 @@ using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
-using Blauhaus.Common.Domain.CommandHandlers;
 using Blauhaus.HttpClientService._Ioc;
 using Blauhaus.Ioc.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
