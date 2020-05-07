@@ -62,12 +62,18 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             try
             {
                 _msalLogs.Clear();
-
-                var authResult = await _authenticationClient
+                var client = _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
-                    .WithUseEmbeddedWebView(useEmbeddedWwebView)
                     .WithPrompt(Prompt.SelectAccount)
-                    .WithParentActivityOrWindow(clientParentView)
+                    .WithParentActivityOrWindow(clientParentView);
+
+                if (useEmbeddedWwebView)
+                {
+                    //cannot pass in false if not required as UWP breaks
+                    client.WithUseEmbeddedWebView(true);
+                }
+
+                var authResult = await client
                     .ExecuteAsync(cancellationToken);
                     
                 return MsalClientResult.Authenticated(authResult, _msalLogs);
@@ -92,12 +98,18 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             {
                 _msalLogs.Clear();
 
-                var authResult =  await _authenticationClient
+                var client = _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
                     .WithPrompt(Prompt.SelectAccount)
-                    .WithUseEmbeddedWebView(useEmbeddedWwebView)
                     .WithParentActivityOrWindow(clientParentView)
-                    .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
+                    .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset);
+
+                if (useEmbeddedWwebView)
+                {
+                    client.WithUseEmbeddedWebView(true);
+                }
+
+                var authResult =  await client
                     .ExecuteAsync(cancellationToken);
 
                 return MsalClientResult.Authenticated(authResult, _msalLogs);
