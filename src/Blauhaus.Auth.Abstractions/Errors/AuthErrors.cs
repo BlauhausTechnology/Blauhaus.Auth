@@ -1,4 +1,5 @@
-﻿using Blauhaus.Common.ValueObjects.Errors;
+﻿
+using Blauhaus.Errors;
 
 namespace Blauhaus.Auth.Abstractions.Errors
 {
