@@ -29,6 +29,8 @@ namespace Blauhaus.Auth.Tests.Builders
         public const string IdToken = "idToken";
         private readonly IEnumerable<string> _scopes = new List<string>();
         private readonly Guid _correlationId = Guid.NewGuid();
+        private readonly  AuthenticationResultMetadata _metadata = new AuthenticationResultMetadata(TokenSource.IdentityProvider);
+        private const string TokenType = "Bearer";
 
 
         public AuthenticationResult Build()
@@ -43,7 +45,9 @@ namespace Blauhaus.Auth.Tests.Builders
                 _account,
                 IdToken,
                 _scopes,
-                _correlationId);
+                _correlationId,
+                _metadata,
+                TokenType);
         }
     }
 }
