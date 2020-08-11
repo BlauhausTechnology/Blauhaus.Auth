@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 
 namespace Blauhaus.Auth.Abstractions.Services
 {
-    public interface IAzureAuthenticatedUserFactory
+    public interface IAuthenticatedUserFactory
     {
         Result<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal);
     }
