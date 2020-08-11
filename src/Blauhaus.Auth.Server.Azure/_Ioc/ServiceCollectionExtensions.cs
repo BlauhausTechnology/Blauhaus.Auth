@@ -30,7 +30,7 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
 
         public static IServiceCollection AddAzureUserFactory(this IServiceCollection services) 
         {
-            services.TryAddScoped<IAzureAuthenticatedUserFactory, AzureAuthenticatedUserFactory>();
+            services.TryAddScoped<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
             services.TryAddTransient<IAuthenticatedUser, AuthenticatedUser>();
             return services;
         }

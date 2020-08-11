@@ -10,11 +10,11 @@ using CSharpFunctionalExtensions;
 
 namespace Blauhaus.Auth.Server.Azure.Service
 {
-    public class AzureAuthenticatedUserFactory : IAzureAuthenticatedUserFactory
+    public class AuthenticatedUserFactory : IAuthenticatedUserFactory
     {
         private readonly IAnalyticsService _analyticsService;
 
-        public AzureAuthenticatedUserFactory(IAnalyticsService analyticsService)
+        public AuthenticatedUserFactory(IAnalyticsService analyticsService)
         {
             _analyticsService = analyticsService;
         }

@@ -9,7 +9,7 @@ using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTests
 {
-    public class CreateTests : BaseAuthTest<AzureAuthenticatedUserFactory>
+    public class CreateTests : BaseAuthTest<AuthenticatedUserFactory>
     {
         private readonly Guid _userId = Guid.NewGuid();
 
