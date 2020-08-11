@@ -23,6 +23,7 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
             _authenticationClient = PublicClientApplicationBuilder
                 .Create(_azureAuthConfig.ApplicationId)
                 .WithLogging(Log)
+                .WithRedirectUri($"msal{_azureAuthConfig.ApplicationId}://auth")
                 .WithIosKeychainSecurityGroup(_azureAuthConfig.IosKeychainSecurityGroups)
                 .WithB2CAuthority(_azureAuthConfig.AuthoritySignin)
                 .Build();
