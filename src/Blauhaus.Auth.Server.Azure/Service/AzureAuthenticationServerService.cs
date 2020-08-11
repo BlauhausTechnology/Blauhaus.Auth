@@ -143,7 +143,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             var user = new AuthenticatedUser(userId, emailAddress, userClaims);
 
-            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal", LogSeverity.Verbose, user.ToObjectDictionary("AuthenticatedUser"));
+            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal: " + user.UserId);
             
             return user;
         }
