@@ -1,32 +1,30 @@
 ﻿using System;
-using System.Collections.Generic;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Builders;
-using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Abstractions.User;
-using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
-using Moq;
+using Blauhaus.Auth.Abstractions.Errors;
+using Blauhaus.Auth.Server.Azure.Service;
+using Blauhaus.Auth.Tests.UnitTests._Base;
+using Blauhaus.Errors.Extensions;
 using NUnit.Framework;
 
-namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests
+namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTests
 {
-    public class CreateTests : BaseAzureAuthenticationServerServiceTest
+    public class CreateTests : BaseAuthTest<AzureAuthenticatedUserFactory>
     {
-
         private readonly Guid _userId = Guid.NewGuid();
-        
+
+    
         [Test]
-        public void SHOULD_extract_UserId_from_ObjectIdentifier()
-        {
+        public void SHOULD_extract_UserId_from_ObjectIdentifier()        {
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            var result = Sut.Create(claimsPrincipal);
 
             //Act
-            Assert.That(result.UserId, Is.EqualTo(_userId));
+            Assert.That(result.Value.UserId, Is.EqualTo(_userId));
         }
         
         [Test]
@@ -35,9 +33,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder().Build();
 
+            //Act
+            var result = Sut.Create(claimsPrincipal);
+
             //Assert
-            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
-            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
+            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
+            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.Code, LogSeverity.Error);
 
         }
         
@@ -47,10 +48,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(Guid.Empty).Build();
+            //Act
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
-            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
+            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
+            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.Code, LogSeverity.Error);
         }
 
         [Test]
@@ -60,10 +63,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(_userId)
                 .WithIsAuthenticatedFalse().Build();
+            //Act
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "User is not authenticated");
-            MockAnalyticsService.VerifyTrace("User is not authenticated", LogSeverity.Error);
+            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.NotAuthenticated)); 
+            MockAnalyticsService.VerifyTrace(AuthErrors.NotAuthenticated.Code, LogSeverity.Error);
         }
         
         [Test]
@@ -75,10 +80,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.EmailAddress, Is.EqualTo("bob@freever.com"));
+            Assert.That(result.Value.EmailAddress, Is.EqualTo("bob@freever.com"));
         }
 
         [Test]
@@ -89,10 +94,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.EmailAddress, Is.Null);
+            Assert.That(result.Value.EmailAddress, Is.Null);
         }
 
         [Test]
@@ -104,10 +109,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_Claim("emails", "").Build();
 
             //Act
-            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.EmailAddress, Is.Null);
+            Assert.That(result.Value.EmailAddress, Is.Null);
         }
         
         [Test]
@@ -119,10 +124,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_Claim("extension_HappyId", "12345").Build();
 
             //Act
-            var result = Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.HasClaimValue("HappyId", "12345"), Is.True);
+            Assert.That(result.Value.HasClaimValue("HappyId", "12345"), Is.True);
         }
 
         [Test]
@@ -135,7 +140,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With_NameIdentifier("MyNameIs").Build();
 
             //Act
-            Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
+            Sut.Create(claimsPrincipal);
 
             //Assert
             MockAnalyticsService.VerifyTrace("User profile extracted from ClaimsPrincipal: " + _userId);

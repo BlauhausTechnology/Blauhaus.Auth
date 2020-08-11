@@ -10,10 +10,46 @@ https://docs.microsoft.com/en-us/xamarin/xamarin-forms/data-cloud/authentication
 5. Click on Expose an API > Add A Scope. Add an Application ID URI if required. Add a scope called something like Read.And.Write for generic API access. Click the "Grant Admin Access" button. 
 6. Click on API permissions > Add A Permission. Choose My APIs  and select the name of your App Registration. Select the Scope you created and click Add Permissions. 
 
+## Server-Side Setup
+
+### Authentication and Authorization
+
+For a new project: Create an ASP.NET Core project, and select the API template. Enable authentication, select "Individual User Accounts, and then choose "Connect to an existing user store in the cloud". Enter the domain (tenantname.onmicrosoft.com), applicationId and sign up policy.
+
+This will install Microsoft.AspNetCore.Authentication.AzureADB2C.UI and add the "AddAuthentication" part to ConfigureServices, and add the necessary fields to appsettings.json. These are added under an "AzureAdB2C" key like so:
+
+  "AzureAdB2C:SignUpSignInPolicyId": "B2C_1_Tenant_SignUp_SignIn",
+  "AzureAdB2C:Instance": "https://tenantname.b2clogin.com/tfp/",
+  "AzureAdB2C:Domain": "tenantname.onmicrosoft.com",
+  "AzureAdB2C:ClientId": "2bbeff31-6fcd-4sdsa-86d6-554ec89828c2",
+
+These can also be added manually and should really go in User Secrets / Azure Key Vault. 
+
+To test it out, fire a request at the server with an HttpHeader of the form:
+ "Authorization": "Bearer {AccessTokenFromAzureAdB2C}"}
+
+### Accessing Azure user data 
+
+//TODO
+
 ## App Setup
 
 ### Android
 In the MainActivity OnCreate() method, after the LoadApplication() call, add the following line:
+
+AzureAuthenticationClientService.NativeParentView = this;
+
+Also register the browser handler Activity in the AndroidManifest.xml file:
+
+<!-- Activity to handle browser auth-->
+<activity android:name="microsoft.identity.client.BrowserTabActivity">
+	<intent-filter>
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+		<data android:scheme="msal{ApplicationId}" android:host="auth" />
+	</intent-filter>
+</activity>
 
 ### iOS
 Open up the Info.plist file, go to the Advanced tab and click Add URL Type. Give it an identifier like "Azure AD B2C" and add the scheme (msal{ApplicationId}) which will look like msal2bbeff31-6gcf-487d-86d6-552ec81828c2. Role can be None. 
@@ -30,20 +66,6 @@ public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
 
 ### UWP
 No specific setup required.
-
-AzureAuthenticationClientService.NativeParentView = this;
-
-Also register the browser handler Activity in the AndroidManifest.xml file:
-
-<!-- Activity to handle browser auth-->
-<activity android:name="microsoft.identity.client.BrowserTabActivity">
-	<intent-filter>
-		<action android:name="android.intent.action.VIEW" />
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="msal{ApplicationId}" android:host="auth" />
-	</intent-filter>
-</activity>
 
 ### General
 1. Install the Blauhaus.Auth.Client.Azure package into the App projects (native and shared)

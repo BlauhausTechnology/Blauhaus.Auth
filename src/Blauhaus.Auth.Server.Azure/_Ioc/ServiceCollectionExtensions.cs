@@ -8,13 +8,14 @@ using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.HttpClientService._Ioc;
 using Blauhaus.Ioc.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Blauhaus.Auth.Server.Azure._Ioc
 {
     public static class ServiceCollectionExtensions
     {
 
-        public static IServiceCollection RegisterAzureAuthenticationServer<TConfig>(this IServiceCollection services, TraceListener consoleTraceListener) 
+        public static IServiceCollection AddAzureAuthenticationServer<TConfig>(this IServiceCollection services, TraceListener consoleTraceListener) 
             where TConfig : class, IAzureActiveDirectoryServerConfig 
         {
             services.RegisterConsoleLoggerService(consoleTraceListener);
@@ -23,6 +24,14 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
             services.AddTransient<IAuthenticatedUser, AuthenticatedUser>();
             services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
             services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
+
+            return services.AddAzureUserFactory();
+        }
+
+        public static IServiceCollection AddAzureUserFactory(this IServiceCollection services) 
+        {
+            services.TryAddScoped<IAzureAuthenticatedUserFactory, AzureAuthenticatedUserFactory>();
+            services.TryAddTransient<IAuthenticatedUser, AuthenticatedUser>();
             return services;
         }
          
