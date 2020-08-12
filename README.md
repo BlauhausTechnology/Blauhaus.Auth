@@ -20,10 +20,10 @@ For a new project: Create an ASP.NET Core project, and select the API template. 
 
 This will install Microsoft.AspNetCore.Authentication.AzureADB2C.UI and add the "AddAuthentication" part to ConfigureServices, and add the necessary fields to appsettings.json. These are added under an "AzureAdB2C" key like so:
 
-  "AzureAdB2C:SignUpSignInPolicyId": "B2C_1_Tenant_SignUp_SignIn",
-  "AzureAdB2C:Instance": "https://tenantname.b2clogin.com/tfp/",
-  "AzureAdB2C:Domain": "tenantname.onmicrosoft.com",
-  "AzureAdB2C:ClientId": "2bbeff31-6fcd-4sdsa-86d6-554ec89828c2",
+* "AzureAdB2C:SignUpSignInPolicyId": "B2C_1_Tenant_SignUp_SignIn",
+* "AzureAdB2C:Instance": "https://tenantname.b2clogin.com/tfp/",
+* "AzureAdB2C:Domain": "tenantname.onmicrosoft.com",
+* "AzureAdB2C:ClientId": "2bbeff31-6fcd-4sdsa-86d6-554ec89828c2",
 
 These can also be added manually and should really go in User Secrets / Azure Key Vault. 
 
@@ -39,70 +39,11 @@ To test it out, fire a request at the server with an HttpHeader of the form:
 ### Android
 In the MainActivity OnCreate() method, after the LoadApplication() call, add the following line:
 
-AzureAuthenticationClientService.NativeParentView = this;
-
-Also register the browser handler Activity in the AndroidManifest.xml file:
-
-<!-- Activity to handle browser auth-->
-<activity android:name="microsoft.identity.client.BrowserTabActivity">
-	<intent-filter>
-		<action android:name="android.intent.action.VIEW" />
-		<category android:name="android.intent.category.DEFAULT" />
-		<category android:name="android.intent.category.BROWSABLE" />
-		<data android:scheme="msal{ApplicationId}" android:host="auth" />
-	</intent-filter>
-</activity>
-
-### iOS
-Open up the Info.plist file, go to the Advanced tab and click Add URL Type. Give it an identifier like "Azure AD B2C" and add the scheme (msal{ApplicationId}) which will look like msal2bbeff31-6gcf-487d-86d6-552ec81828c2. Role can be None. 
-
-Opn Entitlements.plist > Keychain. Enable keychain and provide a group name. Put in $(CFBundleIdentifier) if you want to use the same as the Bundle Id. 
-
-Add the following to the AppDelegate:
-
-public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
-{
-	AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
-	return base.OpenUrl(app, url, options);
-}
-
-### UWP
-No specific setup required.
-
-### General
-1. Install the Blauhaus.Auth.Client.Azure package into the App projects (native and shared)
-2. Create an AuthConfig file inheriting from AzureActiveDirectoryClientConfig and set the following values:
-   * TenantName: tenantname
-   * TenantId: tenantname.onmicrosoft.com
-   * ApplicationId: Application (client) ID
-   * IosKeychainSecurityGroups: The name of the Keychain group added to the iOS Entitlements.plist file. 
-   * Scopes: Set to a string array consisting of { "offline_access", "openid", "https://{tenantname}.onmicrosoft.com/{ApplicationIdUri}/Read.And.Write" }, 
-   * SigninPolicyName, ResetPasswordPolicyName and EditProfilePolicyName: the names of your User Flows
-   
-
-
-
-
-
-In the .NET Standard class library, register the Ioc dependencies:
-
-```c#
-services.RegisterAzureAuthenticationClient<AzureAuthConfig>()
-```
-
-The AzureAuthConfig file must inherit from AzureActiveDirectoryClientConfig.
-TODO: document where the values come from
-
-### On Android
-
-In MainActivity.cs, add the following to OnCreate():
-
 ```c#
 AzureAuthenticationClientService.NativeParentView = this;
 ```
 
-And add the following new method:
-
+And add the following new method to MainActivity:
 ```c#
 protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
 {
@@ -113,33 +54,28 @@ protected override void OnActivityResult(int requestCode, Result resultCode, Int
 }
 ``` 
 
-In AndroidManifest.xml, add this between the <application> tags:
+Also register the browser handler Activity in the AndroidManifest.xml file:
 
 ```xml
+<!-- Activity to handle browser auth-->
 <activity android:name="microsoft.identity.client.BrowserTabActivity">
-    <intent-filter>
-        <action android:name="android.intent.action.VIEW" />
-	<category android:name="android.intent.category.DEFAULT" />
-	<category android:name="android.intent.category.BROWSABLE" />
-	<data android:scheme="msal{client_id}" android:host="auth" />
-    </intent-filter>
+	<intent-filter>
+		<action android:name="android.intent.action.VIEW" />
+		<category android:name="android.intent.category.DEFAULT" />
+		<category android:name="android.intent.category.BROWSABLE" />
+		<data android:scheme="msal{ApplicationId}" android:host="auth" />
+	</intent-filter>
 </activity>
 ```
 
-# On iOS
+### iOS
+Open up the Info.plist file, go to the Advanced tab and click Add URL Type. Give it an identifier like "Azure AD B2C" and add the scheme (msal{ApplicationId}) which will look like msal2bbeff31-6gcf-487d-86d6-552ec81828c2. Role can be None. 
 
-Add the following override to the AppDelegate.cs:
+Opn Entitlements.plist > Keychain. Enable keychain and provide a group name. Put in $(CFBundleIdentifier) if you want to use the same as the Bundle Id. 
 
-```c#
-public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
-{
-    AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
-    return base.OpenUrl(app, url, options);
-}
-```
+For example these might look like this:
 
-Add a url registration to the Info.plist file:
-
+Info.plist:
 ```xml
 <key>CFBundleURLTypes</key>
 <array>
@@ -156,7 +92,7 @@ Add a url registration to the Info.plist file:
 </array>
 ```
 
-To the Entitlements.plist add:
+Entitlements.plist:
 ```xml
 <key>keychain-access-groups</key>
 <array>
@@ -164,5 +100,32 @@ To the Entitlements.plist add:
 </array>
 ```
 
-Also ensure that Entitlements.plist is designated under "Custom Entitlements" in the iOS Bundle Signing setup screen. 
+Add the following to the AppDelegate:
+
+```c#
+public override bool OpenUrl(UIApplication app, NSUrl url, NSDictionary options)
+{
+	AuthenticationContinuationHelper.SetAuthenticationContinuationEventArgs(url);
+	return base.OpenUrl(app, url, options);
+}
+```
+
+### UWP
+No specific setup required.
+
+### General
+1. Install the Blauhaus.Auth.Client.Azure package into the App projects (native and shared)
+2. Create an AuthConfig file inheriting from AzureActiveDirectoryClientConfig and set the following values:
+   * TenantName: tenantname
+   * TenantId: tenantname.onmicrosoft.com
+   * ApplicationId: Application (client) ID
+   * IosKeychainSecurityGroups: The name of the Keychain group added to the iOS Entitlements.plist file. 
+   * Scopes: Set to a string array consisting of { "offline_access", "openid", "https://{tenantname}.onmicrosoft.com/{ApplicationIdUri}/Read.And.Write" }, 
+   * SigninPolicyName, ResetPasswordPolicyName and EditProfilePolicyName: the names of your User Flows
+   
+Register the Ioc dependencies:
+```c#
+services.RegisterAzureAuthenticationClient<AuthConfig>()
+```
+ 
 
