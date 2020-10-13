@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Blauhaus.Auth.Abstractions.User
 {
@@ -12,6 +13,7 @@ namespace Blauhaus.Auth.Abstractions.User
         {
         }
 
+        [JsonConstructor]
         public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<UserClaim> claims)
         {
             UserId = userId;
