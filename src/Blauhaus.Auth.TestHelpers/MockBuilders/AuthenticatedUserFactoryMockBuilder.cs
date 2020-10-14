@@ -18,12 +18,12 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
 
         public AuthenticatedUserFactoryMockBuilder Where_Create_returns(IAuthenticatedUser value)
         {
-            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Result.Success(value));
+            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Response.Success(value));
             return this;
         }
         public AuthenticatedUserFactoryMockBuilder Where_Create_fails(Error error)
         {
-            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Result.Failure<IAuthenticatedUser>(error.ToString()));
+            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Response.Failure<IAuthenticatedUser>(error.ToString()));
             return this;
         }
     }

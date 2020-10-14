@@ -1,5 +1,6 @@
 ﻿using System;
 using Blauhaus.Analytics.Abstractions.Service;
+using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Server.Azure.Service;
@@ -37,8 +38,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.ToString(), LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService);
 
         }
         
@@ -52,8 +52,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.ToString(), LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService); 
         }
 
         [Test]
@@ -67,8 +66,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             var result = Sut.Create(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.NotAuthenticated)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.NotAuthenticated.ToString(), LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.NotAuthenticated, MockAnalyticsService);
         }
         
         [Test]

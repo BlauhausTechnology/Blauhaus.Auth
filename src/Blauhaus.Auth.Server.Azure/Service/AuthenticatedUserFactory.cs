@@ -6,6 +6,7 @@ using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
+using Blauhaus.Responses;
 using CSharpFunctionalExtensions;
 
 namespace Blauhaus.Auth.Server.Azure.Service
@@ -19,7 +20,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             _analyticsService = analyticsService;
         }
 
-        public Result<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal)
+        public Response<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal)
         {
             string emailAddress = null;
             var userId = Guid.Empty;
@@ -27,7 +28,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
-                return _analyticsService.TraceErrorResult<IAuthenticatedUser>(this, AuthErrors.NotAuthenticated);
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.NotAuthenticated);
             }
 
             foreach (var claim in claimsPrincipal.Claims)
@@ -49,14 +50,14 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             if (userId == Guid.Empty)
             {
-                return _analyticsService.TraceErrorResult<IAuthenticatedUser>(this, AuthErrors.InvalidIdentity);
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidIdentity);
             }
 
-            var user = new AuthenticatedUser(userId, emailAddress, userClaims);
+            var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims);
 
             _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal: " + user.UserId);
             
-            return user;
+            return Response.Success(user);
         }
     }
 }
