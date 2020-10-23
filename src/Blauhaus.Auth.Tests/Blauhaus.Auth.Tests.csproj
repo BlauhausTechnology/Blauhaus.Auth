@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Blauhaus.Auth.Client.Azure\Blauhaus.Auth.Client.Azure.csproj" />
+    <ProjectReference Include="..\Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj" />
     <ProjectReference Include="..\Blauhaus.Auth.Server.Azure\Blauhaus.Auth.Server.Azure.csproj" />
   </ItemGroup>
 

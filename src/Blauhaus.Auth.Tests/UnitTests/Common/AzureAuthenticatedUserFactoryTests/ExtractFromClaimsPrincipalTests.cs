@@ -1,16 +1,14 @@
 ﻿using System;
-using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
-using Blauhaus.Auth.Server.Azure.Service;
+using Blauhaus.Auth.Common;
 using Blauhaus.Auth.Tests.UnitTests._Base;
-using Blauhaus.Errors.Extensions;
 using NUnit.Framework;
 
-namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTests
+namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTests
 {
-    public class CreateTests : BaseAuthTest<AuthenticatedUserFactory>
+    public class ExtractFromClaimsPrincipalTests : BaseAuthTest<AuthenticatedUserFactory>
     {
         private readonly Guid _userId = Guid.NewGuid();
 
@@ -168,23 +166,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             //Assert
             Assert.That(result.Value.HasClaimValue("HappyId", "12345"), Is.True);
         }
-
-        [Test]
-        public void SHOULD_trace()
-        {
-            //Arrange
-            var claimsPrincipal = new ClaimsPrincipalBuilder()
-                .With_UserObjectId(_userId)
-                .With_Claim("emails", "bob@freever.com")
-                .With_NameIdentifier("MyNameIs").Build();
-
-            //Act
-            Sut.Create(claimsPrincipal);
-
-            //Assert
-            MockAnalyticsService.VerifyTrace("User profile extracted from ClaimsPrincipal: " + _userId);
-
-        }
+         
 
     }
 }

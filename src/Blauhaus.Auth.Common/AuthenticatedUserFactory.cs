@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using Blauhaus.Analytics.Abstractions.Extensions;
@@ -8,9 +9,8 @@ using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Responses;
-using CSharpFunctionalExtensions;
 
-namespace Blauhaus.Auth.Server.Azure.Service
+namespace Blauhaus.Auth.Common
 {
     public class AuthenticatedUserFactory : IAuthenticatedUserFactory
     {
@@ -20,8 +20,29 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             _analyticsService = analyticsService;
         }
+        
+        public Response<IAuthenticatedUser> Create(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            if (!tokenHandler.CanReadToken(token))
+            {
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidToken);
+            }
+            var accessToken = tokenHandler.ReadJwtToken(token);
+            return ExtractClaims(accessToken.Claims);
+        }
 
         public Response<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal)
+        { 
+            if (!claimsPrincipal.Identity.IsAuthenticated)
+            {
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.NotAuthenticated);
+            }
+             
+            return ExtractClaims(claimsPrincipal.Claims);
+        }
+
+        private Response<IAuthenticatedUser> ExtractClaims(IEnumerable<Claim> claims)
         {
             string emailAddress = null;
             var userId = Guid.Empty;
@@ -29,12 +50,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
             var authPolicy = string.Empty;
             var scopes = new string[0];
 
-            if (!claimsPrincipal.Identity.IsAuthenticated)
-            {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.NotAuthenticated);
-            }
-
-            foreach (var claim in claimsPrincipal.Claims)
+            foreach (var claim in claims)
             {
                 if (claim.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier" || claim.Type == "sub")
                 {
@@ -63,10 +79,8 @@ namespace Blauhaus.Auth.Server.Azure.Service
             {
                 return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidIdentity);
             }
-
+            
             var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims, authPolicy, scopes);
-
-            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal: " + user.UserId);
             
             return Response.Success(user);
         }

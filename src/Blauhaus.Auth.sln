@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blauhaus.Auth.TestHelpers", "Blauhaus.Auth.TestHelpers\Blauhaus.Auth.TestHelpers.csproj", "{1AA83382-CCF8-44DF-8E54-9F06C1447C31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blauhaus.Auth.Common", "Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj", "{4A7047DB-883C-459A-A845-EDEED752023E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{1AA83382-CCF8-44DF-8E54-9F06C1447C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AA83382-CCF8-44DF-8E54-9F06C1447C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AA83382-CCF8-44DF-8E54-9F06C1447C31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A7047DB-883C-459A-A845-EDEED752023E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A7047DB-883C-459A-A845-EDEED752023E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A7047DB-883C-459A-A845-EDEED752023E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A7047DB-883C-459A-A845-EDEED752023E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

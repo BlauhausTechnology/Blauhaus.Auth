@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Blauhaus.Auth.Abstractions\Blauhaus.Auth.Abstractions.csproj" />
+    <ProjectReference Include="..\Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj" />
   </ItemGroup>
 
 </Project>
