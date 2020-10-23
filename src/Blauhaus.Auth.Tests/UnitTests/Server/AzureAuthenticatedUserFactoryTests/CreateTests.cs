@@ -14,12 +14,53 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
     {
         private readonly Guid _userId = Guid.NewGuid();
 
-    
+        [Test]
+        public void SHOULD_extract_Policy()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_UserObjectId(_userId)
+                .With_Claim("tfp", "MY_Policy").Build();
+
+            //Act
+            var result = Sut.Create(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.AuthPolicy, Is.EqualTo("MY_Policy"));
+        }
+
+        [Test]
+        public void SHOULD_extract_Scopes()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_UserObjectId(_userId)
+                .With_Claim("scp", "read write").Build();
+
+            //Act
+            var result = Sut.Create(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.Scopes[0], Is.EqualTo("read"));
+            Assert.That(result.Value.Scopes[1], Is.EqualTo("write"));
+        }
+
         [Test]
         public void SHOULD_extract_UserId_from_ObjectIdentifier()        {
             //Arrange
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(_userId).Build();
+
+            //Act
+            var result = Sut.Create(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.UserId, Is.EqualTo(_userId));
+        }
+
+        [Test]
+        public void SHOULD_extract_UserId_from_Sub()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_Claim("sub", _userId.ToString()).Build();
 
             //Act
             var result = Sut.Create(claimsPrincipal);

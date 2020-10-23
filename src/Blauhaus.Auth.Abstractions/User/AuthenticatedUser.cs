@@ -14,16 +14,20 @@ namespace Blauhaus.Auth.Abstractions.User
         }
 
         [JsonConstructor]
-        public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<UserClaim> claims)
+        public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<UserClaim> claims, string authPolicy = "", string[]? scopes = default)
         {
             UserId = userId;
             EmailAddress = emailAddress;
+            AuthPolicy = authPolicy;
+            Scopes = scopes ?? new string[0];
             Claims = claims.ToList();
         }
 
 
         public Guid UserId { get; }
         public string? EmailAddress { get; }
+        public string AuthPolicy { get; }
+        public string[] Scopes { get; }
         public IReadOnlyList<UserClaim> Claims { get; }
 
         public bool HasClaim(string name)

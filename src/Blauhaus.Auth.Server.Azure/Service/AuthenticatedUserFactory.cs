@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using Blauhaus.Analytics.Abstractions.Extensions;
 using Blauhaus.Analytics.Abstractions.Service;
@@ -25,6 +26,8 @@ namespace Blauhaus.Auth.Server.Azure.Service
             string emailAddress = null;
             var userId = Guid.Empty;
             var userClaims = new List<UserClaim>();
+            var authPolicy = string.Empty;
+            var scopes = new string[0];
 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
@@ -33,13 +36,21 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             foreach (var claim in claimsPrincipal.Claims)
             {
-                if (claim.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier")
+                if (claim.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier" || claim.Type == "sub")
                 {
                     Guid.TryParse(claim.Value, out userId);
                 }
                 else if (claim.Type == "emails")
                 {
                     emailAddress = string.IsNullOrWhiteSpace(claim.Value) ? null : claim.Value;
+                }
+                else if (claim.Type == "tfp")
+                {
+                    authPolicy = claim.Value;
+                }
+                else if (claim.Type == "scp")
+                {
+                    scopes = claim.Value.Split(' ').ToArray();
                 }
                 else if (claim.Type.StartsWith("extension_"))
                 {
@@ -53,7 +64,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidIdentity);
             }
 
-            var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims);
+            var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims, authPolicy, scopes);
 
             _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal: " + user.UserId);
             

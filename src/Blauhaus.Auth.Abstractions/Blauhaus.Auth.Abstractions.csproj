@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Errors" Version="0.2.6" />
+    <PackageReference Include="Blauhaus.Errors" Version="0.2.7" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.2.2" />
-    <PackageReference Include="Blauhaus.Responses" Version="0.2.6" />
+    <PackageReference Include="Blauhaus.Responses" Version="0.2.7" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
   </ItemGroup>
 
