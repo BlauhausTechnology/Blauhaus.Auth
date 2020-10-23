@@ -22,7 +22,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
         public void SHOULD_extract_Policy()        
         {
             //Act
-            var result = Sut.Create(_token);
+            var result = Sut.ExtractFromJwtToken(_token);
 
             //Act
             Assert.That(result.Value.AuthPolicy, Is.EqualTo("B2C_1_Moonbase_ROPC"));
@@ -32,7 +32,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
         public void SHOULD_extract_Scopes()        
         { 
             //Act
-            var result = Sut.Create(_token);
+            var result = Sut.ExtractFromJwtToken(_token);
 
             //Act
             Assert.That(result.Value.Scopes[0], Is.EqualTo("Read.And.Write")); 
@@ -42,7 +42,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
         public void SHOULD_extract_UserId_from_Sub()       
         {
             //Act
-            var result = Sut.Create(_token);
+            var result = Sut.ExtractFromJwtToken(_token);
 
             //Act
             Assert.That(result.Value.UserId, Is.EqualTo(Guid.Parse("23833965-90c1-4db8-8aaf-eea03a844032")));
@@ -53,7 +53,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
         public void IF_ClaimsPrincipal_has_email_address_SHOULD_add()
         {
             //Act
-            var result = Sut.Create(_token);
+            var result = Sut.ExtractFromJwtToken(_token);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.EqualTo("tester1@blauhaustechnology.com"));
@@ -64,7 +64,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
         public void IF_token_is_invalid_SHOULD_fail()
         {
             //Act
-            var result = Sut.Create("blooper");
+            var result = Sut.ExtractFromJwtToken("blooper");
 
             //Assert
             result.VerifyResponseError(AuthErrors.InvalidToken, MockAnalyticsService);

@@ -21,18 +21,18 @@ namespace Blauhaus.Auth.Common
             _analyticsService = analyticsService;
         }
         
-        public Response<IAuthenticatedUser> Create(string token)
+        public Response<IAuthenticatedUser> ExtractFromJwtToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            if (!tokenHandler.CanReadToken(token))
+            if (!tokenHandler.CanReadToken(jwtToken))
             {
                 return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidToken);
             }
-            var accessToken = tokenHandler.ReadJwtToken(token);
+            var accessToken = tokenHandler.ReadJwtToken(jwtToken);
             return ExtractClaims(accessToken.Claims);
         }
 
-        public Response<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal)
+        public Response<IAuthenticatedUser> ExtractFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
         { 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {

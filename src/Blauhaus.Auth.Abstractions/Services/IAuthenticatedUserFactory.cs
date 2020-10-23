@@ -7,6 +7,7 @@ namespace Blauhaus.Auth.Abstractions.Services
 {
     public interface IAuthenticatedUserFactory
     {
-        Response<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal);
+        Response<IAuthenticatedUser> ExtractFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal);
+        Response<IAuthenticatedUser> ExtractFromJwtToken(string jwtToken);
     }
 }

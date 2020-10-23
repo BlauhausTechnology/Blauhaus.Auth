@@ -20,7 +20,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_Claim("tfp", "MY_Policy").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Act
             Assert.That(result.Value.AuthPolicy, Is.EqualTo("MY_Policy"));
@@ -34,7 +34,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_Claim("scp", "read write").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Act
             Assert.That(result.Value.Scopes[0], Is.EqualTo("read"));
@@ -48,7 +48,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Act
             Assert.That(result.Value.UserId, Is.EqualTo(_userId));
@@ -61,7 +61,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_Claim("sub", _userId.ToString()).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Act
             Assert.That(result.Value.UserId, Is.EqualTo(_userId));
@@ -74,7 +74,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             var claimsPrincipal = new ClaimsPrincipalBuilder().Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService);
@@ -88,7 +88,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(Guid.Empty).Build();
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService); 
@@ -102,7 +102,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId)
                 .WithIsAuthenticatedFalse().Build();
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             result.VerifyResponseError(AuthErrors.NotAuthenticated, MockAnalyticsService);
@@ -117,7 +117,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.EqualTo("bob@freever.com"));
@@ -131,7 +131,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.Null);
@@ -146,7 +146,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_Claim("emails", "").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.Null);
@@ -161,7 +161,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
                 .With_Claim("extension_HappyId", "12345").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.HasClaimValue("HappyId", "12345"), Is.True);

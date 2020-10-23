@@ -14,17 +14,29 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
 
         public AuthenticatedUserFactoryMockBuilder()
         {
-            Where_Create_returns(new AuthenticatedUserMockBuilder().Object);
+            var user = new AuthenticatedUserMockBuilder().Object;
+            Where_ExtractFromClaimsPrincipal_returns(user);
+            Where_ExtractFromClaimsPrincipal_returns(user);
         }
 
-        public AuthenticatedUserFactoryMockBuilder Where_Create_returns(IAuthenticatedUser value)
+        public AuthenticatedUserFactoryMockBuilder Where_ExtractFromClaimsPrincipal_returns(IAuthenticatedUser value)
         {
-            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Response.Success(value));
+            Mock.Setup(x => x.ExtractFromClaimsPrincipal(It.IsAny<ClaimsPrincipal>())).Returns(Response.Success(value));
             return this;
         }
-        public AuthenticatedUserFactoryMockBuilder Where_Create_fails(Error error)
+        public AuthenticatedUserFactoryMockBuilder Where_ExtractFromClaimsPrincipal_fails(Error error)
         {
-            Mock.Setup(x => x.Create(It.IsAny<ClaimsPrincipal>())).Returns(Response.Failure<IAuthenticatedUser>(error));
+            Mock.Setup(x => x.ExtractFromClaimsPrincipal(It.IsAny<ClaimsPrincipal>())).Returns(Response.Failure<IAuthenticatedUser>(error));
+            return this;
+        }
+        public AuthenticatedUserFactoryMockBuilder Where_ExtractFromJwtToken_returns(IAuthenticatedUser value)
+        {
+            Mock.Setup(x => x.ExtractFromJwtToken(It.IsAny<string>())).Returns(Response.Success(value));
+            return this;
+        }
+        public AuthenticatedUserFactoryMockBuilder Where_ExtractFromJwtToken_fails(Error error)
+        {
+            Mock.Setup(x => x.ExtractFromJwtToken(It.IsAny<string>())).Returns(Response.Failure<IAuthenticatedUser>(error));
             return this;
         }
     }
