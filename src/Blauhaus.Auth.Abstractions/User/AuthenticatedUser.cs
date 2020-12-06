@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Blauhaus.Auth.Abstractions.User
 {
-    public sealed class AuthenticatedUser : IAuthenticatedUser
+    public class AuthenticatedUser : IAuthenticatedUser
     {
         public AuthenticatedUser()
         {
