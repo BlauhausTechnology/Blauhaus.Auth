@@ -22,7 +22,6 @@ namespace Blauhaus.Auth.Server.Azure._Ioc
             services.RegisterConsoleLoggerService(consoleTraceListener);
             services.RegisterServerHttpService(consoleTraceListener);
             services.AddScoped<IAzureAuthenticationServerService, AzureAuthenticationServerService>();
-            services.AddTransient<IAuthenticatedUser, AuthenticatedUser>();
             services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
             services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
 

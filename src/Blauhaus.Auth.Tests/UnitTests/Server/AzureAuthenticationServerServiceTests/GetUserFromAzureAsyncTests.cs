@@ -56,9 +56,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 .With(x => x.ExtensionsApplicationId, "b2ea915621b940d8ae234cbb3a776931");
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(_serializedAzureUser);
-            _mockUser = new MockBuilder<IAuthenticatedUser>();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
-                .Returns(_mockUser.Object);
+            _mockUser = new MockBuilder<IAuthenticatedUser>(); 
         }
 
         [Test]
@@ -87,10 +85,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         {
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_serializedAzureUser);
-            var user = new AuthenticatedUser();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
-                .Returns(user);
+                .ReturnsAsync(_serializedAzureUser); 
             
             //Act
             var result = await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
@@ -125,10 +120,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
         {
             //Arrange
             MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_serializedAzureUserWithNoEmail);
-            var user = new AuthenticatedUser();
-            MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAuthenticatedUser)))
-                .Returns(user);
+                .ReturnsAsync(_serializedAzureUserWithNoEmail); 
             
             //Act
             var result = await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
