@@ -10,14 +10,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.0.0" />
-    <PackageReference Include="Blauhaus.HttpClientService" Version="1.0.8" />
-    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.0.0" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.3.6" />
+    <PackageReference Include="Blauhaus.HttpClientService" Version="1.0.13" />
+    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.2.4" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.8" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Blauhaus.Auth.Abstractions\Blauhaus.Auth.Abstractions.csproj" />
+    <ProjectReference Include="..\Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj" />
   </ItemGroup>
 
 </Project>

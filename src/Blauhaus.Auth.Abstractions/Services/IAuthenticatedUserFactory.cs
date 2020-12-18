@@ -1,11 +1,12 @@
 ﻿using System.Security.Claims;
 using Blauhaus.Auth.Abstractions.User;
-using CSharpFunctionalExtensions;
+using Blauhaus.Responses;
 
 namespace Blauhaus.Auth.Abstractions.Services
 {
     public interface IAuthenticatedUserFactory
     {
-        Result<IAuthenticatedUser> Create(ClaimsPrincipal claimsPrincipal);
+        Response<IAuthenticatedUser> ExtractFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal);
+        Response<IAuthenticatedUser> ExtractFromJwtToken(string jwtToken);
     }
 }
