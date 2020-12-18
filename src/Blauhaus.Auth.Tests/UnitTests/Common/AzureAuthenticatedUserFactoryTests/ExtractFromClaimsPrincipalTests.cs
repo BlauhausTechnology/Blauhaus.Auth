@@ -1,19 +1,46 @@
 ﻿using System;
-using Blauhaus.Analytics.Abstractions.Service;
+using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
-using Blauhaus.Auth.Server.Azure.Service;
+using Blauhaus.Auth.Common;
 using Blauhaus.Auth.Tests.UnitTests._Base;
-using Blauhaus.Errors.Extensions;
 using NUnit.Framework;
 
-namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTests
+namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTests
 {
-    public class CreateTests : BaseAuthTest<AuthenticatedUserFactory>
+    public class ExtractFromClaimsPrincipalTests : BaseAuthTest<AuthenticatedUserFactory>
     {
         private readonly Guid _userId = Guid.NewGuid();
 
-    
+        [Test]
+        public void SHOULD_extract_Policy()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_UserObjectId(_userId)
+                .With_Claim("tfp", "MY_Policy").Build();
+
+            //Act
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.AuthPolicy, Is.EqualTo("MY_Policy"));
+        }
+
+        [Test]
+        public void SHOULD_extract_Scopes()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_UserObjectId(_userId)
+                .With_Claim("scp", "read write").Build();
+
+            //Act
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.Scopes[0], Is.EqualTo("read"));
+            Assert.That(result.Value.Scopes[1], Is.EqualTo("write"));
+        }
+
         [Test]
         public void SHOULD_extract_UserId_from_ObjectIdentifier()        {
             //Arrange
@@ -21,7 +48,20 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
+
+            //Act
+            Assert.That(result.Value.UserId, Is.EqualTo(_userId));
+        }
+
+        [Test]
+        public void SHOULD_extract_UserId_from_Sub()        {
+            //Arrange
+            var claimsPrincipal = new ClaimsPrincipalBuilder()
+                .With_Claim("sub", _userId.ToString()).Build();
+
+            //Act
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Act
             Assert.That(result.Value.UserId, Is.EqualTo(_userId));
@@ -34,11 +74,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             var claimsPrincipal = new ClaimsPrincipalBuilder().Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.Code, LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService);
 
         }
         
@@ -49,11 +88,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
             var claimsPrincipal = new ClaimsPrincipalBuilder()
                 .With_UserObjectId(Guid.Empty).Build();
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.InvalidIdentity)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.InvalidIdentity.Code, LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.InvalidIdentity, MockAnalyticsService); 
         }
 
         [Test]
@@ -64,11 +102,10 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId)
                 .WithIsAuthenticatedFalse().Build();
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            Assert.That(result.Error.ToError(), Is.EqualTo(AuthErrors.NotAuthenticated)); 
-            MockAnalyticsService.VerifyTrace(AuthErrors.NotAuthenticated.Code, LogSeverity.Error);
+            result.VerifyResponseError(AuthErrors.NotAuthenticated, MockAnalyticsService);
         }
         
         [Test]
@@ -80,7 +117,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.EqualTo("bob@freever.com"));
@@ -94,7 +131,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_UserObjectId(_userId).Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.Null);
@@ -109,7 +146,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_Claim("emails", "").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.EmailAddress, Is.Null);
@@ -124,28 +161,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticatedUserFactoryTest
                 .With_Claim("extension_HappyId", "12345").Build();
 
             //Act
-            var result = Sut.Create(claimsPrincipal);
+            var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
             Assert.That(result.Value.HasClaimValue("HappyId", "12345"), Is.True);
         }
-
-        [Test]
-        public void SHOULD_trace()
-        {
-            //Arrange
-            var claimsPrincipal = new ClaimsPrincipalBuilder()
-                .With_UserObjectId(_userId)
-                .With_Claim("emails", "bob@freever.com")
-                .With_NameIdentifier("MyNameIs").Build();
-
-            //Act
-            Sut.Create(claimsPrincipal);
-
-            //Assert
-            MockAnalyticsService.VerifyTrace("User profile extracted from ClaimsPrincipal: " + _userId);
-
-        }
+         
 
     }
 }
