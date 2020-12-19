@@ -160,6 +160,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
         {
             await _msalClientProxy.LogoutAsync();
             _accessToken.Clear();
+            _analyticsService.CurrentSession.UserId = string.Empty;
         }
 
         private bool TryGetFailedAuthentication(Exception exception, AuthenticationMode mode, out IUserAuthentication failedUserAuthentication)
@@ -260,6 +261,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
             var userAuthentication = UserAuthentication.CreateAuthenticated(user, accessToken, idToken, mode);
 
+            _analyticsService.CurrentSession.UserId = userAuthentication.User.UserId.ToString();
             _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken);
 
             return userAuthentication;

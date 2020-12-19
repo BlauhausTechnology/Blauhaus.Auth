@@ -21,7 +21,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         public class SilentLogin : LoginAsyncTests
         {
             [Test]
-            public async Task IF_silent_authentication_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
+            public async Task IF_silent_authentication_succeeds_SHOULD_set_UserIds_and_return_user()
             {
                 //Arrange
                 MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MockAuthenticatedUserResult);
@@ -39,6 +39,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(userType, Is.Not.Null);
                 Assert.That(userType.Value, Is.EqualTo("Admin"));
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
+                MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
                 MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
                     It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
             }
@@ -174,7 +175,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             }
 
             [Test]
-            public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
+            public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_set_UserIds_and_return_user()
             {
                 //Arrange
                 MockConfig.With(x => x.UseEmbeddedWebView, true);
@@ -191,6 +192,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
                 MockAnalyticsService.VerifyTrace("ManualLogin successful", LogSeverity.Information);
                 MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
+                MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
                 MockMsalClientProxy.Mock.Verify(x => x.LoginAsync(It.IsAny<object>(), true, It.IsAny<CancellationToken>()));
             }
 
@@ -284,7 +286,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             }
 
             [Test]
-            public async Task IF_authentication_requries_password_reset_and_it_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
+            public async Task IF_authentication_requries_password_reset_and_it_succeeds_SHOULD_set_UserIds_and_return_user()
             {
                 //Arrange
                 MockMsalClientProxy.Where_ResetPasswordAsync_returns(MockAuthenticatedUserResult);

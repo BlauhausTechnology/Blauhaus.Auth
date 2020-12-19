@@ -7,7 +7,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
     public class LogoutAsyncTests : BaseAuthenticationClientServiceTest
     {
         [Test]
-        public async Task SHOULD_log_out_using_MSAL()
+        public async Task SHOULD_log_out_using_MSAL_and_clear_UserIds()
         {
             //Act
             await Sut.LogoutAsync();
@@ -15,6 +15,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             MockMsalClientProxy.Mock.Verify(x => x.LogoutAsync());
             MockAuthenticatedAccessToken.Mock.Verify(x => x.Clear());
+            MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = string.Empty);
         }
 
         

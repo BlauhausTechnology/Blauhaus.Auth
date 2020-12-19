@@ -31,7 +31,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
         }
 
         [Test]
-        public async Task IF_silent_authentication_succeeds_SHOULD_call_HandleAccessToken_and_return_user()
+        public async Task IF_silent_authentication_succeeds_SHOULD_set_UserIds_and_return_user()
         {
             //Arrange
             MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MockAuthenticatedUserResult);
@@ -48,6 +48,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(userType, Is.Not.Null);
             Assert.That(userType.Value, Is.EqualTo("Admin"));
             MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
+            MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
             MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "RefreshToken successful", LogSeverity.Information, 
                 It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
         }
