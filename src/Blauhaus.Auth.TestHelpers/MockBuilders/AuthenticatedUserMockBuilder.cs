@@ -8,13 +8,19 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
 {
     public class AuthenticatedUserMockBuilder : BaseMockBuilder<AuthenticatedUserMockBuilder, IAuthenticatedUser>
     {
-        public AuthenticatedUserMockBuilder()
+        public AuthenticatedUserMockBuilder(Guid? userId = null)
         {
+            var id = userId ?? Guid.NewGuid();
             With(x => x.EmailAddress, Guid.NewGuid() + "@freever.com");
-            With(x => x.UserId, Guid.NewGuid());
+            With(x => x.UserId, id);
             With(x => x.Claims, new List<UserClaim>());
         }
 
+        public AuthenticatedUserMockBuilder With_UserId(Guid id)
+        {
+            With(x => x.UserId, id);
+            return this;
+        }
         public AuthenticatedUserMockBuilder With_Claim(UserClaim claim)
         {
             Mock.Setup(x => x.HasClaim(claim.Name)).Returns(true);
