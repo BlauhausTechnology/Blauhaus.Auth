@@ -128,4 +128,13 @@ Register the Ioc dependencies:
 services.RegisterAzureAuthenticationClient<AuthConfig>()
 ```
  
+## Adding a second app to the same API
+
+1. Create a new App Registration in the same tenant
+2. Go to API Permissions 
+3. Go to add Permission and select the "APIS my organization uses" tab
+4. Choose the app registration that the API uses, and select the appropriate permissions
+5. Click Grant Admin Access
+6. Client configuration is the same as for the first app, just with the new applicationId and iosKeychainSecurityGroups
+
 
