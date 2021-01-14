@@ -4,8 +4,7 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
-using Blauhaus.Common.Time._Ioc;
-using Blauhaus.Ioc.Abstractions;
+using Blauhaus.Time._Ioc;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Blauhaus.Auth.Client.Azure._Ioc
@@ -26,7 +25,7 @@ namespace Blauhaus.Auth.Client.Azure._Ioc
             services.AddScoped<IAuthenticationClientService, AzureAuthenticationClientService>();
             services.AddScoped<IMsalClientProxy, MsalClientProxy>();
             services.RegisterConsoleLoggerClientService();
-            services.RegisterTimeService();
+            services.AddTimeService();
 
         }
     }

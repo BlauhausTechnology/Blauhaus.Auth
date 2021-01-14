@@ -4,8 +4,8 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
-using Blauhaus.Common.Time._Ioc;
 using Blauhaus.Ioc.Abstractions;
+using Blauhaus.Time._Ioc;
 
 namespace Blauhaus.Auth.Client.Azure._Ioc
 {
@@ -25,7 +25,7 @@ namespace Blauhaus.Auth.Client.Azure._Ioc
             iocService.RegisterImplementation<IAuthenticationClientService, AzureAuthenticationClientService>(IocLifetime.Singleton);
             iocService.RegisterImplementation<IMsalClientProxy, MsalClientProxy>(IocLifetime.Transient);
             iocService.RegisterConsoleLoggerClientService();
-            iocService.RegisterTimeService();
+            iocService.AddTimeService();
 
         }
     }
