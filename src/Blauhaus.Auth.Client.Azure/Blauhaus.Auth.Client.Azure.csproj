@@ -10,9 +10,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.4.6" />
-    <PackageReference Include="Blauhaus.Time" Version="0.1.1" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.24.0" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.4.7" />
+    <PackageReference Include="Blauhaus.Time" Version="0.1.2" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.27.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
   </ItemGroup>
 
