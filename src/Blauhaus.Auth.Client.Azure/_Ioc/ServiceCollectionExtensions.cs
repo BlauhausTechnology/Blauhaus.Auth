@@ -1,4 +1,4 @@
-﻿using Blauhaus.Analytics.Console._Ioc;
+﻿using Blauhaus.Analytics.Console.Ioc;
 using Blauhaus.Auth.Abstractions._Ioc;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Client.Azure.Config;
