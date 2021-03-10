@@ -26,7 +26,6 @@ namespace Blauhaus.Auth.Client.Azure.Ioc
             services.AddScoped<IMsalClientProxy, MsalClientProxy>();
             services.RegisterConsoleLoggerClientService();
             services.AddTimeService();
-
         }
     }
 }
