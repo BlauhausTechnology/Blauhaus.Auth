@@ -1,8 +1,7 @@
 ﻿using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Ioc.Abstractions;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Blauhaus.Auth.Abstractions._Ioc
+namespace Blauhaus.Auth.Abstractions.Ioc
 {
     public static class IocServiceExtensions
     {

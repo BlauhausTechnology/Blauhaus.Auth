@@ -1,13 +1,13 @@
 ﻿using Blauhaus.Analytics.Console.Ioc;
-using Blauhaus.Auth.Abstractions._Ioc;
+using Blauhaus.Auth.Abstractions.Ioc;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
-using Blauhaus.Time._Ioc;
+using Blauhaus.Time.Ioc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blauhaus.Auth.Client.Azure._Ioc
+namespace Blauhaus.Auth.Client.Azure.Ioc
 {
     public static class ServiceCollectionExtensions
     {

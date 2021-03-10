@@ -10,9 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Errors" Version="0.3.5" />
+    <Compile Include=".Ioc\IocServiceExtensions.cs" />
+    <Compile Include=".Ioc\ServiceCollectionExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blauhaus.Errors" Version="0.3.6" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.3.0" />
-    <PackageReference Include="Blauhaus.Responses" Version="0.3.5" />
+    <PackageReference Include="Blauhaus.Responses" Version="0.3.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
   </ItemGroup>
 

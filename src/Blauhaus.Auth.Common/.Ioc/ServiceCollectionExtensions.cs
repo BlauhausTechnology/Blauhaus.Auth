@@ -1,9 +1,8 @@
 ﻿using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Abstractions.User;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Blauhaus.Auth.Common._Ioc
+namespace Blauhaus.Auth.Common.Ioc
 {
     public static class ServiceCollectionExtensions
     {
