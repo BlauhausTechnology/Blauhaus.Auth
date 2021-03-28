@@ -19,6 +19,7 @@ namespace Blauhaus.Auth.Client.Azure.Ioc
             return iocService;
         }
 
+        
         private static void Register<TConfig>(IIocService iocService) where TConfig : class, IAzureActiveDirectoryClientConfig
         {
             iocService.RegisterImplementation<IAzureActiveDirectoryClientConfig, TConfig>(IocLifetime.Singleton);
