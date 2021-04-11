@@ -11,7 +11,7 @@ https://docs.microsoft.com/en-us/xamarin/xamarin-forms/data-cloud/authentication
 4. Click on the App Registration and go to Authentication. Add Platform < Mobile and desktop applications. Select the MSAL client Refirect URI and note it (eg msal2bbeff31-6gcf-487d-86d6-552ec81828c2://auth). Select YES for "Treat application as a public client."
 5. Click on Expose an API > Add A Scope. Add an Application ID URI if required. Add a scope called something like Read.And.Write for generic API access. Click the "Grant Admin Access" button. 
 6. Click on API permissions > Add A Permission. Choose My APIs  and select the name of your App Registration. Select the Scope you created and click Add Permissions. 
-
+* To add another app on the same API, just add another app registration and add the API Permission
 ## Server-Side Setup
 
 ### Authentication and Authorization
