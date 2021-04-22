@@ -15,10 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.5.2" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="1.5.3" />
     <PackageReference Include="Blauhaus.Time" Version="0.1.4" />
     <PackageReference Include="Microsoft.Identity.Client" Version="4.29.0" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.10.2" />
   </ItemGroup>
 
   <ItemGroup>
