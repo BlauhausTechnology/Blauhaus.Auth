@@ -179,7 +179,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 return true;
             }
 
-            failedUserAuthentication = null;
+            failedUserAuthentication = default;
             return false;
         }
 
