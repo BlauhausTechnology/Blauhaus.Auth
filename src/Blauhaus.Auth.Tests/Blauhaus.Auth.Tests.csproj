@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.TestHelpers" Version="1.6.9" />
+    <PackageReference Include="Blauhaus.Analytics.TestHelpers" Version="1.6.10" />
     <PackageReference Include="Blauhaus.Errors" Version="0.3.6" />
     <PackageReference Include="Blauhaus.TestHelpers" Version="1.2.10" />
     <PackageReference Include="nunit" Version="3.13.2" />
