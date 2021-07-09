@@ -170,8 +170,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (exception is HttpRequestException ||
                 exception.Message != null && exception.Message.Contains("Unable to resolve host")) //Android
             {
-                
-                failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error", mode);
+                failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error ({exception.Message})", mode);
 
                 _analyticsService.Trace(this, $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
                 _analyticsService.LogException(this, exception);

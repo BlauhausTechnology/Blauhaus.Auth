@@ -122,7 +122,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL SilentLogin failed. Networking error"));
+                Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
                 MockAnalyticsService.VerifyLogException(exception);
             }
@@ -141,7 +141,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL SilentLogin failed. Networking error"));
+                Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
                 MockAnalyticsService.VerifyLogException(e);
 
@@ -247,7 +247,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error"));
+                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error (Network issue)"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
                 MockAnalyticsService.VerifyLogException(exception);
             }
@@ -266,7 +266,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error"));
+                Assert.That(result.ErrorMessage!.StartsWith("MSAL ManualLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
                 MockAnalyticsService.VerifyLogException(exception);
             }
@@ -359,7 +359,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ResetPassword failed. Networking error"));
+                Assert.That(result.ErrorMessage!.StartsWith("MSAL ResetPassword failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
                 MockAnalyticsService.VerifyLogException(exception);
             }
@@ -378,7 +378,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ResetPassword failed. Networking error"));
+                Assert.That(result.ErrorMessage!.StartsWith("MSAL ResetPassword failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
                 MockAnalyticsService.VerifyLogException(exception);
 
