@@ -105,7 +105,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
             Assert.That(result.User, Is.Null);
-            Assert.That(result.ErrorMessage, Is.EqualTo("MSAL RefreshToken failed. Networking error"));
+            Assert.That(result.ErrorMessage!.StartsWith("MSAL RefreshToken failed. Networking error"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.VerifyLogException(exception);
         }
@@ -124,7 +124,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Failed));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
             Assert.That(result.User, Is.Null);
-            Assert.That(result.ErrorMessage, Is.EqualTo("MSAL RefreshToken failed. Networking error"));
+            Assert.That(result.ErrorMessage!.StartsWith("MSAL RefreshToken failed. Networking error"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             MockAnalyticsService.VerifyLogException(exception);
 

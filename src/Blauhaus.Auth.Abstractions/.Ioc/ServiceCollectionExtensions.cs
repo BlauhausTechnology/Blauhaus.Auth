@@ -7,7 +7,7 @@ namespace Blauhaus.Auth.Abstractions.Ioc
     {
         public static IServiceCollection RegisterAccessToken(this IServiceCollection services)
         {
-            services.AddScoped<IAuthenticatedAccessToken, AuthenticatedAccessToken>();
+            services.AddSingleton<IAuthenticatedAccessToken, AuthenticatedAccessToken>();
             return services;
         }
         
