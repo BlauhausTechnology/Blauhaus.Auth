@@ -158,6 +158,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
         public async Task LogoutAsync()
         {
+            _analyticsService.TraceInformation(this, "Logging out user");
             await _msalClientProxy.LogoutAsync();
             _accessToken.Clear();
             _analyticsService.CurrentSession.UserId = string.Empty;

@@ -25,8 +25,8 @@ namespace Blauhaus.Auth.Abstractions.AccessToken
 
         public void Clear()
         {
-            Scheme = String.Empty;
-            Token = String.Empty;
+            Scheme = string.Empty;
+            Token = string.Empty;
             _additionalHeaders.Clear();
         }
     }
