@@ -67,7 +67,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             var result = Sut.ExtractFromJwtToken("blooper");
 
             //Assert
-            result.VerifyResponseError(AuthErrors.InvalidToken, MockAnalyticsService);
+            result.VerifyResponseError(AuthError.InvalidToken, MockAnalyticsService);
         }
 
     }

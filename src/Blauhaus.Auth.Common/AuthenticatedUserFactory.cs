@@ -26,7 +26,7 @@ namespace Blauhaus.Auth.Common
             var tokenHandler = new JwtSecurityTokenHandler();
             if (!tokenHandler.CanReadToken(jwtToken))
             {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidToken);
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidToken);
             }
             var accessToken = tokenHandler.ReadJwtToken(jwtToken);
             return ExtractClaims(accessToken.Claims);
@@ -36,7 +36,7 @@ namespace Blauhaus.Auth.Common
         { 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.NotAuthenticated);
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.NotAuthenticated);
             }
              
             return ExtractClaims(claimsPrincipal.Claims);
@@ -77,7 +77,7 @@ namespace Blauhaus.Auth.Common
 
             if (userId == Guid.Empty)
             {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthErrors.InvalidIdentity);
+                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidIdentity);
             }
             
             var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims, authPolicy, scopes);
