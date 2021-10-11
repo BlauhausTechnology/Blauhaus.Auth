@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Blauhaus.Common.Abstractions;
 
 namespace Blauhaus.Auth.Abstractions.User
 {
-    public interface IAuthenticatedUser
+    public interface IAuthenticatedUser : IHasUserId
     {
-        Guid UserId { get; }   
         string? EmailAddress { get; }
 
         public string AuthPolicy { get; }
