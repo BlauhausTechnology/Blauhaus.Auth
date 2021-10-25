@@ -28,10 +28,14 @@ namespace Blauhaus.Auth.Abstractions.User
             UserId = userId;
             EmailAddress = emailAddress;
             AuthPolicy = authPolicy;
-            Scopes = scopes ?? new string[0];
+            Scopes = scopes ?? Array.Empty<string>();
             Claims = claims.ToList();
         }
 
+        public static AuthenticatedUser CreateAdmin(IAuthenticatedUser authenticatedUser)
+        {
+            return new AuthenticatedUser(authenticatedUser.UserId, authenticatedUser.EmailAddress, new List<UserClaim> { UserClaim.Admin });
+        }
 
         public Guid UserId { get; }
         public string? EmailAddress { get; }

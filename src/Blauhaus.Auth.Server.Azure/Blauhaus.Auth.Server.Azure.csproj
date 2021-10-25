@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Blauhaus.Analytics.Console" Version="1.7.3" />
     <PackageReference Include="Blauhaus.HttpClientService" Version="1.1.0" />
-    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.4.2" />
+    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.4.3" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.13.1" />
   </ItemGroup>

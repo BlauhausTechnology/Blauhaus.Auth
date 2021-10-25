@@ -2,7 +2,7 @@
 
 namespace Blauhaus.Auth.Abstractions.User
 {
-    public struct UserClaim 
+    public readonly struct UserClaim 
     {
         public UserClaim(string name, string value)
         {
@@ -17,5 +17,7 @@ namespace Blauhaus.Auth.Abstractions.User
         {
             return $"| {Name}: {Value}";
         }
+
+        public static UserClaim Admin = new UserClaim("Role", "Admin");
     }
 }

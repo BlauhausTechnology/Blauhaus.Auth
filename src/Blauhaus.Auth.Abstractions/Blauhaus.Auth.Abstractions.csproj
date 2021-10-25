@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Blauhaus.Errors" Version="0.4.4" />
-    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.4.2" />
+    <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.4.3" />
     <PackageReference Include="Blauhaus.Responses" Version="0.4.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
   </ItemGroup>
