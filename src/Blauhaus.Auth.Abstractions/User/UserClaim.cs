@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Blauhaus.Auth.Abstractions.User
 {
-    public readonly struct UserClaim 
+    public class UserClaim 
     {
+        [JsonConstructor]
         public UserClaim(string name, string value)
         {
             Name = name;

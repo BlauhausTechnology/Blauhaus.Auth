@@ -39,32 +39,32 @@ namespace Blauhaus.Auth.Abstractions.User
 
         public Guid UserId { get; }
         public string? EmailAddress { get; }
-        public string AuthPolicy { get; }
-        public string[] Scopes { get; }
-        public IReadOnlyList<UserClaim> Claims { get; }
+        public string AuthPolicy { get; } = string.Empty;
+        public string[] Scopes { get; } = Array.Empty<string>();
+        public IReadOnlyList<UserClaim> Claims { get; } = Array.Empty<UserClaim>();
 
         public bool HasClaim(string name)
         {
             var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            return claim.Name != default && claim.Value != default;
+            return claim is { Name: { }, Value: { } };
         }
 
         public bool HasClaimValue(string name, string value)
         {
             var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            return claim.Name != default && string.Equals(claim.Value, value, StringComparison.InvariantCultureIgnoreCase);
+            return claim?.Name != default && string.Equals(claim.Value, value, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public bool TryGetClaimValue(string name, out string value)
         {
             var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            if (claim.Name != default && claim.Value != default)
+            if (claim is { Name: { }, Value: { } })
             {
                 value = claim.Value;
                 return true;
             }
 
-            value = null;
+            value = string.Empty;
             return false;
         }
 

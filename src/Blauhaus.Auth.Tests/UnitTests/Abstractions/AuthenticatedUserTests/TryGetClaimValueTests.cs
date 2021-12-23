@@ -29,7 +29,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Abstractions.AuthenticatedUserTests
         public void IF_user_does_not_have_matching_claim_SHOULD_return_false()
         {
             Assert.That(Sut.TryGetClaimValue("BestMeme", out var meme), Is.False);
-            Assert.That(meme, Is.Null);
+            Assert.That(meme, Is.EqualTo(string.Empty));
         }
     }
 }
