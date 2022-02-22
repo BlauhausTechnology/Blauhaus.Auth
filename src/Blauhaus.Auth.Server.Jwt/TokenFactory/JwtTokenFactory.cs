@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Blauhaus.Auth.Server.Jwt.TokenFactory
 {
-    public class JwtTokenFactory
+    public class JwtTokenFactory : IJwtTokenFactory
     {
         private readonly IJwtTokenConfig _config;
         private readonly ITimeService _timeService;
@@ -41,7 +41,7 @@ namespace Blauhaus.Auth.Server.Jwt.TokenFactory
 
             foreach (var authenticatedUserClaim in authenticatedUser.Claims)
             {
-                claims.Add(authenticatedUserClaim.ToClaim());
+                claims.Add(authenticatedUserClaim.ToCustomClaim());
             }
 
             var jwtToken = new JwtSecurityToken(

@@ -24,10 +24,7 @@ namespace Blauhaus.Auth.Common.UserFactory
         public Response<IAuthenticatedUser> ExtractFromJwtToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            if (!tokenHandler.CanReadToken(jwtToken))
-            {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidToken);
-            }
+            if (!tokenHandler.CanReadToken(jwtToken)) return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidToken);
             var accessToken = tokenHandler.ReadJwtToken(jwtToken);
             return ExtractClaims(accessToken.Claims);
         }

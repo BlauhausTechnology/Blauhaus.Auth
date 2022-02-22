@@ -4,7 +4,7 @@ using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Common;
 using Blauhaus.Auth.Common.UserFactory;
-using Blauhaus.Auth.Tests.UnitTests._Base;
+using Blauhaus.Auth.Tests.UnitTests.Base;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTests

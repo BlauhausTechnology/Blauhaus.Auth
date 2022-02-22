@@ -1,6 +1,7 @@
 ﻿using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.Tokens;
 using Blauhaus.Auth.Common.UserFactory;
+using Blauhaus.Auth.Server.Jwt.TokenFactory;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -10,16 +11,11 @@ namespace Blauhaus.Auth.Server.Jwt.Ioc
 {
     public static class ServiceCollectionExtensions
     {
-        
-        public static IServiceCollection AddAzureUserFactory(this IServiceCollection services) 
-        {
-            services.TryAddScoped<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
-            return services;
-        }
-        
+         
         public static IServiceCollection AddJwtTokenHandlers(this IServiceCollection services, IJwtTokenConfig config) 
         {
             services.AddSingleton(config);
+            services.AddTransient<IJwtTokenFactory, JwtTokenFactory>();
 
             services.AddAuthentication(options =>
             {
