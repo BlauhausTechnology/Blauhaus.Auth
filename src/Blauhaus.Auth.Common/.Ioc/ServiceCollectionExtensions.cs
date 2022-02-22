@@ -1,4 +1,6 @@
 ﻿using Blauhaus.Auth.Abstractions.Services;
+using Blauhaus.Auth.Abstractions.Tokens;
+using Blauhaus.Auth.Common.UserFactory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -12,6 +14,7 @@ namespace Blauhaus.Auth.Common.Ioc
             services.TryAddScoped<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
             return services;
         }
+         
 
     }
 }

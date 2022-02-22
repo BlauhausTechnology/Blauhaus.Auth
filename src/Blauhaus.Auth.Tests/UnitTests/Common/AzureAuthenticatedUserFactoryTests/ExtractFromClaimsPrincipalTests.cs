@@ -3,6 +3,7 @@ using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Common;
+using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Auth.Tests.UnitTests._Base;
 using NUnit.Framework;
 

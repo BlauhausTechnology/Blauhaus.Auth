@@ -10,7 +10,7 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Responses;
 
-namespace Blauhaus.Auth.Common
+namespace Blauhaus.Auth.Common.UserFactory
 {
     public class AuthenticatedUserFactory : IAuthenticatedUserFactory
     {
