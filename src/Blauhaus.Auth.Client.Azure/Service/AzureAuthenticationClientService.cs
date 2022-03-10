@@ -12,6 +12,7 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
+using Blauhaus.Responses;
 
 namespace Blauhaus.Auth.Client.Azure.Service
 {
@@ -34,7 +35,34 @@ namespace Blauhaus.Auth.Client.Azure.Service
             _msalClientProxy = msalClientProxy;
         }
 
-        public static object NativeParentView { get; set; }
+        public static object NativeParentView { get; set; } = null!;
+
+        public async Task<IUserAuthentication> TryGetLoggedInUserAsync(CancellationToken cancellationToke)
+        {
+            try
+            {
+                var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(CancellationToken.None);
+                var msalLogs = GetLogs(silentMsalResult);
+
+                if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
+                {
+                    return completedSilentLoginAuthentication;
+                }
+
+                _analyticsService.Trace(this, "No authentication methods were successful", LogSeverity.Warning, msalLogs);
+                return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.SilentLogin);
+            }
+            catch (Exception e)
+            {
+                if (TryGetFailedAuthentication(e, AuthenticationMode.SilentLogin, out var failedUserAuthentication))
+                {
+                    return failedUserAuthentication;
+                }
+
+                _analyticsService.LogException(this, e);
+                throw;
+            }
+        }
 
         public async Task<IUserAuthentication> LoginAsync(CancellationToken cancellationToken)
         {
@@ -193,7 +221,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
                 
-                msalLogs["UserId"] = userAuthentication.User.UserId;
+                msalLogs["UserId"] = userAuthentication.User!.UserId;
 
                 _analyticsService.Trace(this, $"{authenticationModeName} successful", LogSeverity.Information, msalLogs);
                 

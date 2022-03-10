@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base;
+using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests

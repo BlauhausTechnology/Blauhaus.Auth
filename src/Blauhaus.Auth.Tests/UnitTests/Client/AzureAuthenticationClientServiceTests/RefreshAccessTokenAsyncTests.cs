@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
-using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base;
+using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base;
 using Microsoft.Identity.Client;
 using Moq;
 using NUnit.Framework;

@@ -8,7 +8,7 @@ using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
-using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base;
+using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base;
 using Microsoft.Identity.Client;
 using Moq;
 using NUnit.Framework;
@@ -68,7 +68,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
                     It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
             }
-
 
             [Test]
             public async Task IF_silent_authentication_is_cancelled_SHOULD_return_cancelled()

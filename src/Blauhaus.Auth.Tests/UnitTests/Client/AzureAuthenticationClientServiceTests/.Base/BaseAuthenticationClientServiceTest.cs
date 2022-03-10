@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using Blauhaus.Analytics.Abstractions.Service;
-using Blauhaus.Analytics.TestHelpers;
 using Blauhaus.Analytics.TestHelpers.MockBuilders;
 using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Auth.Client.Azure.Config;
@@ -10,13 +8,11 @@ using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Client.Azure.Service;
 using Blauhaus.Auth.Tests.Builders;
 using Blauhaus.Ioc.Abstractions;
-using Blauhaus.TestHelpers;
 using Blauhaus.TestHelpers.BaseTests;
 using Blauhaus.TestHelpers.MockBuilders;
-using Moq;
 using NUnit.Framework;
 
-namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests._Base
+namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base
 {
     public class BaseAuthenticationClientServiceTest : BaseUnitTest<AzureAuthenticationClientService>
     {

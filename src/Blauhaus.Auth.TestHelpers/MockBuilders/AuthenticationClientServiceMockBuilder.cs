@@ -23,6 +23,12 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
                 .ReturnsAsync(result);
             return this;
         }
+        public AuthenticationClientServiceMockBuilder Where_TryGetLoggedInUserAsync_returns(IUserAuthentication result)
+        {
+            Mock.Setup(x => x.TryGetLoggedInUserAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(result);
+            return this;
+        }
         
         public AuthenticationClientServiceMockBuilder Where_EditProfileAsync_returns(IUserAuthentication result)
         {
