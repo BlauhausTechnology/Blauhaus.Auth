@@ -11,7 +11,7 @@ namespace Blauhaus.Auth.Common.Ioc
         
         public static IServiceCollection AddAzureUserFactory(this IServiceCollection services) 
         {
-            services.TryAddScoped<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
+            services.TryAddTransient<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
             return services;
         }
          
