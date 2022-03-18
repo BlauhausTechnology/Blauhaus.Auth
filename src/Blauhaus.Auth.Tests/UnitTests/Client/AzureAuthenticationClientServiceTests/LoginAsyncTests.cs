@@ -33,15 +33,13 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
-                Assert.That(result.User.UserId, Is.EqualTo(UserId));
+                Assert.That(result.User!.UserId, Is.EqualTo(UserId));
                 Assert.That(result.User.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
                 var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
                 Assert.That(userType, Is.Not.Null);
                 Assert.That(userType.Value, Is.EqualTo("Admin"));
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-                MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
-                    It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
+                MockLogger.VerifySetValue("UserId", UserId);
             }
 
             [Test]
@@ -62,11 +60,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
                 Assert.That(userType, Is.Not.Null);
                 Assert.That(userType.Value, Is.EqualTo("Admin"));
-                MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
-                    It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information, 
-                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
+                MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken)); 
             }
 
             [Test]
@@ -82,9 +76,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
-                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin cancelled. MSAL state: Cancelled",
-                    LogSeverity.Information, It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin)); 
             }
 
             [Test]
@@ -102,9 +94,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.SilentLogin} failed. Error code: MSAL Error Code"));
-                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-                MockAnalyticsService.VerifyTrace("SilentLogin FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning);
-                MockAnalyticsService.VerifyTraceProperty(y => (MsalClientResult)y["MSAL result"] == fail);
+                Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin)); 
             }
 
             [Test]
@@ -123,7 +113,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-                MockAnalyticsService.VerifyLogException(exception);
             }
 
             [Test]
@@ -142,7 +131,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-                MockAnalyticsService.VerifyLogException(e);
 
             }
 
@@ -158,20 +146,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                     .Where_AuthenticateSilentlyAsync_returns(MsalClientResult
                         .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired, MockLogs));
             }
-
-            [Test]
-            public async Task IF_authentication_requries_login_SHOULD_log_reason()
-            {
-                //Arrange
-                MockMsalClientProxy.Where_LoginAsync_returns(MockAuthenticatedUserResult);
-
-                //Act
-                await Sut.LoginAsync(MockCancelToken);
-
-                //Assert
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Manual Login Required because ConsentRequired", LogSeverity.Information, 
-                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
-            }
+             
 
             [Test]
             public async Task IF_authentication_requries_login_and_login_succeeds_SHOULD_set_UserIds_and_return_user()
@@ -188,10 +163,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
                 Assert.That(result.User.UserId, Is.EqualTo(UserId));
-                MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-                MockAnalyticsService.VerifyTrace("ManualLogin successful", LogSeverity.Information);
-                MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
-                MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
+                MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken)); 
+                MockLogger.VerifySetValue("UserId", UserId);
                 MockMsalClientProxy.Mock.Verify(x => x.LoginAsync(It.IsAny<object>(), true, It.IsAny<CancellationToken>()));
             }
 
@@ -209,7 +182,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
                 Assert.That(result.User, Is.Null);
-                MockAnalyticsService.VerifyTrace("ManualLogin cancelled. MSAL state: Cancelled", LogSeverity.Information);
             }
 
             [Test]
@@ -228,8 +200,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.ManualLogin} failed. Error code: MSAL Error Code"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
-                MockAnalyticsService.VerifyTrace("ManualLogin FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning);
-                MockAnalyticsService.VerifyTraceProperty("MSAL result", fail);
             }
 
             [Test]
@@ -248,7 +218,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage, Is.EqualTo("MSAL ManualLogin failed. Networking error (Network issue)"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
-                MockAnalyticsService.VerifyLogException(exception);
             }
 
             [Test]
@@ -267,7 +236,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage!.StartsWith("MSAL ManualLogin failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ManualLogin));
-                MockAnalyticsService.VerifyLogException(exception);
             }
         }
 
@@ -300,10 +268,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
                 Assert.That(result.User.UserId, Is.EqualTo(UserId));
                 MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-                MockAnalyticsService.VerifyTrace("ResetPassword successful", LogSeverity.Information);
-                MockAnalyticsService.VerifyTraceProperty("UserId", UserId);
-                MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, It.IsAny<string>(), LogSeverity.Information, 
-                    It.Is<Dictionary<string, object>>(y => ((List<string>) y["MsalLogs"]).Count == 1), It.IsAny<string>()));
                 MockMsalClientProxy.Mock.Verify(x => x.LoginAsync(It.IsAny<object>(), true, It.IsAny<CancellationToken>()));
             }
 
@@ -321,7 +285,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
-                MockAnalyticsService.VerifyTrace("ResetPassword cancelled. MSAL state: Cancelled", LogSeverity.Information);
             }
 
             [Test]
@@ -340,8 +303,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.ResetPassword} failed. Error code: MSAL Error Code"));
-                MockAnalyticsService.VerifyTrace("ResetPassword FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning);
-                MockAnalyticsService.VerifyTraceProperty("MSAL result", fail);
             }
 
             [Test]
@@ -360,7 +321,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage!.StartsWith("MSAL ResetPassword failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
-                MockAnalyticsService.VerifyLogException(exception);
             }
 
             [Test]
@@ -379,7 +339,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
                 Assert.That(result.User, Is.Null);
                 Assert.That(result.ErrorMessage!.StartsWith("MSAL ResetPassword failed. Networking error"));
                 Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.ResetPassword));
-                MockAnalyticsService.VerifyLogException(exception);
 
             }
         }

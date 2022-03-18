@@ -47,9 +47,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.User.UserId, Is.EqualTo(UserId));
             var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
             Assert.That(userType, Is.Not.Null);
-            Assert.That(userType.Value, Is.EqualTo("Admin"));
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "EditProfile successful", LogSeverity.Information, 
-                It.Is<Dictionary<string, object>>(y => (Guid) y["UserId"] == UserId), It.IsAny<string>()));
+            Assert.That(userType.Value, Is.EqualTo("Admin")); 
         }
 
         [Test]
@@ -65,9 +63,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Cancelled));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
             Assert.That(result.User, Is.Null);
-            Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile));
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "EditProfile cancelled. MSAL state: Cancelled",
-                LogSeverity.Information, It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
+            Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile)); 
         }
 
         [Test]
@@ -85,9 +81,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
             Assert.That(result.User, Is.Null);
             Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.EditProfile} failed. Error code: MSAL Error Code"));
-            Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile));
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "EditProfile FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning, 
-                It.Is<Dictionary<string, object>>(y => y["MSAL result"] == fail), It.IsAny<string>()));
+            Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile)); 
         }
 
         [Test]
@@ -106,7 +100,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.User, Is.Null);
             Assert.That(result.ErrorMessage, Is.EqualTo("MSAL EditProfile failed. Networking error (Network issue)"));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile));
-            MockAnalyticsService.VerifyLogException(exception);
         }
 
         [Test]

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base;
 using NUnit.Framework;
 
@@ -15,7 +16,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             //Assert
             MockMsalClientProxy.Mock.Verify(x => x.LogoutAsync());
             MockAuthenticatedAccessToken.Mock.Verify(x => x.Clear());
-            MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = string.Empty);
+            MockLogger.VerifySetValue("UserId", Guid.Empty);
         }
 
         

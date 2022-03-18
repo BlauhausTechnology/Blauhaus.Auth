@@ -35,9 +35,7 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(userType, Is.Not.Null);
         Assert.That(userType.Value, Is.EqualTo("Admin"));
         MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-        MockAnalyticsService.MockCurrentSession.Mock.VerifySet(x => x.UserId = UserId.ToString());
-        MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information,
-            It.Is<Dictionary<string, object>>(y => (Guid)y["UserId"] == UserId), It.IsAny<string>()));
+        MockLogger.VerifySetValue("UserId", UserId);
     }
 
     [Test]
@@ -59,10 +57,6 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(userType, Is.Not.Null);
         Assert.That(userType.Value, Is.EqualTo("Admin"));
         MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
-        MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information,
-            It.Is<Dictionary<string, object>>(y => (Guid)y["UserId"] == UserId), It.IsAny<string>()));
-        MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin successful", LogSeverity.Information,
-            It.Is<Dictionary<string, object>>(y => ((List<string>)y["MsalLogs"]).Count == 1), It.IsAny<string>()));
     }
 
     [Test]
@@ -79,8 +73,6 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(""));
         Assert.That(result.User, Is.Null);
         Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-        MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "SilentLogin cancelled. MSAL state: Cancelled",
-            LogSeverity.Information, It.IsAny<Dictionary<string, object>>(), It.IsAny<string>()));
     }
 
     [Test]
@@ -99,8 +91,6 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.User, Is.Null);
         Assert.That(result.ErrorMessage, Is.EqualTo($"MSAL {AuthenticationMode.SilentLogin} failed. Error code: MSAL Error Code"));
         Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-        MockAnalyticsService.VerifyTrace("SilentLogin FAILED: MSAL Error Code. MSAL state: Failed", LogSeverity.Warning);
-        MockAnalyticsService.VerifyTraceProperty(y => (MsalClientResult)y["MSAL result"] == fail);
     }
 
     [Test]
@@ -119,7 +109,6 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.User, Is.Null);
         Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
         Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-        MockAnalyticsService.VerifyLogException(exception);
     }
 
     [Test]
@@ -138,7 +127,6 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.User, Is.Null);
         Assert.That(result.ErrorMessage!.StartsWith("MSAL SilentLogin failed. Networking error"));
         Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.SilentLogin));
-        MockAnalyticsService.VerifyLogException(e);
 
     }
 

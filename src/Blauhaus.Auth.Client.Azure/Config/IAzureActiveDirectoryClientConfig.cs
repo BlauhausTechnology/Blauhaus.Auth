@@ -15,7 +15,6 @@
         string AuthorityPasswordReset { get; }
         string AuthorityEditProfile { get; }
 
-        MsalLogLevel TraceLogLevel { get; }
         bool UseEmbeddedWebView { get; }
     }
 }

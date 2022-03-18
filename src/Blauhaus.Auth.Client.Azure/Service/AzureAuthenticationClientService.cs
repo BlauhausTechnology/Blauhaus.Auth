@@ -4,6 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions;
 using Blauhaus.Analytics.Abstractions.Extensions;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.AccessToken;
@@ -12,24 +13,26 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
+using Blauhaus.Errors;
 using Blauhaus.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace Blauhaus.Auth.Client.Azure.Service
 {
     public class AzureAuthenticationClientService : IAuthenticationClientService
     {
+        private readonly IAnalyticsLogger<AzureAuthenticationClientService> _logger;
         private readonly IAuthenticatedAccessToken _accessToken;
         private readonly IAzureActiveDirectoryClientConfig _config;
-        private readonly IAnalyticsService _analyticsService;
         private readonly IMsalClientProxy _msalClientProxy;
 
         public AzureAuthenticationClientService(
-            IAnalyticsService analyticsService,
+            IAnalyticsLogger<AzureAuthenticationClientService> logger,
             IMsalClientProxy msalClientProxy,
             IAuthenticatedAccessToken accessToken,
             IAzureActiveDirectoryClientConfig config)
         {
-            _analyticsService = analyticsService;
+            _logger = logger;
             _accessToken = accessToken;
             _config = config;
             _msalClientProxy = msalClientProxy;
@@ -41,15 +44,16 @@ namespace Blauhaus.Auth.Client.Azure.Service
         {
             try
             {
+                using var _ = _logger.LogTimed(LogLevel.Information, "Tried to get logged in user");
+
                 var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(CancellationToken.None);
-                var msalLogs = GetLogs(silentMsalResult);
 
                 if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
                 {
                     return completedSilentLoginAuthentication;
                 }
 
-                _analyticsService.Trace(this, "No authentication methods were successful", LogSeverity.Warning, msalLogs);
+                _logger.LogWarning("No authentication methods were successful");
                 return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.SilentLogin);
             }
             catch (Exception e)
@@ -59,7 +63,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     return failedUserAuthentication;
                 }
 
-                _analyticsService.LogException(this, e);
+                _logger.LogError(Error.Unexpected(), e);
                 throw;
             }
         }
@@ -71,8 +75,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
             try
             {
+                using var _ = _logger.LogTimed(LogLevel.Information, "Logged in user");
                 var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken);
-                var msalLogs = GetLogs(silentMsalResult);
 
                 if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.SilentLogin, out var completedSilentLoginAuthentication))
                 {
@@ -81,7 +85,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
-                    _analyticsService.TraceInformation(this, $"Manual Login Required because {silentMsalResult.MsalErrorCode}", msalLogs);
+                    _logger.LogInformation("Manual Login Required because {MsalErrorCode}", silentMsalResult.MsalErrorCode);
 
                     currentAuthMode = AuthenticationMode.ManualLogin;
                     var loginMsalResult = await _msalClientProxy.LoginAsync(NativeParentView, _config.UseEmbeddedWebView, cancellationToken);
@@ -102,7 +106,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                         }
                     }
                 }
-                _analyticsService.Trace(this,  "No authentication methods were successful", LogSeverity.Warning, msalLogs);
+                _logger.LogWarning("No authentication methods were successful");
                 return UserAuthentication.CreateFailed("No authentication methods were successful", currentAuthMode);
             }
             catch (Exception e)
@@ -112,7 +116,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     return failedUserAuthentication;
                 }
                 
-                _analyticsService.LogException(this, e);
+                _logger.LogError(Error.Unexpected(), e);
                 throw;
             }
         }
@@ -122,6 +126,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
             try
             {
+                using var _ = _logger.LogTimed(LogLevel.Information, "Refreshed access token");
+
                 var silentMsalResult = await _msalClientProxy.AuthenticateSilentlyAsync(cancellationToken, true);
 
                 if (TryGetCompletedUserAuthentication(silentMsalResult, AuthenticationMode.RefreshToken, out var completedRefreshTokenAuthentication))
@@ -131,11 +137,11 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (silentMsalResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
-                    _analyticsService.Trace(this, $"{AuthenticationMode.RefreshToken} failed. Login required", LogSeverity.Warning);
+                    _logger.LogInformation("Refreshing auth token failed: {MsalErrorCode}. Login required", silentMsalResult.MsalErrorCode);
                     return UserAuthentication.CreateFailed("MSAL RefreshToken failed. Login required", AuthenticationMode.RefreshToken);
                 }
 
-                _analyticsService.Trace(this, "No authentication methods were successful to refresh token", LogSeverity.Warning);
+                _logger.LogWarning("No authentication methods were successful to refresh token");
                 return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.RefreshToken);
             }
             catch (Exception e)
@@ -145,7 +151,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
                     return failedUserAuthentication;
                 }
 
-                _analyticsService.LogException(this, e);
+                _logger.LogError(Error.Unexpected(), e);
                 throw;
             }
         }
@@ -155,8 +161,10 @@ namespace Blauhaus.Auth.Client.Azure.Service
             
             try
             {
+                
+                using var _ = _logger.LogTimed(LogLevel.Information, "Edited profile");
+
                 var editProfileResult = await _msalClientProxy.EditProfileAsync(NativeParentView, cancellationToken);
-                var msalLogs = GetLogs(editProfileResult);
 
                 if (TryGetCompletedUserAuthentication(editProfileResult, AuthenticationMode.EditProfile, out var completed))
                 {
@@ -165,11 +173,11 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
                 if (editProfileResult.AuthenticationState == MsalAuthenticationState.RequiresLogin)
                 {
-                    _analyticsService.Trace(this, $"{AuthenticationMode.EditProfile} failed. Login required", LogSeverity.Warning, msalLogs);
+                    _logger.LogWarning("EditProfile failed: {MsalErrorCode}. Login required", editProfileResult.MsalErrorCode);
                     return UserAuthentication.CreateFailed($"MSAL {AuthenticationMode.EditProfile} failed. Login required", AuthenticationMode.EditProfile);
                 }
 
-                _analyticsService.Trace(this, "No authentication methods were successful to refresh token", LogSeverity.Warning, msalLogs);
+                _logger.LogWarning("No authentication methods were successful to refresh token");
                 return UserAuthentication.CreateFailed("No authentication methods were successful", AuthenticationMode.RefreshToken);
             }
             catch (Exception e)
@@ -178,18 +186,18 @@ namespace Blauhaus.Auth.Client.Azure.Service
                 {
                     return failedUserAuthentication;
                 }
-
-                _analyticsService.LogException(this, e);
+                
+                _logger.LogError(Error.Unexpected(), e);
                 throw;
             }
         }
 
         public async Task LogoutAsync()
         {
-            _analyticsService.TraceInformation(this, "Logging out user");
+            using var _ = _logger.LogTimed(LogLevel.Information, "Logged out user");
             await _msalClientProxy.LogoutAsync();
             _accessToken.Clear();
-            _analyticsService.CurrentSession.UserId = string.Empty;
+            _logger.SetValue("UserId", Guid.Empty);
         }
 
         private bool TryGetFailedAuthentication(Exception exception, AuthenticationMode mode, out IUserAuthentication failedUserAuthentication)
@@ -201,8 +209,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             {
                 failedUserAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Networking error ({exception.Message})", mode);
 
-                _analyticsService.Trace(this, $"{authenticationModeName} failed due to networking error", LogSeverity.Warning);
-                _analyticsService.LogException(this, exception);
+                _logger.LogWarning(exception, "{AuthenticationMode} failed due to networking error", authenticationModeName);
 
                 return true;
             }
@@ -215,15 +222,10 @@ namespace Blauhaus.Auth.Client.Azure.Service
         {
             var authenticationModeName = Enum.GetName(typeof(AuthenticationMode), mode);
 
-            var msalLogs = GetLogs(msalClientResult);
-
             if (msalClientResult.IsAuthenticated)
             {
                 userAuthentication = CreateAuthenticated(msalClientResult, mode);
-                
-                msalLogs["UserId"] = userAuthentication.User!.UserId;
-
-                _analyticsService.Trace(this, $"{authenticationModeName} successful", LogSeverity.Information, msalLogs);
+                _logger.LogDebug("{AuthenticationMode} successful", authenticationModeName);
                 
                 return true;
             }
@@ -231,15 +233,15 @@ namespace Blauhaus.Auth.Client.Azure.Service
             if (msalClientResult.IsCancelled)
             {
                 userAuthentication = UserAuthentication.CreateCancelled(mode);
-                _analyticsService.TraceInformation(this, $"{authenticationModeName} cancelled. MSAL state: {msalClientResult.AuthenticationState}", msalLogs);
+                _logger.LogInformation("{AuthenticationMode} cancelled. MSAL state: {AuthenticationState}", authenticationModeName, msalClientResult.AuthenticationState);
                 return true;
             }
 
             if (msalClientResult.IsFailed)
             {
-                msalLogs["MSAL result"] = msalClientResult;
                 userAuthentication = UserAuthentication.CreateFailed($"MSAL {authenticationModeName} failed. Error code: {msalClientResult.MsalErrorCode}", mode);
-                _analyticsService.TraceWarning(this, $"{authenticationModeName} FAILED: {msalClientResult.MsalErrorCode}. MSAL state: {msalClientResult.AuthenticationState}", msalLogs);
+                _logger.LogWarning("{AuthenticationMode} FAILED: {MsalErrorCode}. MSAL state: {AuthenticationState}", 
+                    authenticationModeName, msalClientResult.MsalErrorCode, msalClientResult.AuthenticationState);
                 
                 return true;
             }
@@ -247,21 +249,7 @@ namespace Blauhaus.Auth.Client.Azure.Service
             userAuthentication = default;
             return false;
         }
-
-        private Dictionary<string, object> GetLogs(MsalClientResult msalClientResult)
-        {
-            var logs = new List<string>();
-            foreach (var authenticationLog in msalClientResult.AuthenticationLogs)
-            {
-                if (authenticationLog.Key <= _config.TraceLogLevel)
-                {
-                    logs.Add(authenticationLog.Key + " : " + authenticationLog.Value);
-                }
-            }
-
-            return new Dictionary<string, object>{{"MsalLogs", logs}};
-        }
-
+         
         private IUserAuthentication CreateAuthenticated(MsalClientResult msalClientResult, AuthenticationMode mode)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -289,8 +277,8 @@ namespace Blauhaus.Auth.Client.Azure.Service
 
             var userAuthentication = UserAuthentication.CreateAuthenticated(user, accessToken, idToken, mode);
 
-            _analyticsService.CurrentSession.UserId = userAuthentication.User.UserId.ToString();
-            _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken);
+            _logger.SetValue("UserId", userAuthentication.User!.UserId);
+            _accessToken.SetAccessToken("Bearer", userAuthentication.AuthenticatedAccessToken!);
 
             return userAuthentication;
         }
