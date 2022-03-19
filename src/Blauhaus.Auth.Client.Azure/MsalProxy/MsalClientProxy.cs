@@ -3,21 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Client.Azure.Config;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
+using LogLevel = Microsoft.Identity.Client.LogLevel;
 
 namespace Blauhaus.Auth.Client.Azure.MsalProxy
 {
     internal class MsalClientProxy : IMsalClientProxy
     {
+        private readonly IAnalyticsLogger<MsalClientProxy> _logger;
         private readonly IAzureActiveDirectoryClientConfig _azureAuthConfig;
         private readonly IPublicClientApplication _authenticationClient;
 
-        private readonly List<KeyValuePair<MsalLogLevel, string>> _msalLogs = new List<KeyValuePair<MsalLogLevel, string>>();
 
-        public MsalClientProxy(IAzureActiveDirectoryClientConfig azureAuthConfig)
+        public MsalClientProxy(
+            IAnalyticsLogger<MsalClientProxy> logger,
+            IAzureActiveDirectoryClientConfig azureAuthConfig)
         {
+            _logger = logger;
             _azureAuthConfig = azureAuthConfig;
 
             _authenticationClient = PublicClientApplicationBuilder
@@ -33,8 +39,6 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
         {
             try
             {
-                _msalLogs.Clear();
-
                 var accounts = await _authenticationClient.GetAccountsAsync();
 
                 var authResult = await _authenticationClient
@@ -43,18 +47,18 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithB2CAuthority(_azureAuthConfig.AuthoritySignin)
                     .ExecuteAsync(cancellationToken);
 
-                return MsalClientResult.Authenticated(authResult, _msalLogs);
+                return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalUiRequiredException e)
             {
-                return MsalClientResult.RequiresLogin(e.Classification, _msalLogs);
+                return MsalClientResult.RequiresLogin(e.Classification);
             }
             catch (MsalException msalException)
             {
                 if (msalException.ErrorCode == "authentication_canceled")
-                    return MsalClientResult.Cancelled(_msalLogs);
+                    return MsalClientResult.Cancelled();
                 
-                return MsalClientResult.Failed(msalException, _msalLogs);
+                return MsalClientResult.Failed(msalException);
             }
         }
         
@@ -62,7 +66,6 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
         {
             try
             {
-                _msalLogs.Clear();
                 var client = _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
                     .WithPrompt(Prompt.SelectAccount)
@@ -77,18 +80,18 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                 var authResult = await client
                     .ExecuteAsync(cancellationToken);
                     
-                return MsalClientResult.Authenticated(authResult, _msalLogs);
+                return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalException msalException)
             {
                 
                 if (msalException.Message != null && msalException.Message.Contains("AADB2C90118"))
-                    return MsalClientResult.RequiresPasswordReset(_msalLogs);
+                    return MsalClientResult.RequiresPasswordReset();
 
                 if (msalException.ErrorCode == "authentication_canceled")
-                    return MsalClientResult.Cancelled(_msalLogs); 
+                    return MsalClientResult.Cancelled(); 
                 
-                return MsalClientResult.Failed(msalException, _msalLogs);
+                return MsalClientResult.Failed(msalException);
             }
 
         }
@@ -97,8 +100,6 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
         {
             try
             {
-                _msalLogs.Clear();
-
                 var client = _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
                     .WithPrompt(Prompt.SelectAccount)
@@ -113,17 +114,17 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                 var authResult =  await client
                     .ExecuteAsync(cancellationToken);
 
-                return MsalClientResult.Authenticated(authResult, _msalLogs);
+                return MsalClientResult.Authenticated(authResult);
             }
             catch (MsalException msalException)
             {
                 if (msalException.ErrorCode == "authentication_canceled")
-                    return MsalClientResult.Cancelled(_msalLogs);
+                    return MsalClientResult.Cancelled();
                 
                 if (msalException.Message != null && msalException.Message.Contains("AADB2C90091"))
-                    return MsalClientResult.Cancelled(_msalLogs);
+                    return MsalClientResult.Cancelled();
                 
-                return MsalClientResult.Failed(msalException, _msalLogs);
+                return MsalClientResult.Failed(msalException);
             }
         }
 
@@ -131,8 +132,6 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
         {
             try
             {
-                _msalLogs.Clear();
-
                 var editProfileResult =  await _authenticationClient
                     .AcquireTokenInteractive(_azureAuthConfig.Scopes)
                     .WithPrompt(Prompt.NoPrompt)
@@ -140,17 +139,17 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
                     .WithB2CAuthority(_azureAuthConfig.AuthorityPasswordReset)
                     .ExecuteAsync(cancellationToken);
                         
-                return MsalClientResult.Authenticated(editProfileResult, _msalLogs);
+                return MsalClientResult.Authenticated(editProfileResult);
             }
             catch (MsalException msalException)
             {
                 if (msalException.ErrorCode == "authentication_canceled")
-                    return MsalClientResult.Cancelled(_msalLogs);
+                    return MsalClientResult.Cancelled();
                 
                 if (msalException.Message != null && msalException.Message.Contains("AADB2C90091"))
-                    return MsalClientResult.Cancelled(_msalLogs);
+                    return MsalClientResult.Cancelled();
                 
-                return MsalClientResult.Failed(msalException, _msalLogs);
+                return MsalClientResult.Failed(msalException);
             }
         }
 
@@ -169,9 +168,13 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
         {
             if (!containspii)
             {
-                _msalLogs.Add(new KeyValuePair<MsalLogLevel, string>((MsalLogLevel) level, message));
+                if(level == LogLevel.Always) _logger.LogTrace(message);
+                else if(level == LogLevel.Info) _logger.LogInformation(message);
+                else if(level == LogLevel.Warning) _logger.LogWarning(message);
+                else if(level == LogLevel.Error) _logger.LogError(message);
             }
         }
+         
 
     }
 }

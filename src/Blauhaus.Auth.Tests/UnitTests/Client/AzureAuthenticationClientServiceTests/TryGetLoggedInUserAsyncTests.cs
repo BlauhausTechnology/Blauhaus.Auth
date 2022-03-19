@@ -63,7 +63,7 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
     public async Task IF_silent_authentication_is_cancelled_SHOULD_return_cancelled()
     {
         //Arrange
-        MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled(MockLogs));
+        MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled());
 
         //Act
         var result = await Sut.TryGetLoggedInUserAsync(MockCancelToken);
@@ -79,7 +79,7 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
     public async Task IF_silent_authentication_fails_SHOULD_return_failed_state()
     {
         //Arrange
-        var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
+        var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
         MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(fail);
 
         //Act

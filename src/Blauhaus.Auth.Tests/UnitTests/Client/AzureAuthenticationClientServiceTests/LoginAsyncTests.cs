@@ -67,7 +67,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_silent_authentication_is_cancelled_SHOULD_return_cancelled()
             {
                 //Arrange
-                MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled(MockLogs));
+                MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(MsalClientResult.Cancelled());
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -83,7 +83,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_silent_authentication_fails_SHOULD_return_failed_state()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
                 MockMsalClientProxy.Where_AuthenticateSilentlyAsync_returns(fail);
 
                 //Act
@@ -144,7 +144,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
                 MockMsalClientProxy
                     .Where_AuthenticateSilentlyAsync_returns(MsalClientResult
-                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired, MockLogs));
+                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired));
             }
              
 
@@ -172,7 +172,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_is_cancelled_SHOULD_return_cancellation()
             {
                 //Arrange
-                MockMsalClientProxy.Where_LoginAsync_returns(MsalClientResult.Cancelled(MockLogs));
+                MockMsalClientProxy.Where_LoginAsync_returns(MsalClientResult.Cancelled());
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -188,7 +188,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_login_and_login_fails_SHOULD_return_Failed()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
                 MockMsalClientProxy.Where_LoginAsync_returns(fail);
 
                 //Act
@@ -248,8 +248,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
 
                 MockMsalClientProxy
                     .Where_AuthenticateSilentlyAsync_returns(MsalClientResult
-                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired, MockLogs))
-                    .Where_LoginAsync_returns(MsalClientResult.RequiresPasswordReset(MockLogs));
+                        .RequiresLogin(UiRequiredExceptionClassification.ConsentRequired))
+                    .Where_LoginAsync_returns(MsalClientResult.RequiresPasswordReset());
             }
 
             [Test]
@@ -275,7 +275,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_password_reset_and_it_is_cancelled_SHOULD_return_cancelled()
             {
                 //Arrange
-                MockMsalClientProxy.Where_ResetPasswordAsync_returns(MsalClientResult.Cancelled(MockLogs));
+                MockMsalClientProxy.Where_ResetPasswordAsync_returns(MsalClientResult.Cancelled());
 
                 //Act
                 var result = await Sut.LoginAsync(MockCancelToken);
@@ -291,7 +291,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             public async Task IF_authentication_requries_password_reset_and_it_fails_SHOULD_return_fail()
             {
                 //Arrange
-                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"), MockLogs);
+                var fail = MsalClientResult.Failed(new MsalException("MSAL Error Code"));
                 MockMsalClientProxy.Where_ResetPasswordAsync_returns(fail);
 
                 //Act

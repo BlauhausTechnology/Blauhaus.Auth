@@ -6,11 +6,10 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 {
     public class MsalClientResult
     {
-        private MsalClientResult(MsalAuthenticationState authenticationState, AuthenticationResult authenticationResult, List<KeyValuePair<MsalLogLevel, string>> logs, string errorCode = "")
+        private MsalClientResult(MsalAuthenticationState authenticationState, AuthenticationResult authenticationResult, string errorCode = "")
         {
             AuthenticationState = authenticationState;
             AuthenticationResult = authenticationResult;
-            AuthenticationLogs = logs;
             MsalErrorCode = errorCode;
         }
 
@@ -20,31 +19,30 @@ namespace Blauhaus.Auth.Client.Azure.MsalProxy
 
         public MsalAuthenticationState AuthenticationState { get; }
         public AuthenticationResult AuthenticationResult { get; }
-        public List<KeyValuePair<MsalLogLevel, string>> AuthenticationLogs { get; }
         public string MsalErrorCode { get; }
 
-        public static MsalClientResult Authenticated(AuthenticationResult authenticationResult, List<KeyValuePair<MsalLogLevel, string>> logs)
+        public static MsalClientResult Authenticated(AuthenticationResult authenticationResult)
         {
-            return new MsalClientResult(MsalAuthenticationState.Authenticated, authenticationResult, logs);
+            return new MsalClientResult(MsalAuthenticationState.Authenticated, authenticationResult);
         }        
         
-        public static MsalClientResult RequiresLogin(UiRequiredExceptionClassification errorCode, List<KeyValuePair<MsalLogLevel, string>> logs)
+        public static MsalClientResult RequiresLogin(UiRequiredExceptionClassification errorCode)
         {
-            return new MsalClientResult(MsalAuthenticationState.RequiresLogin, null, logs, errorCode.ToString());
+            return new MsalClientResult(MsalAuthenticationState.RequiresLogin, null, errorCode.ToString());
         }
 
-        public static MsalClientResult RequiresPasswordReset(List<KeyValuePair<MsalLogLevel, string>> logs)
+        public static MsalClientResult RequiresPasswordReset()
         {
-            return new MsalClientResult(MsalAuthenticationState.RequiresPasswordReset, null, logs);
+            return new MsalClientResult(MsalAuthenticationState.RequiresPasswordReset, null);
         }
 
-        public static MsalClientResult Cancelled(List<KeyValuePair<MsalLogLevel, string>> logs)
+        public static MsalClientResult Cancelled()
         {
-            return new MsalClientResult(MsalAuthenticationState.Cancelled, null, logs);
+            return new MsalClientResult(MsalAuthenticationState.Cancelled, null);
         }
-        public static MsalClientResult Failed(MsalException e, List<KeyValuePair<MsalLogLevel, string>> logs)
+        public static MsalClientResult Failed(MsalException e)
         {
-            return new MsalClientResult(MsalAuthenticationState.Failed, null, logs, e.ErrorCode);
+            return new MsalClientResult(MsalAuthenticationState.Failed, null, e.ErrorCode);
         }
     }
 }
