@@ -31,7 +31,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                                                                       " \"surname\": \"Frielinghaus\",\r\n  " +
                                                                       "\"userPrincipalName\": \"29d195eb-68d1-45a3-8183-5fd8b5a72c0c@minegameauth.onmicrosoft.com\",\r\n  " +
                                                                       "\"userType\": \"Member\",\r\n  " +
-                                                                      "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n");
+                                                                      "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n")!;
 
         private readonly Dictionary<string, object> _serializedAzureUserWithNoEmail = 
             JsonConvert.DeserializeObject<Dictionary<string, object>>("{\r\n  " +
@@ -44,9 +44,9 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                                                                       " \"surname\": \"Frielinghaus\",\r\n  " +
                                                                       "\"userPrincipalName\": \"29d195eb-68d1-45a3-8183-5fd8b5a72c0c@minegameauth.onmicrosoft.com\",\r\n  " +
                                                                       "\"userType\": \"Member\",\r\n  " +
-                                                                      "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n");
+                                                                      "\"extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel\": 120\r\n}\r\n")!;
 
-        private MockBuilder<IAuthenticatedUser> _mockUser;
+        private MockBuilder<IAuthenticatedUser> _mockUser = null!;
 
         public override void Setup()
         {

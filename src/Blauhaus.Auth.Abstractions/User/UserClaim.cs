@@ -22,9 +22,9 @@ namespace Blauhaus.Auth.Abstractions.User
             return $"| {Name}: {Value}";
         }
 
-        public static UserClaim Admin = new UserClaim("Role", "Admin");
-        public static UserClaim UserId(Guid userId) => new UserClaim("sub", userId.ToString());
-        public static UserClaim EmailAddress(string emailAddress) => new UserClaim("emails", emailAddress);
-        public static UserClaim Expiration(DateTime expiration) => new UserClaim(ClaimTypes.Expiration, expiration.ToString("MMM ddd dd yyyy HH:mm:ss tt"));
+        public static UserClaim Admin = new("Role", "Admin");
+        public static UserClaim UserId(Guid userId) => new("sub", userId.ToString());
+        public static UserClaim EmailAddress(string emailAddress) => new("emails", emailAddress);
+        public static UserClaim Expiration(DateTime expiration) => new(ClaimTypes.Expiration, expiration.ToString("MMM ddd dd yyyy HH:mm:ss tt"));
     }
 }
