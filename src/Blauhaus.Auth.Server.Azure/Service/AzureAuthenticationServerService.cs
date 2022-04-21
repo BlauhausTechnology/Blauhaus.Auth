@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions.Extensions;
 using Blauhaus.Analytics.Abstractions.Service;
-using Blauhaus.Auth.Abstractions.Claims;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.HttpClientService.Request;
-using Blauhaus.Ioc.Abstractions;
 using Newtonsoft.Json.Linq;
 
 namespace Blauhaus.Auth.Server.Azure.Service

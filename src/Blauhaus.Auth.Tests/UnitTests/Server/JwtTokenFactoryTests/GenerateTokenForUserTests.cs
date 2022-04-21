@@ -1,8 +1,5 @@
 ﻿using System;
-using Blauhaus.Analytics.Abstractions.Service;
-using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.User;
-using Blauhaus.Auth.Server.Jwt.TokenFactory;
 using System.IdentityModel.Tokens.Jwt;
 using Blauhaus.Auth.Tests.UnitTests.Server.JwtTokenFactoryTests.Base;
 using NUnit.Framework;

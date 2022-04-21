@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.TestHelpers.MockBuilders;
 using Moq;
 

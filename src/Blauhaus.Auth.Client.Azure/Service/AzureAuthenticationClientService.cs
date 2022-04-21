@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Analytics.Abstractions;
 using Blauhaus.Analytics.Abstractions.Extensions;
-using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.AccessToken;
 using Blauhaus.Auth.Abstractions.Models;
 using Blauhaus.Auth.Abstractions.Services;
@@ -14,7 +13,6 @@ using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Errors;
-using Blauhaus.Responses;
 using Microsoft.Extensions.Logging;
 
 namespace Blauhaus.Auth.Client.Azure.Service

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using Blauhaus.Analytics.Abstractions;
 using Blauhaus.Analytics.Abstractions.Extensions;
-using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
@@ -14,17 +14,21 @@ namespace Blauhaus.Auth.Common.UserFactory
 {
     public class AuthenticatedUserFactory : IAuthenticatedUserFactory
     {
-        private readonly IAnalyticsService _analyticsService;
+        private readonly IAnalyticsLogger<AuthenticatedUserFactory> _logger;
 
-        public AuthenticatedUserFactory(IAnalyticsService analyticsService)
+        public AuthenticatedUserFactory(
+            IAnalyticsLogger<AuthenticatedUserFactory> logger)
         {
-            _analyticsService = analyticsService;
+            _logger = logger;
         }
         
         public Response<IAuthenticatedUser> ExtractFromJwtToken(string jwtToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            if (!tokenHandler.CanReadToken(jwtToken)) return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidToken);
+            if (!tokenHandler.CanReadToken(jwtToken))
+            {
+                return _logger.LogErrorResponse<IAuthenticatedUser>(AuthError.InvalidToken);
+            }
             var accessToken = tokenHandler.ReadJwtToken(jwtToken);
             return ExtractClaims(accessToken.Claims);
         }
@@ -33,7 +37,7 @@ namespace Blauhaus.Auth.Common.UserFactory
         { 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.NotAuthenticated);
+                return _logger.LogErrorResponse<IAuthenticatedUser>(AuthError.NotAuthenticated);
             }
              
             return ExtractClaims(claimsPrincipal.Claims);
@@ -45,11 +49,11 @@ namespace Blauhaus.Auth.Common.UserFactory
             var userId = Guid.Empty;
             var userClaims = new List<UserClaim>();
             var authPolicy = string.Empty;
-            var scopes = new string[0];
+            var scopes = Array.Empty<string>();
 
             foreach (var claim in claims)
             {
-                if (claim.Type == "http://schemas.microsoft.com/identity/claims/objectidentifier" || claim.Type == "sub")
+                if (claim.Type is "http://schemas.microsoft.com/identity/claims/objectidentifier" or "sub")
                 {
                     Guid.TryParse(claim.Value, out userId);
                 }
@@ -74,7 +78,7 @@ namespace Blauhaus.Auth.Common.UserFactory
 
             if (userId == Guid.Empty)
             {
-                return _analyticsService.TraceErrorResponse<IAuthenticatedUser>(this, AuthError.InvalidIdentity);
+                return _logger.LogErrorResponse<IAuthenticatedUser>(AuthError.InvalidIdentity);
             }
             
             var user = (IAuthenticatedUser) new AuthenticatedUser(userId, emailAddress, userClaims, authPolicy, scopes);

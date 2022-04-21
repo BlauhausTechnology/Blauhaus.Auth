@@ -1,7 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Blauhaus.Auth.Abstractions.Models;
-using Blauhaus.Responses;
 
 namespace Blauhaus.Auth.Abstractions.Services
 {

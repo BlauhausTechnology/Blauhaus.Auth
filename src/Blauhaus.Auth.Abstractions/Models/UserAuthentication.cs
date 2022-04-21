@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Blauhaus.Auth.Abstractions.User;
+﻿using Blauhaus.Auth.Abstractions.User;
 
 namespace Blauhaus.Auth.Abstractions.Models
 {

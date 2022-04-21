@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Builders;
-using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests._Base;
-using Moq;
 using NUnit.Framework;
 
 namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceTests

@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Models;
-using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
 using Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceTests.Base;
 using Microsoft.Identity.Client;

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Blauhaus.Auth.Client.Azure.Config;
-using Microsoft.Identity.Client;
+﻿using Microsoft.Identity.Client;
 
 namespace Blauhaus.Auth.Client.Azure.MsalProxy
 {

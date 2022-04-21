@@ -1,14 +1,9 @@
 ﻿using System;
-using Blauhaus.Analytics.Abstractions.Service;
-using Blauhaus.Analytics.TestHelpers;
 using Blauhaus.Analytics.TestHelpers.MockBuilders;
-using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.Auth.Server.Azure.Service;
 using Blauhaus.HttpClientService.Abstractions;
-using Blauhaus.Ioc.Abstractions;
-using Blauhaus.TestHelpers;
 using Blauhaus.TestHelpers.BaseTests;
 using Blauhaus.TestHelpers.MockBuilders;
 using NUnit.Framework;

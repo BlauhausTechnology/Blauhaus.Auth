@@ -1,4 +1,5 @@
-﻿using Blauhaus.Analytics.Abstractions.Service;
+﻿using Blauhaus.Analytics.Abstractions;
+using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Analytics.TestHelpers.MockBuilders;
 using Blauhaus.TestHelpers.BaseTests;
 using NUnit.Framework;
@@ -13,11 +14,11 @@ namespace Blauhaus.Auth.Tests.UnitTests.Base
         {
             Cleanup();
 
-            AddService(x => MockAnalyticsService.Object);
+            AddService(x => MockLogger.Object);
         }
-        
 
-        protected AnalyticsServiceMockBuilder MockAnalyticsService => AddMock<AnalyticsServiceMockBuilder, IAnalyticsService>().Invoke();
+        protected AnalyticsLoggerMockBuilder<TSut> MockLogger
+            => AddMock<AnalyticsLoggerMockBuilder<TSut>, IAnalyticsLogger<TSut>>().Invoke();
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using Blauhaus.Auth.Abstractions.User;
+﻿using Blauhaus.Analytics.TestHelpers.MockBuilders;
+using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Auth.Server.Jwt.TokenFactory;
 using Blauhaus.Auth.TestHelpers.MockBuilders;
@@ -21,12 +22,13 @@ public abstract class BaseJwtTokenFactoryTest : BaseAuthTest<JwtTokenFactory>
 
         MockUser = new AuthenticatedUserMockBuilder();
         MockJwtTokenConfig = new JwtTokenConfigMockBuilder();
-        AuthenticatedUserFactorty = new AuthenticatedUserFactory(MockAnalyticsService.Object);
+        AuthenticatedUserFactorty = new AuthenticatedUserFactory(
+            new AnalyticsLoggerMockBuilder<AuthenticatedUserFactory>().Object);
         MockTimeService = new TimeServiceMockBuilder();
 
         AddService(MockJwtTokenConfig.Object);
         AddService(MockTimeService.Object);
     }
-
+     
 
 }

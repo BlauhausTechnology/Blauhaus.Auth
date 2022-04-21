@@ -2,7 +2,6 @@
 using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Builders;
 using Blauhaus.Auth.Abstractions.Errors;
-using Blauhaus.Auth.Common;
 using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Auth.Tests.UnitTests.Base;
 using NUnit.Framework;
@@ -78,7 +77,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            result.VerifyResponseError(AuthError.InvalidIdentity, MockAnalyticsService);
+            MockLogger.VerifyLogErrorResponse(AuthError.InvalidIdentity, result);
 
         }
         
@@ -92,7 +91,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
             //Assert
-            result.VerifyResponseError(AuthError.InvalidIdentity, MockAnalyticsService); 
+            MockLogger.VerifyLogErrorResponse(AuthError.InvalidIdentity, result); 
         }
 
         [Test]
@@ -105,8 +104,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             //Act
             var result = Sut.ExtractFromClaimsPrincipal(claimsPrincipal);
 
-            //Assert
-            result.VerifyResponseError(AuthError.NotAuthenticated, MockAnalyticsService);
+            //Assert 
+            MockLogger.VerifyLogErrorResponse(AuthError.NotAuthenticated, result);
         }
         
         [Test]

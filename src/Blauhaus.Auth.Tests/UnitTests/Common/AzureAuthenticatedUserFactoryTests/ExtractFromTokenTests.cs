@@ -1,7 +1,6 @@
 ﻿using System;
 using Blauhaus.Analytics.TestHelpers.Extensions;
 using Blauhaus.Auth.Abstractions.Errors;
-using Blauhaus.Auth.Common;
 using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Auth.Tests.UnitTests.Base;
 using NUnit.Framework;
@@ -67,8 +66,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             //Act
             var result = Sut.ExtractFromJwtToken("blooper");
 
-            //Assert
-            result.VerifyResponseError(AuthError.InvalidToken, MockAnalyticsService);
+            //Assert 
+            MockLogger.VerifyLogErrorResponse(AuthError.InvalidToken, result);
         }
 
     }

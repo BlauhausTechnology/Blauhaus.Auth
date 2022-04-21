@@ -1,10 +1,7 @@
-﻿using Blauhaus.Auth.Abstractions.Services;
-using Blauhaus.Auth.Abstractions.Tokens;
-using Blauhaus.Auth.Common.UserFactory;
+﻿using Blauhaus.Auth.Abstractions.Tokens;
 using Blauhaus.Auth.Server.Jwt.TokenFactory;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Blauhaus.Auth.Server.Jwt.Ioc

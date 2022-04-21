@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.TestHelpers.MockBuilders;
 
