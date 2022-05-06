@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blauhaus.Auth.TestHelpers",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blauhaus.Auth.Common", "Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj", "{4A7047DB-883C-459A-A845-EDEED752023E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blauhaus.Auth.Server", "Blauhaus.Auth.Server\Blauhaus.Auth.Server.csproj", "{B64C6195-FF33-4561-A775-1CC0882D22C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blauhaus.Auth.Server", "Blauhaus.Auth.Server.\Blauhaus.Auth.Server.csproj", "{B64C6195-FF33-4561-A775-1CC0882D22C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

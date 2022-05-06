@@ -8,7 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include=".Ioc\BaseJwtTokenConfig.cs" />
+    <Compile Include=".Ioc\JwtOptions.cs" />
+    <Compile Include=".Ioc\PasswordOptions.cs" />
     <Compile Include=".Ioc\ServiceCollectionExtensions.cs" />
   </ItemGroup>
 

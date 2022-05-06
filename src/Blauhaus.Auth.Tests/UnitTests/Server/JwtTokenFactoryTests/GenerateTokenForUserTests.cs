@@ -47,12 +47,13 @@ public class GenerateTokenForUserTests : BaseJwtTokenFactoryTest
     public void SHOULD_add_ExpiresAt_and_Nbf()
     {
         //Act
+        var validFor = TimeSpan.FromHours(2);
         var token = Sut.GenerateTokenForUser(MockUser.Object);
         var result = new JwtSecurityTokenHandler().ReadJwtToken(token);
         
         //Assert
         Assert.That(result.ValidFrom, Is.EqualTo(MockTimeService.Object.CurrentUtcTime));
-        Assert.That(result.ValidTo, Is.EqualTo(MockTimeService.Object.CurrentUtcTime.Add(MockJwtTokenConfig.Object.ValidFor)));
+        Assert.That(result.ValidTo, Is.EqualTo(MockTimeService.Object.CurrentUtcTime.Add(validFor)));
     }
 		
 }

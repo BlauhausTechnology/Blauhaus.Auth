@@ -12,6 +12,7 @@
     <Compile Include="UnitTests\.Base\BaseAuthTest.cs" />
     <Compile Include="UnitTests\Client\AzureAuthenticationClientServiceTests\.Base\BaseAuthenticationClientServiceTest.cs" />
     <Compile Include="UnitTests\Server\JwtTokenFactoryTests\.Base\BaseJwtTokenFactoryTest.cs" />
+    <Compile Include="UnitTests\Server\PasswordServiceTests\.Base\BasePasswordServiceTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -31,7 +32,7 @@
     <ProjectReference Include="..\Blauhaus.Auth.Client.Azure\Blauhaus.Auth.Client.Azure.csproj" />
     <ProjectReference Include="..\Blauhaus.Auth.Common\Blauhaus.Auth.Common.csproj" />
     <ProjectReference Include="..\Blauhaus.Auth.Server.Azure\Blauhaus.Auth.Server.Azure.csproj" />
-    <ProjectReference Include="..\Blauhaus.Auth.Server.Jwt\Blauhaus.Auth.Server.Jwt.csproj" />
+    <ProjectReference Include="..\Blauhaus.Auth.Server\Blauhaus.Auth.Server.csproj" />
     <ProjectReference Include="..\Blauhaus.Auth.TestHelpers\Blauhaus.Auth.TestHelpers.csproj" />
   </ItemGroup>
 

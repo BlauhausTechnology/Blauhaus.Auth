@@ -1,4 +1,4 @@
-﻿namespace Blauhaus.Auth.Server.Jwt.TokenFactory
+﻿namespace Blauhaus.Auth.Server.TokenFactory
 {
     public class JwtToken
     {
