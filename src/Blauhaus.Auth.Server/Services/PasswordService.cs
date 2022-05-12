@@ -7,6 +7,7 @@ using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Server.Ioc;
 using Blauhaus.Responses;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Blauhaus.Auth.Server.Services;
@@ -17,7 +18,7 @@ public class PasswordService : IPasswordService
     private readonly PasswordOptions _passwordOptions;
 
     private const string SpecialChar = @"\|!#$%&/()=?»«@£§€{}.-;'<>_,";
-    private const string DefaultHash = "a&6*_0b72a4a547548574be2e53e1821^^3";
+    private const string DefaultSalt = "a&6*_0b72a4a547548574be2e53e1821^^3";
 
     public PasswordService(
         IAnalyticsLogger<PasswordService> logger,
@@ -28,7 +29,7 @@ public class PasswordService : IPasswordService
     }
 
      
-    public Response<string> CreateHash(string password)
+    public Response<string> CreateHashedPassword(string password)
     {
         if (password.Length < _passwordOptions.RequiredLenth)
         {
@@ -44,13 +45,17 @@ public class PasswordService : IPasswordService
             }
         }
 
-        var salt = _passwordOptions.Salt ?? DefaultHash;
+        if (_passwordOptions.Salt == null)
+        {
+            _logger.LogDebug("$No salt provided, using default");
+        }
+        var salt = _passwordOptions.Salt ?? DefaultSalt;
         var hashedPassword = GenerateHash(password, salt);
 
         return Response.Success(hashedPassword);
     }
 
-    public static string GenerateHash(string password, string salt)
+    private static string GenerateHash(string password, string salt)
     {
         var key = string.Join(":", password, salt);
         using var hmac = HMAC.Create("HmacSHA256");

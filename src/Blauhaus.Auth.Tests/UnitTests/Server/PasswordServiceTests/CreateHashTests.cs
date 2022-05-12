@@ -20,7 +20,7 @@ public class CreateHashTests : BasePasswordServiceTest
         Services.Configure<PasswordOptions>(options => options.RequiredLenth = 12);
 
         //Act
-        var result = Sut.CreateHash("121213131");
+        var result = Sut.CreateHashedPassword("121213131");
 
         //Assert
         MockLogger.VerifyLogErrorResponse(PasswordError.TooShort(3), result);
@@ -33,7 +33,7 @@ public class CreateHashTests : BasePasswordServiceTest
         Services.Configure<PasswordOptions>(options => options.RequiredSpecialCharacters = 2);
 
         //Act
-        var result = Sut.CreateHash("12121313$");
+        var result = Sut.CreateHashedPassword("12121313$");
 
         //Assert
         MockLogger.VerifyLogErrorResponse(PasswordError.TooFewSpecialCharacters(2), result);
@@ -46,7 +46,7 @@ public class CreateHashTests : BasePasswordServiceTest
         Services.Configure<PasswordOptions>(options => options.Salt = "12345");
 
         //Act
-        var result = Sut.CreateHash("12123413");
+        var result = Sut.CreateHashedPassword("12123413");
 
         //Assert
         var expectedHash = GenerateHash("12123413", "12345");
@@ -60,7 +60,7 @@ public class CreateHashTests : BasePasswordServiceTest
         Services.Configure<PasswordOptions>(options => options.Salt = null);
 
         //Act
-        var result = Sut.CreateHash("12123413");
+        var result = Sut.CreateHashedPassword("12123413");
 
         //Assert
         var expectedHash = GenerateHash("12123413", "a&6*_0b72a4a547548574be2e53e1821^^3");
