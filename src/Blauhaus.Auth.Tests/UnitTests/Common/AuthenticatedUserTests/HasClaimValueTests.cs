@@ -1,7 +1,7 @@
-﻿using Blauhaus.Auth.Tests.UnitTests.Abstractions.AuthenticatedUserTests._Base;
+﻿using Blauhaus.Auth.Tests.UnitTests.Common.AuthenticatedUserTests.Base;
 using NUnit.Framework;
 
-namespace Blauhaus.Auth.Tests.UnitTests.Abstractions.AuthenticatedUserTests
+namespace Blauhaus.Auth.Tests.UnitTests.Common.AuthenticatedUserTests
 {
     public class HasClaimValueTests : BaseAuthenticatedUserTest
     {

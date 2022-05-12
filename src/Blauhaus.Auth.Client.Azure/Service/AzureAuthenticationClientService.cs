@@ -12,6 +12,7 @@ using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Auth.Client.Azure.Config;
 using Blauhaus.Auth.Client.Azure.MsalProxy;
+using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Errors;
 using Microsoft.Extensions.Logging;
 

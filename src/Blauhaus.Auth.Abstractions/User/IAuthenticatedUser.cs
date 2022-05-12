@@ -14,7 +14,6 @@ namespace Blauhaus.Auth.Abstractions.User
         bool HasClaim(string name);
         bool HasClaimValue(string name, string value);
         bool TryGetClaimValue(string name, out string value);
-
-
     }
+    
 }

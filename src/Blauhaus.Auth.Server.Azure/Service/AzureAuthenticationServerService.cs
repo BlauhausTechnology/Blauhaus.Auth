@@ -7,6 +7,7 @@ using Blauhaus.Analytics.Abstractions.Extensions;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
+using Blauhaus.Auth.Common.UserFactory;
 using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.HttpClientService.Abstractions;

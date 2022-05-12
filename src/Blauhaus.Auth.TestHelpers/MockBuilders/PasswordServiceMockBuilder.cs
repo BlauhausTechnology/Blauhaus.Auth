@@ -20,7 +20,7 @@ public class PasswordServiceMockBuilder : BaseMockBuilder<PasswordServiceMockBui
         return this;
     }
 
-    public Error Where_GenerateHashedPassword_fails(Error? error)
+    public Error Where_GenerateHashedPassword_fails(Error? error = null)
     {
         error ??= Error.Create(Guid.NewGuid().ToString());
         Mock.Setup(x => x.CreateHashedPassword(It.IsAny<string>())).Returns(Response.Failure<string>(error.Value));

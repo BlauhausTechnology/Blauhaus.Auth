@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
+using Blauhaus.Auth.Abstractions.User;
 
-namespace Blauhaus.Auth.Abstractions.User
+namespace Blauhaus.Auth.Common.UserFactory
 {
     public class AuthenticatedUser : IAuthenticatedUser
     {
@@ -22,13 +23,13 @@ namespace Blauhaus.Auth.Abstractions.User
         }
 
         [JsonConstructor]
-        public AuthenticatedUser(Guid userId, string? emailAddress, IEnumerable<UserClaim> claims, string authPolicy = "", string[]? scopes = default)
+        public AuthenticatedUser(Guid userId, string? emailAddress = null, IReadOnlyList<UserClaim>? claims = default, string authPolicy = "", string[]? scopes = default)
         {
             UserId = userId;
             EmailAddress = emailAddress;
             AuthPolicy = authPolicy;
             Scopes = scopes ?? Array.Empty<string>();
-            Claims = claims.ToList();
+            Claims = claims ?? Array.Empty<UserClaim>();
         }
 
         public static AuthenticatedUser CreateAdmin(IAuthenticatedUser authenticatedUser)
@@ -82,5 +83,6 @@ namespace Blauhaus.Auth.Abstractions.User
 
             return s.ToString();
         }
+
     }
 }

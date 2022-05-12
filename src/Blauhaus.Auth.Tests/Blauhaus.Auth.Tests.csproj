@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="UnitTests\.Base\BaseAuthTest.cs" />
     <Compile Include="UnitTests\Client\AzureAuthenticationClientServiceTests\.Base\BaseAuthenticationClientServiceTest.cs" />
+    <Compile Include="UnitTests\Common\AuthenticatedUserTests\.Base\BaseAuthenticatedUserTest.cs" />
     <Compile Include="UnitTests\Server\JwtTokenFactoryTests\.Base\BaseJwtTokenFactoryTest.cs" />
     <Compile Include="UnitTests\Server\PasswordServiceTests\.Base\BasePasswordServiceTest.cs" />
   </ItemGroup>
