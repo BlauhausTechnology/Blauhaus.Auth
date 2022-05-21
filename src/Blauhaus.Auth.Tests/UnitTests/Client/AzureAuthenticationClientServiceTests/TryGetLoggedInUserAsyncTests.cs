@@ -28,7 +28,7 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
         Assert.That(result.User.UserId, Is.EqualTo(UserId));
         Assert.That(result.User.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
-        var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
+        var userType = result.User.UserClaims.FirstOrDefault(x => x.Name == "UserType");
         Assert.That(userType, Is.Not.Null);
         Assert.That(userType.Value, Is.EqualTo("Admin"));
         MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
@@ -50,7 +50,7 @@ public class TryGetLoggedInUserAsyncTests : BaseAuthenticationClientServiceTest
         Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
         Assert.That(result.User.UserId, Is.EqualTo(UserId));
         Assert.That(result.User.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
-        var userType = result.User.Claims.FirstOrDefault(x => x.Name == "UserType");
+        var userType = result.User.UserClaims.FirstOrDefault(x => x.Name == "UserType");
         Assert.That(userType, Is.Not.Null);
         Assert.That(userType.Value, Is.EqualTo("Admin"));
         MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));

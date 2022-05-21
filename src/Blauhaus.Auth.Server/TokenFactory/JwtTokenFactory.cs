@@ -41,7 +41,7 @@ namespace Blauhaus.Auth.Server.TokenFactory
             if(authenticatedUser.EmailAddress!=null)
                 claims.Add(UserClaim.EmailAddress(authenticatedUser.EmailAddress).ToClaim());
 
-            foreach (var authenticatedUserClaim in authenticatedUser.Claims)
+            foreach (var authenticatedUserClaim in authenticatedUser.UserClaims)
             {
                 claims.Add(authenticatedUserClaim.ToCustomClaim());
             }

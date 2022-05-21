@@ -9,7 +9,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
 {
     public class ExtractFromTokenTests : BaseAuthTest<AuthenticatedUserFactory>
     {
-        private string _token;
+        private string _token = null!;
 
         public override void Setup()
         {

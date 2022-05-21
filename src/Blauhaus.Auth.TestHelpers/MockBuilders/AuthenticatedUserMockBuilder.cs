@@ -16,7 +16,7 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
             var id = userId ?? Guid.NewGuid();
             With(x => x.EmailAddress, Guid.NewGuid() + "@freever.com");
             With(x => x.UserId, id);
-            With(x => x.Claims, _claims);
+            With(x => x.UserClaims, _claims);
         }
         public AuthenticatedUserMockBuilder With_EmailAddress(string emailAddress)
         {
@@ -49,7 +49,7 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
             Mock.Setup(x => x.TryGetClaimValue(claim.Name, out val)).Returns(true);
             
             _claims.Add(claim);
-            With(x => x.Claims, _claims);
+            With(x => x.UserClaims, _claims);
             
             return this;
         }

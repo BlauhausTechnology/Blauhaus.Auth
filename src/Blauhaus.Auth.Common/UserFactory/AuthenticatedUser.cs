@@ -9,6 +9,8 @@ namespace Blauhaus.Auth.Common.UserFactory
 {
     public class AuthenticatedUser : IAuthenticatedUser
     {
+        private readonly Dictionary<string,string> _claims;
+
         public AuthenticatedUser()
         {
         }
@@ -19,17 +21,23 @@ namespace Blauhaus.Auth.Common.UserFactory
             EmailAddress = user.EmailAddress;
             AuthPolicy = user.AuthPolicy;
             Scopes = user.Scopes;
-            Claims = user.Claims;
+            UserClaims = user.UserClaims;
         }
 
         [JsonConstructor]
-        public AuthenticatedUser(Guid userId, string? emailAddress = null, IReadOnlyList<UserClaim>? claims = default, string authPolicy = "", string[]? scopes = default)
+        public AuthenticatedUser(Guid userId, string? emailAddress = null, IReadOnlyList<UserClaim>? userClaims = default, string authPolicy = "", string[]? scopes = default)
         {
             UserId = userId;
             EmailAddress = emailAddress;
             AuthPolicy = authPolicy;
             Scopes = scopes ?? Array.Empty<string>();
-            Claims = claims ?? Array.Empty<UserClaim>();
+            UserClaims = userClaims ?? Array.Empty<UserClaim>();
+            
+            _claims = new Dictionary<string, string>();
+            foreach (var userClaim in UserClaims)
+            {
+                _claims[userClaim.Name] = userClaim.Value;
+            }
         }
 
         public static AuthenticatedUser CreateAdmin(IAuthenticatedUser authenticatedUser)
@@ -41,23 +49,23 @@ namespace Blauhaus.Auth.Common.UserFactory
         public string? EmailAddress { get; }
         public string AuthPolicy { get; } = string.Empty;
         public string[] Scopes { get; } = Array.Empty<string>();
-        public IReadOnlyList<UserClaim> Claims { get; } = Array.Empty<UserClaim>();
+        public IReadOnlyList<UserClaim> UserClaims { get; } = Array.Empty<UserClaim>();
 
         public bool HasClaim(string name)
         {
-            var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
             return claim is { Name: { }, Value: { } };
         }
 
         public bool HasClaimValue(string name, string value)
         {
-            var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
             return claim?.Name != default && string.Equals(claim.Value, value, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public bool TryGetClaimValue(string name, out string value)
         {
-            var claim = Claims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
+            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
             if (claim is { Name: { }, Value: { } })
             {
                 value = claim.Value;
@@ -72,7 +80,7 @@ namespace Blauhaus.Auth.Common.UserFactory
         {
             var pefixLowered = prefix.ToLower();
             var claims = new Dictionary<string, string>();
-            foreach (var claim in Claims)
+            foreach (var claim in UserClaims)
             {
                 if (claim.Name.ToLower().StartsWith(pefixLowered))
                 {
@@ -90,7 +98,7 @@ namespace Blauhaus.Auth.Common.UserFactory
             if (EmailAddress != null)
                 s.Append($" [{EmailAddress}] ");
 
-            foreach (var userClaim in Claims)
+            foreach (var userClaim in UserClaims)
             {
                 s.Append(userClaim);
             }
@@ -98,5 +106,6 @@ namespace Blauhaus.Auth.Common.UserFactory
             return s.ToString();
         }
 
+        public IReadOnlyDictionary<string, string> Claims => _claims;
     }
 }
