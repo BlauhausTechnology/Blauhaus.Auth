@@ -49,14 +49,21 @@ public class PasswordService : IPasswordService
         {
             _logger.LogDebug("$No salt provided, using default");
         }
-        var salt = _passwordOptions.Salt ?? DefaultSalt;
-        var hashedPassword = GenerateHash(password, salt);
+        
+        var hashedPassword = GenerateHash(password);
 
         return Response.Success(hashedPassword);
     }
 
-    private static string GenerateHash(string password, string salt)
+    public bool IsMatch(string plainTextPassword, string hashedPassword)
     {
+        var hashOfInputPassword = GenerateHash(plainTextPassword);
+        return string.Equals(hashOfInputPassword, hashedPassword);
+    }
+
+    private string GenerateHash(string password)
+    {
+        var salt = _passwordOptions.Salt ?? DefaultSalt;
         var key = string.Join(":", password, salt);
         using var hmac = HMAC.Create("HmacSHA256");
         hmac!.Key = Encoding.UTF8.GetBytes(salt);
