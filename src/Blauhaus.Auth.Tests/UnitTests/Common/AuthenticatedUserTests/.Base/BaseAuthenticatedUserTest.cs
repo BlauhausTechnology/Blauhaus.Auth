@@ -13,7 +13,9 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AuthenticatedUserTests.Base
         protected readonly IReadOnlyList<UserClaim> MockClaims = new List<UserClaim>
         {
             new UserClaim("FavouriteColour", "Blue"),
-            new UserClaim("FavouriteBand", "Deep Purple")
+            new UserClaim("FavouriteBand", "Deep Purple"),
+            new UserClaim("myPrefix_Food", "Bananas Apples Pears"),
+            new UserClaim("myPrefix_Dogs", "Puppies Squirrels"),
         };
 
         protected override AuthenticatedUser ConstructSut()

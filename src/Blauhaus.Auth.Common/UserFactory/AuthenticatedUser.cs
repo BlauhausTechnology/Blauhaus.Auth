@@ -68,6 +68,20 @@ namespace Blauhaus.Auth.Common.UserFactory
             return false;
         }
 
+        public Dictionary<string, string> GetClaimValuesByPrefix(string prefix)
+        {
+            var pefixLowered = prefix.ToLower();
+            var claims = new Dictionary<string, string>();
+            foreach (var claim in Claims)
+            {
+                if (claim.Name.ToLower().StartsWith(pefixLowered))
+                {
+                    claims[claim.Name.Replace(prefix, "")] = claim.Value;
+                }
+            }
+            return claims;
+        }
+
         public override string ToString()
         {
             var s = new StringBuilder()
