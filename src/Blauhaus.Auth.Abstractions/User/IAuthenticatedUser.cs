@@ -3,7 +3,7 @@ using Blauhaus.Common.Abstractions;
 
 namespace Blauhaus.Auth.Abstractions.User
 {
-    public interface IAuthenticatedUser : IHasUserId, IHasClaims
+    public interface IAuthenticatedUser : IHasUserId, IHasProperties
     {
         string? EmailAddress { get; }
 
