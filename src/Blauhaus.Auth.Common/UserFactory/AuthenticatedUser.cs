@@ -9,7 +9,6 @@ namespace Blauhaus.Auth.Common.UserFactory
 {
     public class AuthenticatedUser : IAuthenticatedUser
     {
-        private readonly Dictionary<string,string> _claims;
 
         public AuthenticatedUser()
         {
@@ -33,10 +32,10 @@ namespace Blauhaus.Auth.Common.UserFactory
             Scopes = scopes ?? Array.Empty<string>();
             UserClaims = userClaims ?? Array.Empty<UserClaim>();
             
-            _claims = new Dictionary<string, string>();
+            Properties = new Dictionary<string, string>();
             foreach (var userClaim in UserClaims)
             {
-                _claims[userClaim.Name] = userClaim.Value;
+                Properties[userClaim.Name] = userClaim.Value;
             }
         }
 
@@ -106,6 +105,6 @@ namespace Blauhaus.Auth.Common.UserFactory
             return s.ToString();
         }
 
-        public IReadOnlyDictionary<string, string> Claims => _claims;
+        public Dictionary<string, string> Properties { get; }  
     }
 }
