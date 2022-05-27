@@ -97,22 +97,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             Assert.That(roleLevel.Value, Is.EqualTo("120"));
         }
 
-        
-        [Test]
-        public async Task SHOULD_log_operation_and_trace()
-        {
-            //Arrange
-            MockHttpClientService.Mock.Setup(x => x.GetAsync<Dictionary<string, object>>(It.IsAny<IHttpRequestWrapper>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(_serializedAzureUser);
-            
-            //Act
-            await Sut.GetUserFromAzureAsync(_userObjectId, CancellationToken.None);
-
-            //Assert
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "User profile retrieved from Azure AD", 
-                LogSeverity.Verbose, It.Is<Dictionary<string, object>>(y => ((IAuthenticatedUser)y["AzureADUser"]).UserId == _userObjectId), It.IsAny<string>()));
-        }
-
+         
 
         [Test]
         public async Task IF_Email_Address_is_not_valid_SHOULD_make_it_null()

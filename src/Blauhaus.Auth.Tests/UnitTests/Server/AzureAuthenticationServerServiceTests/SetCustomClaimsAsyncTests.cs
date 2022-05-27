@@ -110,11 +110,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 ["extension_b2ea915621b940d8ae234cbb3a776931_RoleLevel"] = "120",
                 ["extension_b2ea915621b940d8ae234cbb3a776931_LuckyNumber"] = "12",
             };
-            MockAnalyticsService.Mock.Verify(x => x.Trace(Sut, "Custom claims set", LogSeverity.Information, It.Is<Dictionary<string, object>>(y =>
-                (string)y["RoleLevel"] == "120" &&
-                (string)y["LuckyNumber"] == "12" &&
-                (Guid)y["UserId"] == _userObjectId &&
-                y["Json"].ToString() == expectedJson.ToString()), It.IsAny<string>()));
+             
         }
     }
 }

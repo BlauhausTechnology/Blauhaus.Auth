@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Blauhaus.Analytics.Abstractions;
 using Blauhaus.Analytics.Abstractions.Extensions;
 using Blauhaus.Analytics.Abstractions.Service;
 using Blauhaus.Auth.Abstractions.Services;
@@ -12,6 +13,7 @@ using Blauhaus.Auth.Server.Azure.AdalProxy;
 using Blauhaus.Auth.Server.Azure.Config;
 using Blauhaus.HttpClientService.Abstractions;
 using Blauhaus.HttpClientService.Request;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
 namespace Blauhaus.Auth.Server.Azure.Service
@@ -19,7 +21,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
     public class AzureAuthenticationServerService : IAzureAuthenticationServerService 
     {
         private readonly IHttpClientService _httpClientService;
-        private readonly IAnalyticsService _analyticsService;
+        private readonly IAnalyticsLogger<AzureAuthenticationServerService> _logger;
         private readonly IAdalAuthenticationContextProxy _adalAuthenticationContext;
 
         private readonly string _endpointPrefix;
@@ -30,10 +32,10 @@ namespace Blauhaus.Auth.Server.Azure.Service
             IHttpClientService httpClientService,
             IAzureActiveDirectoryServerConfig config,
             IAdalAuthenticationContextProxy adalAuthenticationContext,
-            IAnalyticsService analyticsService)
+            IAnalyticsLogger<AzureAuthenticationServerService> logger)
         {
             _httpClientService = httpClientService;
-            _analyticsService = analyticsService;
+            _logger = logger;
             _adalAuthenticationContext = adalAuthenticationContext;
             _customPropertyNamePrefix = $"extension_{config.ExtensionsApplicationId}_";
             _endpointPrefix = $"{config.GraphEndpoint}{config.TenantId}";
@@ -54,9 +56,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 .WithAuthorizationHeader("Bearer", accessToken);
 
             await _httpClientService.PatchAsync<string>(request, token);
-            _analyticsService.Trace(this, "Custom claims set", LogSeverity.Information, json.ToObjectDictionary("Json")
-                .WithValue("UserId", userId)
-                .WithValues(claims));
+            _logger.LogInformation("Custom claims {@Claims} set for user {UserId}", claims, userId);
         }
 
         public async Task<IAuthenticatedUser> GetUserFromAzureAsync(Guid userId, CancellationToken token)
@@ -98,7 +98,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             var user = new AuthenticatedUser(userId, emailAddress, claims);
             
-            _analyticsService.Trace(this, "User profile retrieved from Azure AD", LogSeverity.Verbose, user.ToObjectDictionary("AzureADUser"));
+            _logger.LogDebug("User profile retrieved from Azure AD {@AzureUser}", user);
 
             return user;
 
@@ -112,7 +112,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             if (!claimsPrincipal.Identity.IsAuthenticated)
             {
-                _analyticsService.Trace(this, "User is not authenticated", LogSeverity.Error);
+                _logger.LogWarning("User is not authenticated");
                 throw new UnauthorizedAccessException("User is not authenticated");
             }
 
@@ -135,13 +135,13 @@ namespace Blauhaus.Auth.Server.Azure.Service
 
             if (userId == Guid.Empty)
             {
-                _analyticsService.Trace(this, "Invalid Identity", LogSeverity.Error);
+                _logger.LogWarning("Invalid Identity");
                 throw new UnauthorizedAccessException("Invalid Identity");
             }
 
             var user = new AuthenticatedUser(userId, emailAddress, userClaims);
 
-            _analyticsService.Trace(this, "User profile extracted from ClaimsPrincipal: " + user.UserId);
+            _logger.LogTrace("User profile extracted from ClaimsPrincipal: " + user.UserId);
             
             return user;
         }

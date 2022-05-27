@@ -33,7 +33,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
-            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
 
         }
         
@@ -46,7 +45,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "Invalid Identity");
-            MockAnalyticsService.VerifyTrace("Invalid Identity", LogSeverity.Error);
         }
 
         [Test]
@@ -59,7 +57,6 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.Throws<UnauthorizedAccessException>(() => Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal), "User is not authenticated");
-            MockAnalyticsService.VerifyTrace("User is not authenticated", LogSeverity.Error);
         }
         
         [Test]
@@ -119,24 +116,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
 
             //Assert
             Assert.That(result.HasClaimValue("HappyId", "12345"), Is.True);
-        }
-
-        [Test]
-        public void SHOULD_trace()
-        {
-            //Arrange
-            var claimsPrincipal = new ClaimsPrincipalBuilder()
-                .With_UserObjectId(_userId)
-                .With_Claim("emails", "bob@freever.com")
-                .With_NameIdentifier("MyNameIs").Build();
-
-            //Act
-            Sut.ExtractUserFromClaimsPrincipal(claimsPrincipal);
-
-            //Assert
-            MockAnalyticsService.VerifyTrace("User profile extracted from ClaimsPrincipal: " + _userId);
-
-        }
+        } 
 
     }
 }

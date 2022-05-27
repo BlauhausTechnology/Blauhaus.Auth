@@ -13,12 +13,13 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
     public class BaseAzureAuthenticationServerServiceTest : BaseUnitTest<AzureAuthenticationServerService>
     {
         
-        protected MockBuilder<IServiceProvider> MockServiceProvider;
-        internal MockBuilder<IAdalAuthenticationContextProxy> MockAdalAuthenticationContext;
-        internal MockBuilder<IAzureActiveDirectoryServerConfig> MockAzureActiveDirectoryServerConfig;
-        internal MockBuilder<IHttpClientService> MockHttpClientService;
-        internal AnalyticsServiceMockBuilder MockAnalyticsService;
-
+        protected MockBuilder<IServiceProvider> MockServiceProvider= null!;
+        internal MockBuilder<IAdalAuthenticationContextProxy> MockAdalAuthenticationContext= null!;
+        internal MockBuilder<IAzureActiveDirectoryServerConfig> MockAzureActiveDirectoryServerConfig= null!;
+        internal MockBuilder<IHttpClientService> MockHttpClientService = null!;
+        protected AnalyticsLoggerMockBuilder<AzureAuthenticationServerService> MockLogger = null!;
+        
+        
         [SetUp]
         public virtual void Setup()
         {
@@ -27,7 +28,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             MockServiceProvider = new MockBuilder<IServiceProvider>();
             MockAzureActiveDirectoryServerConfig = new MockBuilder<IAzureActiveDirectoryServerConfig>();
             MockHttpClientService = new MockBuilder<IHttpClientService>();
-            MockAnalyticsService = new AnalyticsServiceMockBuilder();
+            MockLogger = new AnalyticsLoggerMockBuilder<AzureAuthenticationServerService>();
 
             MockServiceProvider.Mock.Setup(x => x.GetService(typeof(IAdalAuthenticationContextProxy)))
                 .Returns(MockAdalAuthenticationContext.Object);
@@ -39,7 +40,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
                 MockHttpClientService.Object,
                 MockAzureActiveDirectoryServerConfig.Object,
                 MockAdalAuthenticationContext.Object,
-                MockAnalyticsService.Object);
+                MockLogger.Object);
         }
     }
 }
