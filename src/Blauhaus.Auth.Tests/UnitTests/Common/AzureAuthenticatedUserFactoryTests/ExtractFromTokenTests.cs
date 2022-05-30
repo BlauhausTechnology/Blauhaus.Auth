@@ -11,6 +11,22 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
     {
         private string _token = null!;
 
+        public class AllTokens : ExtractFromTokenTests
+        {
+            
+            [Test]
+            public void IF_token_is_invalid_SHOULD_fail()
+            {
+                //Act
+                var result = Sut.ExtractFromJwtToken("blooper");
+
+                //Assert 
+                MockLogger.VerifyLogErrorResponse(AuthError.InvalidToken, result);
+            }
+        }
+        public class AzureToken : ExtractFromTokenTests
+        {
+            
         public override void Setup()
         {
             base.Setup();
@@ -59,15 +75,48 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AzureAuthenticatedUserFactoryTest
             Assert.That(result.Value.EmailAddress, Is.EqualTo("tester1@blauhaustechnology.com"));
         }
          
+        }
         
+        public class OpenIddictToken : ExtractFromTokenTests
+        {
+            
+        public override void Setup()
+        {
+            base.Setup();
+
+            _token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlZFQVdRQTJBRFlJMUVQSjlSMUItNU5MM1gzTktBQ0xWVUNLWUFaOU0iLCJ0eXAiOiJhdCtqd3QiLCJjdHkiOiJKV1QifQ.eyJzdWIiOiJkYmYwZGJhMC0yNTI0LTQyZjctYWFmOC1mNTg3ZWQ3NWI2NWEiLCIwM2M1YTZlNC1mNjk0LTQ4YWItOTkyMC03OTk3ZjY3MDI5ZjIiOiJkYmYwZGJhMC0yNTI0LTQyZjctYWFmOC1mNTg3ZWQ3NWI2NWEiLCJvaV9wcnN0IjoiZTAxOWZjNTItMTM2Mi00MGM0LWJmNDctNmIwOGU1MzllN2QyIiwiY2xpZW50X2lkIjoiZTAxOWZjNTItMTM2Mi00MGM0LWJmNDctNmIwOGU1MzllN2QyIiwib2lfdGtuX2lkIjoiODYyY2ZjNGYtODllNC00ZTg0LWJjOTQtYTllNzU1MjJmNzBmIiwic2NvcGUiOiJvcGVuaWQiLCJleHAiOjE2NTM5MTcxMjMsImlzcyI6Imh0dHBzOi8vbG9jYWxob3N0OjYzMDEvIiwiaWF0IjoxNjUzOTEzNTIzfQ.V-Wj6yi86M4RpXBLnagXz7D11EtnyGmN5cF-WoIeBOS4OaPyGLLXlwBV5vPclquHyN4UgXITUKrADZ7pRuaRcaIEumZKqi8Uc_foE_S6Cbf1SXkmgHtKDLKc4x0WpU43QSYYoaAnmO91BtVRuPSmARlHLrGr3Nozo_yn4ax4-Ic-bZDF3KG5qjjTL7owL9BjK3McfbgI9sqBxaBdOuQMSE3BMAd6Y6YA-xRaE8aJFuGZBzdFi3e-x1oxIGrvr66KE5gl-FZKOeWJ7qH8YBF-nN_y4C7p3_gNuT5_Apeam1PW_F85QPADtNHMsQ2F6X8D8vFv7HLvwE_TyxwU8eMV5w";
+        }
         [Test]
-        public void IF_token_is_invalid_SHOULD_fail()
+        public void SHOULD_extract_Scopes()        
+        { 
+            //Act
+            var result = Sut.ExtractFromJwtToken(_token);
+
+            //Act
+            Assert.That(result.Value.Scopes[0], Is.EqualTo("openid")); 
+        }
+         
+        [Test]
+        public void SHOULD_extract_UserId_from_Sub()       
         {
             //Act
-            var result = Sut.ExtractFromJwtToken("blooper");
+            var result = Sut.ExtractFromJwtToken(_token);
 
-            //Assert 
-            MockLogger.VerifyLogErrorResponse(AuthError.InvalidToken, result);
+            //Act
+            Assert.That(result.Value.UserId, Is.EqualTo(Guid.Parse("dbf0dba0-2524-42f7-aaf8-f587ed75b65a")));
+        }
+          
+        
+        [Test]
+        public void SHOULD_extract_Guid_properties()
+        {
+            //Act
+            var result = Sut.ExtractFromJwtToken(_token);
+
+            //Assert
+            Assert.That(result.Value.Properties["03c5a6e4-f694-48ab-9920-7997f67029f2"], Is.EqualTo("dbf0dba0-2524-42f7-aaf8-f587ed75b65a"));
+        }
+         
         }
 
     }

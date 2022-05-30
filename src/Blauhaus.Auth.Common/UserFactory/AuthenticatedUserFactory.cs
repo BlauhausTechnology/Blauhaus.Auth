@@ -65,7 +65,7 @@ namespace Blauhaus.Auth.Common.UserFactory
                 {
                     authPolicy = claim.Value;
                 }
-                else if (claim.Type == "scp")
+                else if (claim.Type == "scp" || claim.Type == "scope")
                 {
                     scopes = claim.Value.Split(' ').ToArray();
                 }
@@ -73,6 +73,10 @@ namespace Blauhaus.Auth.Common.UserFactory
                 {
                     var claimName = claim.Type.Replace("extension_", "");
                     userClaims.Add(new UserClaim(claimName, claim.Value));
+                }
+                else if(Guid.TryParse(claim.Type, out var idClaim))
+                {
+                    userClaims.Add(new UserClaim(idClaim.ToString(), claim.Value));
                 }
             }
 
