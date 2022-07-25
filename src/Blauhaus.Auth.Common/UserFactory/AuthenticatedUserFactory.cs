@@ -9,6 +9,7 @@ using Blauhaus.Auth.Abstractions.Errors;
 using Blauhaus.Auth.Abstractions.Services;
 using Blauhaus.Auth.Abstractions.User;
 using Blauhaus.Responses;
+using Microsoft.Extensions.Logging;
 
 namespace Blauhaus.Auth.Common.UserFactory
 {
@@ -35,8 +36,9 @@ namespace Blauhaus.Auth.Common.UserFactory
 
         public Response<IAuthenticatedUser> ExtractFromClaimsPrincipal(ClaimsPrincipal claimsPrincipal)
         { 
-            if (!claimsPrincipal.Identity.IsAuthenticated)
+            if (claimsPrincipal.Identity is null || !claimsPrincipal.Identity.IsAuthenticated)
             {
+                _logger.LogWarning("Invalid claims principal, {@ClaimsPrincipal}", claimsPrincipal);
                 return _logger.LogErrorResponse<IAuthenticatedUser>(AuthError.NotAuthenticated);
             }
              

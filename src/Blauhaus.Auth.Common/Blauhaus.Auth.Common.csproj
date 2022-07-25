@@ -10,9 +10,9 @@
   </ItemGroup>
     
 	<ItemGroup> 
-		<PackageReference Include="Blauhaus.Analytics.Abstractions" Version="1.8.41" /> 
+		<PackageReference Include="Blauhaus.Analytics.Abstractions" Version="1.8.45" /> 
 		<PackageReference Include="Blauhaus.Time.Abstractions" Version="0.3.2" /> 
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.18.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.21.0" />
 	</ItemGroup>
 
   <ItemGroup>
