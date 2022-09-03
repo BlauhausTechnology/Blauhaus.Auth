@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Common.Abstractions" Version="2.1.12" />
+    <PackageReference Include="Blauhaus.Common.Abstractions" Version="2.1.15" />
     <PackageReference Include="Blauhaus.Errors" Version="0.4.11" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.5.1" />
     <PackageReference Include="Blauhaus.Responses" Version="0.4.11" />

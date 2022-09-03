@@ -8,7 +8,7 @@ namespace Blauhaus.Auth.Common.Ioc
     public static class ServiceCollectionExtensions
     {
         
-        public static IServiceCollection AddAzureUserFactory(this IServiceCollection services) 
+        public static IServiceCollection AddCommonAuthServices(this IServiceCollection services) 
         {
             services.TryAddTransient<IAuthenticatedUserFactory, AuthenticatedUserFactory>();
             return services;

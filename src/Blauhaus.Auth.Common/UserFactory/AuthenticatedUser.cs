@@ -48,6 +48,8 @@ namespace Blauhaus.Auth.Common.UserFactory
         public string? EmailAddress { get; }
         public string AuthPolicy { get; } = string.Empty;
         public string[] Scopes { get; } = Array.Empty<string>();
+        
+        [Obsolete("Use Properties instead")]
         public IReadOnlyList<UserClaim> UserClaims { get; } = Array.Empty<UserClaim>();
 
         public bool HasClaim(string name)

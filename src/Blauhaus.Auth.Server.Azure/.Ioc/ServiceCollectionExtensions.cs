@@ -22,7 +22,7 @@ namespace Blauhaus.Auth.Server.Azure.Ioc
             services.AddScoped<IAzureActiveDirectoryServerConfig, TConfig>();
             services.AddScoped<IAdalAuthenticationContextProxy, AdalAuthenticationContextProxy>();
 
-            return services.AddAzureUserFactory();
+            return services.AddCommonAuthServices();
         }
 
     }
