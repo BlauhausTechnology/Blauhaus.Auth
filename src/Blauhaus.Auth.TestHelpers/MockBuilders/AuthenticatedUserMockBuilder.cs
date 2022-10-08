@@ -6,41 +6,47 @@ using Moq;
 
 namespace Blauhaus.Auth.TestHelpers.MockBuilders
 {
-    public class AuthenticatedUserMockBuilder : BaseMockBuilder<AuthenticatedUserMockBuilder, IAuthenticatedUser>
+    public class AuthenticatedUserMockBuilder : BaseAuthenticatedUserMockBuilder<AuthenticatedUserMockBuilder, IAuthenticatedUser>
+    {
+    }
+
+    public abstract class BaseAuthenticatedUserMockBuilder<TBuilder, TMock> : BaseMockBuilder<TBuilder, TMock> 
+        where TBuilder : BaseAuthenticatedUserMockBuilder<TBuilder, TMock> 
+        where TMock : class, IAuthenticatedUser
     {
 
         private readonly Dictionary<string, string> _properties = new();
 
-        public AuthenticatedUserMockBuilder(Guid? userId = null)
+        protected BaseAuthenticatedUserMockBuilder(Guid? userId = null)
         {
             var id = userId ?? Guid.NewGuid();
             With(x => x.EmailAddress, Guid.NewGuid() + "@freever.com");
             With(x => x.UserId, id);
             With(x => x.Properties, _properties);
         }
-        public AuthenticatedUserMockBuilder With_EmailAddress(string emailAddress)
+        public TBuilder With_EmailAddress(string emailAddress)
         {
             With(x => x.EmailAddress, emailAddress);
-            return this;
+            return (TBuilder)this;
         }
-        public AuthenticatedUserMockBuilder Where_GetClaimValuesByPrefix_Returns(Dictionary<string, string> values)
+        public TBuilder Where_GetClaimValuesByPrefix_Returns(Dictionary<string, string> values)
         {
             base.Mock.Setup(x => x.GetClaimValuesByPrefix(It.IsAny<string>()))
                 .Returns(values);
-            return this;
+            return (TBuilder)this;
         }
-        public AuthenticatedUserMockBuilder Where_GetClaimValuesByPrefix_Returns(Dictionary<string, string> values, string prefix)
+        public TBuilder Where_GetClaimValuesByPrefix_Returns(Dictionary<string, string> values, string prefix)
         {
             base.Mock.Setup(x => x.GetClaimValuesByPrefix(prefix))
                 .Returns(values);
-            return this;
+            return (TBuilder)this;
         }
-        public AuthenticatedUserMockBuilder With_UserId(Guid id)
+        public TBuilder With_UserId(Guid id)
         {
             With(x => x.UserId, id);
-            return this;
+            return (TBuilder)this;
         }
-        public AuthenticatedUserMockBuilder With_Claim(string name, string value)
+        public TBuilder With_Claim(string name, string value)
         {
 
             Mock.Setup(x => x.HasClaim(name)).Returns(true);
@@ -50,7 +56,7 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
             _properties[name] = value;
             With(x => x.Properties, _properties);
             
-            return this;
+            return (TBuilder)this;
         }
     }
 }
