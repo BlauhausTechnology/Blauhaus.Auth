@@ -33,7 +33,7 @@ public class GenerateTokenForUserTests : BaseJwtTokenFactoryTest
     {
         //Arrange
         MockUser
-            .With_Claim(new UserClaim("FavouriteColour", "Blue"));
+            .With_Claim("FavouriteColour", "Blue");
 
         //Act
         var token = Sut.GenerateTokenForUser(MockUser.Object);

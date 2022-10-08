@@ -86,13 +86,13 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 }
             }
 
-            var claims = new List<UserClaim>();
+            var claims = new Dictionary<string, string>();
             foreach (var rawAzureProperty in azureUserValues)
             {
                 if (rawAzureProperty.Key.StartsWith(_customPropertyNamePrefix))
                 {
                     var claimType = rawAzureProperty.Key.Replace(_customPropertyNamePrefix, "");
-                    claims.Add(new UserClaim(claimType, rawAzureProperty.Value.ToString()));
+                    claims[claimType] = rawAzureProperty.Value.ToString() ?? string.Empty;
                 }
             }
 
@@ -108,9 +108,9 @@ namespace Blauhaus.Auth.Server.Azure.Service
         {
             string? emailAddress = null;
             var userId = Guid.Empty;
-            var userClaims = new List<UserClaim>();
+            var userClaims = new Dictionary<string, string>();
 
-            if (!claimsPrincipal.Identity.IsAuthenticated)
+            if (claimsPrincipal.Identity is not { IsAuthenticated: true })
             {
                 _logger.LogWarning("User is not authenticated");
                 throw new UnauthorizedAccessException("User is not authenticated");
@@ -129,7 +129,7 @@ namespace Blauhaus.Auth.Server.Azure.Service
                 else if (claim.Type.StartsWith("extension_"))
                 {
                     var claimName = claim.Type.Replace("extension_", "");
-                    userClaims.Add(new UserClaim(claimName, claim.Value));
+                    userClaims[claimName] = claim.Value;
                 }
             }
 

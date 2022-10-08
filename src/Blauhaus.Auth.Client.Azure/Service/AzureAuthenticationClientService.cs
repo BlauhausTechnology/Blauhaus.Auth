@@ -257,12 +257,12 @@ namespace Blauhaus.Auth.Client.Azure.Service
             var userId = Guid.Parse(msalClientResult.AuthenticationResult.UniqueId);
             string? emailAddress = null;
 
-            var claims = new List<UserClaim>();
+            var claims = new Dictionary<string, string>();
             foreach (var claim in token.Claims)
             {
                 if (claim.Type.StartsWith("extension_"))
                 {
-                    claims.Add(new UserClaim(claim.Type.Substring(10), claim.Value));
+                    claims[claim.Type.Substring(10)] = claim.Value;
                 }
                 else if (claim.Type == "emails")
                 {

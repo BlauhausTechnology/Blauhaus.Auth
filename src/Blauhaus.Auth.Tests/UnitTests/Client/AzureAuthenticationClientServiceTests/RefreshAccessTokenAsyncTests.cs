@@ -42,9 +42,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.RefreshToken));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
             Assert.That(result.User.UserId, Is.EqualTo(UserId));
-            var userType = result.User.UserClaims.FirstOrDefault(x => x.Name == "UserType");
-            Assert.That(userType, Is.Not.Null);
-            Assert.That(userType.Value, Is.EqualTo("Admin"));
+            Assert.That(result.User.HasClaimValue("UserType", "Admin")); 
             MockAuthenticatedAccessToken.Mock.Verify(x => x.SetAccessToken("Bearer", AccessToken));
             MockLogger.VerifySetValue("UserId", UserId);
         }

@@ -40,8 +40,8 @@ namespace Blauhaus.Auth.Tests.UnitTests.Client.AzureAuthenticationClientServiceT
             Assert.That(result.AuthenticationState, Is.EqualTo(UserAuthenticationState.Authenticated));
             Assert.That(result.AuthenticationMode, Is.EqualTo(AuthenticationMode.EditProfile));
             Assert.That(result.AuthenticatedAccessToken, Is.EqualTo(AccessToken));
-            Assert.That(result.User.UserId, Is.EqualTo(UserId));
-            var userType = result.User.UserClaims.FirstOrDefault(x => x.Name == "UserType");
+            Assert.That(result.User!.UserId, Is.EqualTo(UserId));
+            var userType = result.User.Properties.FirstOrDefault(x => x.Key == "UserType");
             Assert.That(userType, Is.Not.Null);
             Assert.That(userType.Value, Is.EqualTo("Admin")); 
         }

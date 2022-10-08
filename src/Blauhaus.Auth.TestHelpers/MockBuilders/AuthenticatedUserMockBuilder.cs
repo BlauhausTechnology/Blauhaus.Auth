@@ -9,14 +9,14 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
     public class AuthenticatedUserMockBuilder : BaseMockBuilder<AuthenticatedUserMockBuilder, IAuthenticatedUser>
     {
 
-        private readonly List<UserClaim> _claims = new();
+        private readonly Dictionary<string, string> _properties = new();
 
         public AuthenticatedUserMockBuilder(Guid? userId = null)
         {
             var id = userId ?? Guid.NewGuid();
             With(x => x.EmailAddress, Guid.NewGuid() + "@freever.com");
             With(x => x.UserId, id);
-            With(x => x.UserClaims, _claims);
+            With(x => x.Properties, _properties);
         }
         public AuthenticatedUserMockBuilder With_EmailAddress(string emailAddress)
         {
@@ -40,16 +40,15 @@ namespace Blauhaus.Auth.TestHelpers.MockBuilders
             With(x => x.UserId, id);
             return this;
         }
-        public AuthenticatedUserMockBuilder With_Claim(UserClaim claim)
+        public AuthenticatedUserMockBuilder With_Claim(string name, string value)
         {
-            var val = claim.Value;
 
-            Mock.Setup(x => x.HasClaim(claim.Name)).Returns(true);
-            Mock.Setup(x => x.HasClaimValue(claim.Name, claim.Value)).Returns(true);
-            Mock.Setup(x => x.TryGetClaimValue(claim.Name, out val)).Returns(true);
+            Mock.Setup(x => x.HasClaim(name)).Returns(true);
+            Mock.Setup(x => x.HasClaimValue(name, value)).Returns(true);
+            Mock.Setup(x => x.TryGetClaimValue(name, out value)).Returns(true);
             
-            _claims.Add(claim);
-            With(x => x.UserClaims, _claims);
+            _properties[name] = value;
+            With(x => x.Properties, _properties);
             
             return this;
         }

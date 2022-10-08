@@ -35,13 +35,14 @@ namespace Blauhaus.Auth.Server.TokenFactory
 
             var claims = new List<Claim>
             {
-                UserClaim.UserId(authenticatedUser.UserId).ToClaim()
+                new KeyValuePair<string, string>("sub", authenticatedUser.UserId.ToString()).ToClaim()
             };
 
-            if(authenticatedUser.EmailAddress!=null)
-                claims.Add(UserClaim.EmailAddress(authenticatedUser.EmailAddress).ToClaim());
-
-            foreach (var authenticatedUserClaim in authenticatedUser.UserClaims)
+            if (authenticatedUser.EmailAddress != null)
+            {
+                claims.Add(new KeyValuePair<string, string>("emails", authenticatedUser.EmailAddress).ToClaim());
+            }
+            foreach (var authenticatedUserClaim in authenticatedUser.Properties)
             {
                 claims.Add(authenticatedUserClaim.ToCustomClaim());
             }

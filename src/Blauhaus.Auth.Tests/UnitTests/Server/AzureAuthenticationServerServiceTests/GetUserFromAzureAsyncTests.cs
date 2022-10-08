@@ -92,9 +92,7 @@ namespace Blauhaus.Auth.Tests.UnitTests.Server.AzureAuthenticationServerServiceT
             //Assert
             Assert.That(result.EmailAddress, Is.EqualTo("adrian@maxxor.com"));
             Assert.That(result.UserId, Is.EqualTo(Guid.Parse("29d195eb-68d1-45a3-8183-5fd8b5a72c0c")));
-            var roleLevel = result.UserClaims.FirstOrDefault(x => x.Name == "RoleLevel");
-            Assert.That(roleLevel, Is.Not.Null);
-            Assert.That(roleLevel.Value, Is.EqualTo("120"));
+            Assert.That(result.HasClaimValue("RoleLevel", "120"));
         }
 
          

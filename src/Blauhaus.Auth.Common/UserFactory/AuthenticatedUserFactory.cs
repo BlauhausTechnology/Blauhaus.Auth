@@ -47,9 +47,9 @@ namespace Blauhaus.Auth.Common.UserFactory
 
         private Response<IAuthenticatedUser> ExtractClaims(IEnumerable<Claim> claims)
         {
-            string emailAddress = null;
+            string? emailAddress = null;
             var userId = Guid.Empty;
-            var userClaims = new List<UserClaim>();
+            var userClaims = new Dictionary<string, string>();
             var authPolicy = string.Empty;
             var scopes = Array.Empty<string>();
 
@@ -74,11 +74,11 @@ namespace Blauhaus.Auth.Common.UserFactory
                 else if (claim.Type.StartsWith("extension_"))
                 {
                     var claimName = claim.Type.Replace("extension_", "");
-                    userClaims.Add(new UserClaim(claimName, claim.Value));
+                    userClaims[claimName] = claim.Value;
                 }
                 else if(Guid.TryParse(claim.Type, out var idClaim))
                 {
-                    userClaims.Add(new UserClaim(idClaim.ToString(), claim.Value));
+                    userClaims[idClaim.ToString()] = claim.Value;
                 }
             }
 

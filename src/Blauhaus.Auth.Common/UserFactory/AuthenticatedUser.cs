@@ -20,28 +20,25 @@ namespace Blauhaus.Auth.Common.UserFactory
             EmailAddress = user.EmailAddress;
             AuthPolicy = user.AuthPolicy;
             Scopes = user.Scopes;
-            UserClaims = user.UserClaims;
+            Properties = user.Properties; 
         }
-
+         
         [JsonConstructor]
-        public AuthenticatedUser(Guid userId, string? emailAddress = null, IReadOnlyList<UserClaim>? userClaims = default, string authPolicy = "", string[]? scopes = default)
+        public AuthenticatedUser(Guid userId, string? emailAddress = null, IDictionary<string, string>? userClaims = default, string authPolicy = "", string[]? scopes = default)
         {
             UserId = userId;
             EmailAddress = emailAddress;
             AuthPolicy = authPolicy;
             Scopes = scopes ?? Array.Empty<string>();
-            UserClaims = userClaims ?? Array.Empty<UserClaim>();
             
             Properties = new Dictionary<string, string>();
-            foreach (var userClaim in UserClaims)
+            if (userClaims is not null)
             {
-                Properties[userClaim.Name] = userClaim.Value;
+                foreach (var userClaim in userClaims)
+                {
+                    Properties[userClaim.Key] = userClaim.Value;
+                }
             }
-        }
-
-        public static AuthenticatedUser CreateAdmin(IAuthenticatedUser authenticatedUser)
-        {
-            return new AuthenticatedUser(authenticatedUser.UserId, authenticatedUser.EmailAddress, new List<UserClaim> { UserClaim.Admin });
         }
 
         public Guid UserId { get; }
@@ -49,25 +46,26 @@ namespace Blauhaus.Auth.Common.UserFactory
         public string AuthPolicy { get; } = string.Empty;
         public string[] Scopes { get; } = Array.Empty<string>();
         
-        [Obsolete("Use Properties instead")]
-        public IReadOnlyList<UserClaim> UserClaims { get; } = Array.Empty<UserClaim>();
-
+ 
         public bool HasClaim(string name)
         {
-            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            return claim is { Name: { }, Value: { } };
+            var claim = Properties.FirstOrDefault(x => string.Equals(x.Key, name, StringComparison.InvariantCultureIgnoreCase));
+            return claim is { Key : { }, Value: { } };
         }
 
         public bool HasClaimValue(string name, string value)
         {
-            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            return claim?.Name != default && string.Equals(claim.Value, value, StringComparison.InvariantCultureIgnoreCase);
+            var claim = Properties.FirstOrDefault(x => 
+                string.Equals(x.Key, name, StringComparison.InvariantCultureIgnoreCase) && 
+                string.Equals(x.Value, value, StringComparison.InvariantCultureIgnoreCase));
+
+            return claim is { Key : { }, Value: { } };
         }
 
         public bool TryGetClaimValue(string name, out string value)
         {
-            var claim = UserClaims.FirstOrDefault(x => string.Equals(x.Name, name, StringComparison.InvariantCultureIgnoreCase));
-            if (claim is { Name: { }, Value: { } })
+            var claim = Properties.FirstOrDefault(x => string.Equals(x.Key, name, StringComparison.InvariantCultureIgnoreCase));
+            if (claim is { Key: { }, Value: { } })
             {
                 value = claim.Value;
                 return true;
@@ -81,11 +79,11 @@ namespace Blauhaus.Auth.Common.UserFactory
         {
             var pefixLowered = prefix.ToLower();
             var claims = new Dictionary<string, string>();
-            foreach (var claim in UserClaims)
+            foreach (var claim in Properties)
             {
-                if (claim.Name.ToLower().StartsWith(pefixLowered))
+                if (claim.Key.ToLower().StartsWith(pefixLowered))
                 {
-                    claims[claim.Name.Replace(prefix, "")] = claim.Value;
+                    claims[claim.Key.Replace(prefix, "")] = claim.Value;
                 }
             }
             return claims;
@@ -99,7 +97,7 @@ namespace Blauhaus.Auth.Common.UserFactory
             if (EmailAddress != null)
                 s.Append($" [{EmailAddress}] ");
 
-            foreach (var userClaim in UserClaims)
+            foreach (var userClaim in Properties)
             {
                 s.Append(userClaim);
             }

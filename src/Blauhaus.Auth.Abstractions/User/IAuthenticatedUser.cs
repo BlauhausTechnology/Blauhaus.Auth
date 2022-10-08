@@ -10,7 +10,6 @@ namespace Blauhaus.Auth.Abstractions.User
         public string AuthPolicy { get; }
         public string[] Scopes { get; }
 
-        IReadOnlyList<UserClaim> UserClaims { get; }
         bool HasClaim(string name);
         bool HasClaimValue(string name, string value);
         bool TryGetClaimValue(string name, out string value);

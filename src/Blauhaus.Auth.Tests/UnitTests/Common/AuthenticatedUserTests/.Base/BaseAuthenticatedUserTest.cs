@@ -10,12 +10,12 @@ namespace Blauhaus.Auth.Tests.UnitTests.Common.AuthenticatedUserTests.Base
     {
         protected readonly Guid MockUserId = Guid.NewGuid();
         protected readonly string MockEmailAddress = "bob@freever.com";
-        protected readonly IReadOnlyList<UserClaim> MockClaims = new List<UserClaim>
+        protected readonly Dictionary<string, string> MockClaims = new()
         {
-            new UserClaim("FavouriteColour", "Blue"),
-            new UserClaim("FavouriteBand", "Deep Purple"),
-            new UserClaim("myPrefix_Food", "Bananas Apples Pears"),
-            new UserClaim("myPrefix_Dogs", "Puppies Squirrels"),
+            ["FavouriteColour"] =  "Blue",
+            ["FavouriteBand"] =   "Deep Purple",
+            ["myPrefix_Food"] =   "Bananas Apples Pears",
+            ["myPrefix_Dogs"] =   "Puppies Squirrels",
         };
 
         protected override AuthenticatedUser ConstructSut()

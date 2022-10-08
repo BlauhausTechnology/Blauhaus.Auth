@@ -6,6 +6,7 @@
     <NullableContextOptions>enable</NullableContextOptions>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+      <Nullable>enable</Nullable>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
