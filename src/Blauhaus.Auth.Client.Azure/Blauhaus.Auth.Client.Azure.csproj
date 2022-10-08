@@ -16,9 +16,9 @@
 
   <ItemGroup>
     <PackageReference Include="Blauhaus.Analytics.Console" Version="1.9.11" />
-    <PackageReference Include="Blauhaus.Time" Version="0.3.2" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.46.2" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
+    <PackageReference Include="Blauhaus.Time" Version="0.3.3" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.47.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
   </ItemGroup>
 
   <ItemGroup>

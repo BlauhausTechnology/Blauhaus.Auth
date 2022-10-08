@@ -11,9 +11,9 @@
     
 	<ItemGroup> 
 		<PackageReference Include="Blauhaus.Analytics.Abstractions" Version="1.9.11" /> 
-		<PackageReference Include="Blauhaus.Time.Abstractions" Version="0.3.2" /> 
+		<PackageReference Include="Blauhaus.Time.Abstractions" Version="0.3.3" /> 
 		<PackageReference Include="IdentityModel" Version="6.0.0" /> 
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.22.1" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
 	</ItemGroup>
 
   <ItemGroup>
