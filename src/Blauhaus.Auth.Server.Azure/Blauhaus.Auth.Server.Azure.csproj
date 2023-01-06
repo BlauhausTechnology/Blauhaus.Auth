@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net6.0</TargetFramework>
+	  <TargetFramework>net7.0</TargetFramework>
 	  <LangVersion>latest</LangVersion>
     <NullableContextOptions>enable</NullableContextOptions>
     <IncludeSymbols>true</IncludeSymbols>
@@ -15,11 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blauhaus.Analytics.Console" Version="2.0.0" />
+    <PackageReference Include="Blauhaus.Analytics.Console" Version="2.0.2" />
     <PackageReference Include="Blauhaus.HttpClientService" Version="1.1.0" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.5.1" />
-    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.0" />
+    <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.3.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.25.1" />
   </ItemGroup>
 
   <ItemGroup>
