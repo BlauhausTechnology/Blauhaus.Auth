@@ -19,7 +19,7 @@
     <PackageReference Include="Blauhaus.HttpClientService" Version="1.1.0" />
     <PackageReference Include="Blauhaus.Ioc.Abstractions" Version="1.5.1" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
   </ItemGroup>
 
   <ItemGroup>
